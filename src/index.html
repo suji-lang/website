@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suji - The Expressive Scripting Language</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="ambient"></div>
+
+    <nav>
+        <a href="/" class="logo">su<span>ji</span></a>
+        <ul class="nav-links">
+            <li><a href="/docs">Docs</a></li>
+            <li><a href="/examples">Examples</a></li>
+            <li><a href="/blog">Blog</a></li>
+            <li>
+                <a href="https://github.com/suji-lang/suji" class="nav-github">
+                    <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <span class="version-badge">v0.1.22</span>
+                <h1>The <span>Suji</span> Programming Language</h1>
+                <p class="hero-tagline">
+                    A small, expressive language with pipes, pattern matching, shell integration, and a focus on clarity.
+                </p>
+                <div class="hero-actions">
+                    <a href="/docs/getting-started" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        Get Started
+                    </a>
+                    <a href="https://github.com/suji-lang/suji" class="btn btn-secondary">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-dot red"></span>
+                    <span class="code-dot yellow"></span>
+                    <span class="code-dot green"></span>
+                    <span class="code-filename">example.si</span>
+                </div>
+                <pre><code><span class="kw">import</span> <span class="mod">std:io</span>
+<span class="kw">import</span> <span class="mod">std:println</span>
+
+<span class="var">producer</span> <span class="op">=</span> <span class="op">||</span> {
+    <span class="fn">println</span>(<span class="str">"foo"</span>)
+    <span class="fn">println</span>(<span class="str">"bar"</span>)
+    <span class="fn">println</span>(<span class="str">"baz"</span>)
+}
+
+<span class="var">count_lines</span> <span class="op">=</span> <span class="op">||</span> {
+    <span class="var">lines</span> <span class="op">=</span> <span class="mod">io:stdin</span><span class="op">::</span><span class="fn">read_lines</span>()
+    <span class="kw">return</span> <span class="var">lines</span><span class="op">::</span><span class="fn">length</span>()
+}
+
+<span class="var">format</span> <span class="op">=</span> <span class="op">|</span><span class="var">n</span><span class="op">|</span> <span class="str">"matches: </span><span class="op">${</span><span class="var">n</span><span class="op">}</span><span class="str">"</span>
+
+<span class="fn">producer</span>() <span class="op">|</span> <span class="str">`grep ba`</span> <span class="op">|</span> <span class="fn">count_lines</span>()
+    <span class="op">|&gt;</span> <span class="var">format</span>
+    <span class="op">|&gt;</span> <span class="fn">println</span></code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-header">
+            <h2>Expressive by Design</h2>
+            <p>Suji combines the best ideas from functional and scripting languages into something that feels natural.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Pipes & Pipelines</h3>
+                <p>Stream data with shell-style <code>|</code> pipes or compose values with F#-style <code>|&gt;</code> and <code>&lt;|</code> operators.</p>
+                <div class="feature-code">
+                    <pre><code><span class="var">data</span>
+    <span class="op">|&gt;</span> <span class="fn">parse</span>
+    <span class="op">|&gt;</span> <span class="fn">transform</span>
+    <span class="op">|&gt;</span> <span class="fn">println</span></code></pre>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3>Pattern Matching</h3>
+                <p>Powerful match expressions with literals, regex patterns, conditions, and destructuring.</p>
+                <div class="feature-code">
+                    <pre><code><span class="kw">match</span> <span class="var">email</span> { 
+    <span class="str">/^admin@/</span> <span class="op">=&gt;</span> <span class="str">"admin"</span>,
+    <span class="str">/@corp\.com$/</span> <span class="op">=&gt;</span> <span class="str">"employee"</span>,
+    <span class="var">_</span> <span class="op">=&gt;</span> <span class="str">"guest"</span>,
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3>Shell Integration</h3>
+                <p>Execute commands with backticks, pipe to shell tools, and mix closures with Unix utilities seamlessly.</p>
+                <div class="feature-code">
+                    <code><span class="var">files</span> <span class="op">=</span> <span class="str">`ls -la | grep ".txt"`</span></code>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3>First-Class Functions</h3>
+                <p>Higher-order functions, closures, and function composition with <code>&gt;&gt;</code> and <code>&lt;&lt;</code> operators.</p>
+                <div class="feature-code">
+                    <pre><code><span class="var">transform</span> <span class="op">=</span>
+    <span class="var">inc</span> <span class="op">&gt;&gt;</span> <span class="var">double</span> <span class="op">&gt;&gt;</span> <span class="var">format</span></code></pre>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3>Rich Standard Library</h3>
+                <p>Built-in support for JSON, YAML, TOML, CSV parsing, cryptographic hashing, encoding, and more.</p>
+                <div class="feature-code">
+                    <pre><code><span class="var">config</span> <span class="op">=</span>
+    <span class="mod">io:open</span>(<span class="str">"config.yaml"</span>)
+        <span class="op">::</span><span class="fn">read_all</span>()
+    <span class="op">|&gt;</span> <span class="mod">yaml:parse</span></code></pre>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3>String Interpolation</h3>
+                <p>Embed expressions directly in strings and shell commands with <code>${...}</code> syntax.</p>
+                <div class="feature-code">
+                    <code><span class="str">"Hello, </span><span class="op">${</span><span class="var">name</span><span class="op">}</span><span class="str">! Sum: </span><span class="op">${</span><span class="num">1</span> <span class="op">+</span> <span class="num">2</span><span class="op">}</span><span class="str">"</span></code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <div class="example-container">
+            <div class="example-header">
+                <h2>See It In Action</h2>
+                <p>Quicksort in 14 lines of expressive, readable code.</p>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span class="code-dot red"></span>
+                    <span class="code-dot yellow"></span>
+                    <span class="code-dot green"></span>
+                    <span class="code-filename">sort.si</span>
+                </div>
+                <pre><code><span class="kw">import</span> <span class="mod">std:println</span>
+
+<span class="var">quicksort</span> <span class="op">=</span> <span class="op">|</span><span class="var">list</span><span class="op">|</span> {
+    <span class="kw">match</span> <span class="var">list</span><span class="op">::</span><span class="fn">length</span>() {
+        <span class="num">0</span> <span class="op">=&gt;</span> [],
+        <span class="num">1</span> <span class="op">=&gt;</span> <span class="var">list</span>,
+        <span class="var">_</span> <span class="op">=&gt;</span> {
+            <span class="var">pivot</span> <span class="op">=</span> <span class="var">list</span>[<span class="num">0</span>]
+            <span class="var">rest</span> <span class="op">=</span> <span class="var">list</span>[<span class="num">1</span>;]
+            <span class="var">left</span> <span class="op">=</span> <span class="var">rest</span><span class="op">::</span><span class="fn">filter</span>(<span class="op">|</span><span class="var">x</span><span class="op">|</span> <span class="var">x</span> <span class="op"><</span> <span class="var">pivot</span>)
+            <span class="var">right</span> <span class="op">=</span> <span class="var">rest</span><span class="op">::</span><span class="fn">filter</span>(<span class="op">|</span><span class="var">x</span><span class="op">|</span> <span class="var">x</span> <span class="op">&gt;=</span> <span class="var">pivot</span>)
+
+            <span class="fn">quicksort</span>(<span class="var">left</span>) <span class="op">+</span> [<span class="var">pivot</span>] <span class="op">+</span> <span class="fn">quicksort</span>(<span class="var">right</span>)
+        },
+    }
+}
+
+<span class="var">unsorted</span> <span class="op">=</span> [<span class="num">64</span>, <span class="num">34</span>, <span class="num">25</span>, <span class="num">12</span>, <span class="num">22</span>, <span class="num">11</span>, <span class="num">90</span>]
+<span class="fn">quicksort</span>(<span class="var">unsorted</span>) <span class="op">|&gt;</span> <span class="fn">println</span>  <span class="cmt"># [11, 12, 22, 25, 34, 64, 90]</span></code></pre>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="/docs">Documentation</a>
+            <a href="/examples">Examples</a>
+            <a href="https://github.com/suji-lang/suji">GitHub</a>
+            <a href="/blog">Blog</a>
+            <a href="/community">Community</a>
+        </div>
+        <p class="footer-copyright">
+            © 2025 The Suji Programming Language. Open source under MIT License.
+        </p>
+    </footer>
+</body>
+</html>
+
