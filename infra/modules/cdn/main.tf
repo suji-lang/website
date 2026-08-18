@@ -21,10 +21,10 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   default_cache_behavior {
-    compress = true
+    compress               = true
     viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = [ "GET", "HEAD" ]
-    cached_methods         = [ "GET", "HEAD" ]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     target_origin_id       = var.backend_fqdn
     min_ttl                = 0
     default_ttl            = 3600
@@ -33,7 +33,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     forwarded_values {
       query_string = false
       cookies {
-        forward    = "all"
+        forward = "all"
       }
     }
   }
@@ -55,4 +55,27 @@ resource "aws_cloudfront_distribution" "cdn" {
   is_ipv6_enabled     = true
   default_root_object = var.default_root_object
   aliases             = [var.domain_name, "www.${var.domain_name}"]
+}
+
+resource "aws_s3_bucket_policy" "cloudfront_oac_policy" {
+  bucket = var.backend_bucket_id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipal"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${var.backend_bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.cdn.arn
+          }
+        }
+      }
+    ]
+  })
 }

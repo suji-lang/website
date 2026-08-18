@@ -1,9 +1,9 @@
 variable "domain_name" {
-  type = string
+  type    = string
   default = "suji-lang.org"
 }
 
 variable "web_assets_path" {
-  type = string
+  type    = string
   default = "../src/"
 }
