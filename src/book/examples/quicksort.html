@@ -1,0 +1,573 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Quicksort Algorithm - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/examples/quicksort.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="quicksort-algorithm"><a class="header" href="#quicksort-algorithm">Quicksort Algorithm</a></h1>
+<p>Learn divide-and-conquer algorithms, pattern matching, and list operations.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>This example demonstrates:</p>
+<ul>
+<li>Recursive divide-and-conquer strategy</li>
+<li>Pattern matching on list length</li>
+<li>List filtering and concatenation</li>
+<li>Elegant functional implementation</li>
+</ul>
+<h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
+<ul>
+<li><a href="../functions/basics.html">Functions</a></li>
+<li><a href="../fundamentals/data-types/lists.html">Lists</a></li>
+<li><a href="../fundamentals/control-flow/match.html">Pattern Matching</a></li>
+<li><a href="../functions/recursion.html">Recursion</a></li>
+</ul>
+<h2 id="complete-code"><a class="header" href="#complete-code">Complete Code</a></h2>
+<pre><code class="language-suji">import std:println
+
+quicksort = |list| {
+    match list::length() {
+        0 =&gt; [],
+        1 =&gt; list,
+        _ =&gt; {
+            pivot = list[0]
+            rest = list[1;]
+            left = rest::filter(|x| x &lt; pivot)
+            right = rest::filter(|x| x &gt;= pivot)
+
+            quicksort(left) + [pivot] + quicksort(right)
+        },
+    }
+}
+
+numbers = [5, 3, 8, 1, 9, 2, 7]
+println("Original: ${numbers::join(", ")}")
+println("Sorted: ${quicksort(numbers)::join(", ")}")
+
+# The same function sorts strings, since `&lt;` compares them too
+println(quicksort(["pear", "apple", "fig"])::join(", "))
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Original: 5, 3, 8, 1, 9, 2, 7
+Sorted: 1, 2, 3, 5, 7, 8, 9
+apple, fig, pear
+</code></pre>
+<h2 id="step-by-step-explanation"><a class="header" href="#step-by-step-explanation">Step-by-Step Explanation</a></h2>
+<h3 id="1-base-cases"><a class="header" href="#1-base-cases">1. Base Cases</a></h3>
+<pre><code class="language-suji">import std:println
+
+base_cases = |list| {
+    match list::length() {
+        0 =&gt; [],
+        1 =&gt; list,
+        _ =&gt; "needs partitioning",
+    }
+}
+
+println(base_cases([]))       # []
+println(base_cases([42]))     # [42]
+println(base_cases([2, 1]))   # needs partitioning
+</code></pre>
+<ul>
+<li>An empty list is already sorted</li>
+<li>A single-element list is already sorted</li>
+<li>Every arm here is a bare expression, so every arm — including the last — ends with a comma</li>
+</ul>
+<h3 id="2-choose-pivot"><a class="header" href="#2-choose-pivot">2. Choose Pivot</a></h3>
+<pre><code class="language-suji">import std:println
+
+list = [5, 3, 8, 1]
+pivot = list[0]
+rest = list[1;]
+
+println(pivot)             # 5
+println(rest::join(", "))  # 3, 8, 1
+</code></pre>
+<ul>
+<li>The first element becomes the pivot</li>
+<li><code>list[1;]</code> is slice notation — from index 1 to the end. Suji uses <code>;</code> in slices, not <code>:</code></li>
+<li><code>rest</code> contains everything except the pivot, which is what keeps the recursion shrinking</li>
+</ul>
+<h3 id="3-partition"><a class="header" href="#3-partition">3. Partition</a></h3>
+<pre><code class="language-suji">import std:println
+
+rest = [3, 8, 1]
+pivot = 5
+
+left = rest::filter(|x| x &lt; pivot)
+right = rest::filter(|x| x &gt;= pivot)
+
+println(left::join(", "))   # 3, 1
+println(right::join(", "))  # 8
+</code></pre>
+<ul>
+<li><strong>Left partition</strong>: elements less than the pivot</li>
+<li><strong>Right partition</strong>: elements greater than or equal to the pivot</li>
+<li><code>filter</code> is eager and returns a new list, so <code>rest</code> is untouched</li>
+</ul>
+<h3 id="4-recursive-sort-and-combine"><a class="header" href="#4-recursive-sort-and-combine">4. Recursive Sort and Combine</a></h3>
+<pre><code class="language-suji">import std:println
+
+sorted_left = [1, 3]
+pivot = 5
+sorted_right = [8]
+
+println(sorted_left + [pivot] + sorted_right)  # [1, 3, 5, 8]
+</code></pre>
+<p><code>+</code> concatenates lists, so the combine step is a single expression.</p>
+<h2 id="variation-1-sorting-by-mutation"><a class="header" href="#variation-1-sorting-by-mutation">Variation 1: Sorting by Mutation</a></h2>
+<p>Suji passes arguments <strong>by value</strong>: a list handed to a function is copied, and <code>xs::push(...)</code> or <code>xs[0] = ...</code> inside that function leaves the caller’s list untouched. A closure, on the other hand, captures its environment by reference — so a genuinely in-place sort is written against a captured list:</p>
+<pre><code class="language-suji">import std:println
+
+data = [5, 3, 8, 1, 9, 2, 7]
+
+swap = |i, j| {
+    temp = data[i]
+    data[i] = data[j]
+    data[j] = temp
+}
+
+partition = |low, high| {
+    pivot = data[high]
+    i = low - 1
+
+    loop through low..high with j {
+        match {
+            data[j] &lt; pivot =&gt; {
+                i++
+                swap(i, j)
+            },
+            _ =&gt; {},
+        }
+    }
+
+    swap(i + 1, high)
+    i + 1
+}
+
+sort_range = |low, high| {
+    match {
+        low &lt; high =&gt; {
+            p = partition(low, high)
+            sort_range(low, p - 1)
+            sort_range(p + 1, high)
+        },
+        _ =&gt; {},
+    }
+}
+
+sort_range(0, data::length() - 1)
+println(data)  # [1, 2, 3, 5, 7, 8, 9]
+</code></pre>
+<p><strong>Advantage</strong>: no intermediate lists. <strong>Cost</strong>: the sort is tied to one specific variable, which is why the functional version above is the one worth reaching for first.</p>
+<h2 id="variation-2-random-pivot"><a class="header" href="#variation-2-random-pivot">Variation 2: Random Pivot</a></h2>
+<p>Better average-case performance on partially ordered input:</p>
+<pre><code class="language-suji">import std:println
+import std:random
+
+quicksort_random = |list| {
+    match list::length() {
+        0 | 1 =&gt; list,
+        _ =&gt; {
+            pivot_idx = random:integer(0, list::length())
+            pivot = list[pivot_idx]
+
+            rest = []
+            loop through 0..list::length() with idx {
+                match {
+                    idx != pivot_idx =&gt; { rest::push(list[idx]) },
+                    _ =&gt; {},
+                }
+            }
+
+            left = rest::filter(|x| x &lt; pivot)
+            right = rest::filter(|x| x &gt;= pivot)
+
+            quicksort_random(left) + [pivot] + quicksort_random(right)
+        },
+    }
+}
+
+random:seed(7)
+input = random:shuffle(1..=12)
+println(quicksort_random(input) == (1..=12))  # true
+</code></pre>
+<p><code>loop through list with item, idx</code> does <strong>not</strong> work: two bindings are only valid for maps. Iterate over an index range instead, as above.</p>
+<h2 id="variation-3-three-way-partitioning"><a class="header" href="#variation-3-three-way-partitioning">Variation 3: Three-Way Partitioning</a></h2>
+<p>Handle duplicate values efficiently:</p>
+<pre><code class="language-suji">import std:println
+
+quicksort_3way = |list| {
+    match list::length() {
+        0 | 1 =&gt; list,
+        _ =&gt; {
+            pivot = list[0]
+            rest = list[1;]
+
+            less = rest::filter(|x| x &lt; pivot)
+            equal = rest::filter(|x| x == pivot)
+            greater = rest::filter(|x| x &gt; pivot)
+
+            quicksort_3way(less) + [pivot] + equal + quicksort_3way(greater)
+        },
+    }
+}
+
+println(quicksort_3way([3, 1, 3, 2, 3, 1]))  # [1, 1, 2, 3, 3, 3]
+</code></pre>
+<p><strong>Advantage</strong>: values equal to the pivot are placed once instead of being re-partitioned.</p>
+<h2 id="performance-analysis"><a class="header" href="#performance-analysis">Performance Analysis</a></h2>
+<h3 id="time-complexity"><a class="header" href="#time-complexity">Time Complexity</a></h3>
+<ul>
+<li><strong>Best case</strong>: O(n log n) - balanced partitions</li>
+<li><strong>Average case</strong>: O(n log n) - random pivot</li>
+<li><strong>Worst case</strong>: O(n²) - already sorted input with a first-element pivot</li>
+</ul>
+<h3 id="space-complexity"><a class="header" href="#space-complexity">Space Complexity</a></h3>
+<ul>
+<li><strong>Functional version</strong>: O(n) - <code>filter</code> and <code>+</code> allocate new lists at every level</li>
+<li><strong>Mutating version</strong>: O(log n) - only the recursion stack grows</li>
+</ul>
+<h3 id="recursion-depth"><a class="header" href="#recursion-depth">Recursion Depth</a></h3>
+<p>There is no tail-call optimisation, and the interpreter aborts the process at roughly 600–700 nested frames. Sorting an already-sorted list recurses once per element, so <code>quicksort(0..300)</code> is fine while <code>quicksort(0..700)</code> crashes with <code>thread 'main' has overflowed its stack</code>. Shuffled input recurses only about <code>log2(n)</code> deep, so large random lists are not a problem — the danger is specifically sorted or reverse-sorted input.</p>
+<h2 id="complete-example-with-benchmarking"><a class="header" href="#complete-example-with-benchmarking">Complete Example with Benchmarking</a></h2>
+<pre><code class="language-suji">import std:println
+import std:random
+import std:time
+
+quicksort = |list| {
+    match list::length() {
+        0 | 1 =&gt; list,
+        _ =&gt; {
+            pivot = list[0]
+            rest = list[1;]
+            quicksort(rest::filter(|x| x &lt; pivot)) + [pivot] + quicksort(rest::filter(|x| x &gt;= pivot))
+        },
+    }
+}
+
+benchmark = |name, list| {
+    start = time:now():epoch_ms
+    result = quicksort(list)
+    elapsed = time:now():epoch_ms - start
+    println("${name} (${list::length()} elements): ${elapsed}ms, sorted correctly: ${result == list::sort()}")
+}
+
+random:seed(1)
+benchmark("random", random:shuffle(0..300))
+benchmark("already sorted", 0..300)
+benchmark("reverse sorted", 300..0)
+</code></pre>
+<p>Example output (timings vary by machine):</p>
+<pre><code class="language-text">random (300 elements): 4ms, sorted correctly: true
+already sorted (300 elements): 51ms, sorted correctly: true
+reverse sorted (300 elements): 48ms, sorted correctly: true
+</code></pre>
+<p>For production sorting of numbers or strings, use the built-in <code>list::sort()</code> — it is implemented in Rust and has none of these depth limits.</p>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<h3 id="beginner"><a class="header" href="#beginner">Beginner</a></h3>
+<ol>
+<li>Sort a list of strings alphabetically, then reverse the result with <code>::reverse()</code></li>
+<li>Sort in descending order by swapping the two <code>filter</code> predicates</li>
+<li>Count comparisons by incrementing a counter captured from the enclosing scope</li>
+</ol>
+<h3 id="intermediate"><a class="header" href="#intermediate">Intermediate</a></h3>
+<ol start="4">
+<li>Implement median-of-three pivot selection</li>
+<li>Add an <code>ascending</code> parameter that chooses the comparison direction</li>
+<li>Print each partition step to visualise the recursion</li>
+</ol>
+<h3 id="advanced"><a class="header" href="#advanced">Advanced</a></h3>
+<ol start="7">
+<li>Implement dual-pivot quicksort</li>
+<li>Fall back to insertion sort for sublists shorter than 8 elements</li>
+<li>Rewrite the sort as an explicit stack of ranges so it never exceeds the recursion limit</li>
+</ol>
+<h2 id="common-mistakes"><a class="header" href="#common-mistakes">Common Mistakes</a></h2>
+<h3 id="infinite-recursion"><a class="header" href="#infinite-recursion">Infinite Recursion</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Bug: the pivot stays in the right partition, so the list never shrinks
+buggy = |list| {
+    pivot = list[0]
+    right = list::filter(|x| x &gt;= pivot)
+    println("right partition still has ${right::length()} of ${list::length()} elements")
+}
+
+buggy([1, 3, 2])
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">right partition still has 3 of 3 elements
+</code></pre>
+<p><strong>Solution</strong>: partition <code>rest = list[1;]</code>, not <code>list</code>, so the pivot is removed exactly once.</p>
+<h3 id="missing-comma-after-the-final-arm"><a class="header" href="#missing-comma-after-the-final-arm">Missing Comma After the Final Arm</a></h3>
+<pre><code class="language-suji">import std:println
+
+sorted = match [3, 1] ::length() {
+    0 =&gt; "empty",
+    _ =&gt; "sort me",
+}
+
+println(sorted)  # sort me
+</code></pre>
+<p>Dropping the comma after <code>_ =&gt; "sort me"</code> is a parse error, not a warning.</p>
+<h3 id="stack-overflow-on-sorted-input"><a class="header" href="#stack-overflow-on-sorted-input">Stack Overflow on Sorted Input</a></h3>
+<pre><code class="language-suji">import std:println
+
+quicksort = |list| {
+    match list::length() {
+        0 | 1 =&gt; list,
+        _ =&gt; {
+            pivot = list[0]
+            rest = list[1;]
+            quicksort(rest::filter(|x| x &lt; pivot)) + [pivot] + quicksort(rest::filter(|x| x &gt;= pivot))
+        },
+    }
+}
+
+println(quicksort(0..300)::length())  # 300
+</code></pre>
+<p><code>quicksort(0..700)</code> on already-sorted input aborts the process. Shuffle first, pick a random pivot, or use <code>list::sort()</code>.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../fundamentals/data-types/lists.html">Lists</a></li>
+<li><a href="../functions/recursion.html">Recursion</a></li>
+<li><a href="../advanced/pattern-matching.html">Pattern Matching</a></li>
+<li><a href="fibonacci.html">Fibonacci Example</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../examples/fibonacci.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../examples/composition.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../examples/fibonacci.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../examples/composition.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Tuples - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/data-types/tuples.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="tuples"><a class="header" href="#tuples">Tuples</a></h1>
+<p>Tuples are immutable, fixed-size collections that group heterogeneous values together.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Tuples let you package multiple values into a single compound value, perfect for returning multiple results or grouping related data.</p>
+<h3 id="key-characteristics"><a class="header" href="#key-characteristics">Key Characteristics</a></h3>
+<ul>
+<li><strong>Fixed size</strong> - Cannot add/remove elements</li>
+<li><strong>Immutable</strong> - Cannot change after creation</li>
+<li><strong>Heterogeneous</strong> - Can contain different types</li>
+<li><strong>Not indexable</strong> - <code>t[0]</code> is a type error; there is no <code>get</code>, <code>first</code> or
+<code>second</code> either</li>
+<li><strong>Destructuring</strong> - <code>a, b = t</code> is the way to get the elements out</li>
+</ul>
+<h3 id="when-to-use-tuples"><a class="header" href="#when-to-use-tuples">When to Use Tuples</a></h3>
+<p>Use tuples for:</p>
+<ul>
+<li>Multiple return values from functions</li>
+<li>Grouping related but different types</li>
+<li>Temporary data bundling</li>
+<li>Coordinate pairs or triples</li>
+<li>Fixed-size records</li>
+</ul>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<h3 id="creating-tuples"><a class="header" href="#creating-tuples">Creating Tuples</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Empty tuple
+empty = ()
+
+# With values
+pair = (1, 2)
+triple = (1, "two", 3.0)
+nested = (1, (2, 3), 4)
+
+# Single element tuple (note the comma)
+single = (42,)
+
+println(empty)   # ()
+println(pair)    # (1, 2)
+println(triple)  # (1, two, 3)
+println(nested)  # (1, (2, 3), 4)
+println(single)  # (42,)
+</code></pre>
+<h3 id="accessing-elements"><a class="header" href="#accessing-elements">Accessing Elements</a></h3>
+<p>Tuples are <strong>not indexable</strong>. <code>t[0]</code> fails with <em>Cannot index tuple</em>, and there
+are no <code>get()</code>, <code>first()</code> or <code>second()</code> methods — the only tuple methods are
+<code>length()</code>, <code>to_list()</code> and <code>to_string()</code>. Get at the elements by destructuring,
+or convert to a list first:</p>
+<pre><code class="language-suji">import std:println
+
+point = (10, 20, 30)
+
+# This does NOT work:
+# println(point[0])   # Error: Type error: Cannot index tuple
+
+# Destructure instead
+x, y, z = point
+println(x)  # 10
+println(z)  # 30
+
+# Or convert to a list, which *is* indexable
+coords = point::to_list()
+println(coords[0])   # 10
+println(coords[-1])  # 30
+</code></pre>
+<h3 id="destructuring"><a class="header" href="#destructuring">Destructuring</a></h3>
+<p>The most powerful feature of tuples. Write the targets <strong>without</strong> parentheses —
+<code>(x, y) = point</code> is not destructuring syntax and will not work:</p>
+<pre><code class="language-suji">import std:println
+
+# Unpack tuple into variables
+point = (10, 20)
+x, y = point
+println("x: ${x}, y: ${y}")  # x: 10, y: 20
+
+# Ignore values with underscore
+triple = (1, 2, 3)
+first, _, third = triple
+println("${first}, ${third}")  # 1, 3
+</code></pre>
+<p>Destructuring is one level deep: a nested tuple comes out as a tuple that you
+unpack in a second step.</p>
+<pre><code class="language-suji">import std:println
+
+data = (1, (2, 3), 4)
+
+a, inner, d = data
+println(inner)  # (2, 3)
+
+b, c = inner
+println("${a}, ${b}, ${c}, ${d}")  # 1, 2, 3, 4
+</code></pre>
+<p>The number of targets must match the tuple exactly — <code>a, b = (1, 2, 3)</code> fails
+with <em>Destructuring arity mismatch: expected 2, got 3</em>.</p>
+<h2 id="multiple-return-values"><a class="header" href="#multiple-return-values">Multiple Return Values</a></h2>
+<p>Tuples excel at returning multiple values:</p>
+<pre><code class="language-suji">import std:println
+
+# Function returning tuple
+# Use an explicit `return` for the tuple: a line that begins with "(" would
+# otherwise be read as a call on the previous line's value.
+divide_with_remainder = |a, b| {
+    quotient = (a / b)::floor()
+    remainder = a % b
+    return (quotient, remainder)
+}
+
+# Destructure the result
+q, r = divide_with_remainder(17, 5)
+println("17 ÷ 5 = ${q} remainder ${r}")  # 17 ÷ 5 = 3 remainder 2
+</code></pre>
+<p><code>return a, b</code> also builds a tuple, so an explicit early return can carry two
+values:</p>
+<pre><code class="language-suji">import std:println
+
+split_sign = |n| {
+    n &lt; 0 &amp;&amp; return ("negative", n::abs())
+    return ("non-negative", n)
+}
+
+label, magnitude = split_sign(-7)
+println("${label} ${magnitude}")  # negative 7
+</code></pre>
+<h3 id="real-world-example"><a class="header" href="#real-world-example">Real-World Example</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Parse name into parts
+parse_name = |full_name| {
+    parts = full_name::split()
+    match parts::length() {
+        0 =&gt; (nil, nil),
+        1 =&gt; (parts[0], nil),
+        _ =&gt; (parts[0], parts[1;]::join(" ")),
+    }
+}
+
+first, last = parse_name("Alice Smith")
+println("First: ${first}, Last: ${last}")
+# First: Alice, Last: Smith
+
+first, last = parse_name("Bob")
+println("First: ${first}, Last: ${last}")
+# First: Bob, Last: nil
+</code></pre>
+<h2 id="tuple-methods"><a class="header" href="#tuple-methods">Tuple Methods</a></h2>
+<h3 id="length"><a class="header" href="#length">Length</a></h3>
+<pre><code class="language-suji">import std:println
+
+triple = (1, 2, 3)
+println(triple::length())  # 3
+</code></pre>
+<h3 id="conversion"><a class="header" href="#conversion">Conversion</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Tuple to list
+triple = (1, 2, 3)
+as_list = triple::to_list()
+println(as_list)  # [1, 2, 3]
+
+# There is no automatic list-to-tuple conversion; construct a tuple explicitly
+# when you know the length
+values = [4, 5, 6]
+rebuilt = (values[0], values[1], values[2])
+println(rebuilt)  # (4, 5, 6)
+
+# to_string() renders the same text println shows
+println(triple::to_string())  # (1, 2, 3)
+</code></pre>
+<h3 id="comparison"><a class="header" href="#comparison">Comparison</a></h3>
+<p>Tuples support equality, which compares element by element:</p>
+<pre><code class="language-suji">import std:println
+
+println((1, 2) == (1, 2))   # true
+println((1, 2) == (1, 3))   # false
+println((1, 2) != (1, 3))   # true
+</code></pre>
+<p>There is <strong>no ordering</strong> for tuples: <code>(1, 2) &lt; (1, 3)</code> fails with <em>Cannot compare
+tuple and tuple</em>. If you need to sort pairs, destructure them and compare the
+components yourself.</p>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="coordinate-pairs"><a class="header" href="#coordinate-pairs">Coordinate Pairs</a></h3>
+<pre><code class="language-suji">import std:println
+
+# 2D point
+point = (10, 20)
+x, y = point
+
+# Distance from origin
+distance = ((x ^ 2) + (y ^ 2))::sqrt()
+println(distance)  # 22.360679774997896964091736688
+
+# 3D point
+point3d = (10, 20, 30)
+x, y, z = point3d
+println("${x}, ${y}, ${z}")  # 10, 20, 30
+</code></pre>
+<h3 id="minmax-with-index"><a class="header" href="#minmax-with-index">Min/Max with Index</a></h3>
+<pre><code class="language-suji">import std:println
+
+# `loop through list with a, b` is a runtime error - two bindings are for maps
+# only - so iterate the indices when you need a counter.
+find_min_with_index = |numbers| {
+    min_val = numbers[0]
+    min_idx = 0
+
+    loop through 0..numbers::length() with idx {
+        match { numbers[idx] &lt; min_val =&gt; {
+            min_val = numbers[idx]
+            min_idx = idx
+        } }
+    }
+
+    (min_val, min_idx)
+}
+
+numbers = [5, 2, 8, 1, 9]
+min_value, min_index = find_min_with_index(numbers)
+println("Min ${min_value} at index ${min_index}")
+# Min 1 at index 3
+</code></pre>
+<h3 id="successerror-results"><a class="header" href="#successerror-results">Success/Error Results</a></h3>
+<p>Suji has no exceptions and no <code>Result</code> type, so a <code>(value, error)</code> tuple is the
+usual way to report failure from a function:</p>
+<pre><code class="language-suji">import std:println
+
+safe_divide = |a, b| {
+    match b {
+        0 =&gt; (nil, "Division by zero"),
+        _ =&gt; (a / b, nil),
+    }
+}
+
+result, error = safe_divide(10, 2)
+match error {
+    nil =&gt; println("Result: ${result}"),
+    _ =&gt; println("Error: ${error}"),
+}
+# Result: 5
+
+result, error = safe_divide(10, 0)
+match error {
+    nil =&gt; println("Result: ${result}"),
+    _ =&gt; println("Error: ${error}"),
+}
+# Error: Division by zero
+</code></pre>
+<p>Note the <code>_</code> in the second arm. A bare identifier in a pattern is treated as a
+<strong>string literal</strong>, so an arm written <code>err =&gt; …</code> would only match the literal
+string <code>"err"</code>; it would not bind the error.</p>
+<h3 id="swapping-values"><a class="header" href="#swapping-values">Swapping Values</a></h3>
+<pre><code class="language-suji">import std:println
+
+a = 10
+b = 20
+
+# Swap using tuple destructuring - the right side must be a real tuple,
+# so the parentheses here are required
+a, b = (b, a)
+
+println("a: ${a}, b: ${b}")  # a: 20, b: 10
+</code></pre>
+<h2 id="tuples-vs-lists"><a class="header" href="#tuples-vs-lists">Tuples vs Lists</a></h2>
+<h3 id="when-to-use-tuples-1"><a class="header" href="#when-to-use-tuples-1">When to Use Tuples</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Fixed, known structure
+rgb = (255, 0, 128)
+
+# Different types
+user = ("Alice", 30, true)  # name, age, active
+
+# Multiple returns
+try_parse = |text| {
+    match {
+        text ~ /^[0-9]+$/ =&gt; (true, text::to_number()),
+        _ =&gt; (false, nil),
+    }
+}
+
+ok, value = try_parse("42")
+println("${ok} ${value}")  # true 42
+
+println(rgb)   # (255, 0, 128)
+println(user)  # (Alice, 30, true)
+</code></pre>
+<h3 id="when-to-use-lists"><a class="header" href="#when-to-use-lists">When to Use Lists</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Variable number of items
+numbers = [1, 2, 3, 4, 5]  # Could be any length
+
+# Same type collection
+names = ["Alice", "Bob", "Charlie"]
+
+# Need to add/remove items
+items = [1, 2, 3]
+items::push(4)  # Grows dynamically
+
+println(numbers::length())  # 5
+println(names::join(", "))  # Alice, Bob, Charlie
+println(items)              # [1, 2, 3, 4]
+</code></pre>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-forgetting-comma-for-single-element"><a class="header" href="#pitfall-1-forgetting-comma-for-single-element">Pitfall 1: Forgetting Comma for Single Element</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Not a tuple - just a number in parentheses
+not_tuple = (42)
+println(not_tuple::is_tuple())  # false
+
+# Single-element tuple needs trailing comma
+one_tuple = (42,)
+println(one_tuple::is_tuple())  # true
+println(one_tuple::length())    # 1
+</code></pre>
+<h3 id="pitfall-2-trying-to-modify-or-index"><a class="header" href="#pitfall-2-trying-to-modify-or-index">Pitfall 2: Trying to Modify or Index</a></h3>
+<pre><code class="language-suji">import std:println
+
+triple = (1, 2, 3)
+
+# Neither of these works:
+# triple[0] = 10   # Error: Type error: Cannot assign index on tuple
+# println(triple[0])  # Error: Type error: Cannot index tuple
+
+# Destructure, then build a new tuple
+a, b, c = triple
+updated = (10, b, c)
+println(updated)  # (10, 2, 3)
+</code></pre>
+<h3 id="pitfall-3-wrong-number-of-variables"><a class="header" href="#pitfall-3-wrong-number-of-variables">Pitfall 3: Wrong Number of Variables</a></h3>
+<pre><code class="language-suji">import std:println
+
+triple = (1, 2, 3)
+
+# Too few targets:
+# a, b = triple  # Error: Destructuring arity mismatch: expected 2, got 3
+
+# Match the count
+a, b, c = triple
+println("${a}${b}${c}")  # 123
+
+# Or use underscore for unwanted values
+a, _, c = triple
+println("${a}${c}")  # 13
+</code></pre>
+<h3 id="pitfall-4-confusion-with-function-calls"><a class="header" href="#pitfall-4-confusion-with-function-calls">Pitfall 4: Confusion with Function Calls</a></h3>
+<pre><code class="language-suji">import std:println
+
+calculate = |a, b| a * b
+
+# Parentheses for grouping
+println((5 + 3) * 2)   # 16
+
+# Parentheses for a function call
+println(calculate(5, 3))  # 15
+
+# Tuple (note the comma!)
+coords = (5, 3)
+println(coords)  # (5, 3)
+</code></pre>
+<h2 id="advanced-usage"><a class="header" href="#advanced-usage">Advanced Usage</a></h2>
+<h3 id="tuple-unpacking-in-loops"><a class="header" href="#tuple-unpacking-in-loops">Tuple Unpacking in Loops</a></h3>
+<p>A loop binds one variable per element. <code>loop through points with x, y</code> is a
+runtime error — two bindings only work for maps — so destructure inside the body:</p>
+<pre><code class="language-suji">import std:println
+
+# List of tuples
+points = [(1, 2), (3, 4), (5, 6)]
+
+loop through points with point {
+    x, y = point
+    println("Point: (${x}, ${y})")
+}
+# Point: (1, 2)
+# Point: (3, 4)
+# Point: (5, 6)
+</code></pre>
+<p>Maps are the exception, and <code>map::to_list()</code> gives you exactly this shape:</p>
+<pre><code class="language-suji">import std:println
+
+scores = {alice: 3, bob: 5}
+
+loop through scores with name, score {
+    println("${name} scored ${score}")
+}
+# alice scored 3
+# bob scored 5
+</code></pre>
+<h3 id="nested-destructuring"><a class="header" href="#nested-destructuring">Nested Destructuring</a></h3>
+<p>Destructuring does not recurse. Unpack one level at a time:</p>
+<pre><code class="language-suji">import std:println
+
+# Complex nested structure
+data = (1, (2, 3, (4, 5)), 6)
+
+a, middle, f = data
+b, c, innermost = middle
+d, e = innermost
+
+println("${a}, ${b}, ${c}, ${d}, ${e}, ${f}")
+# 1, 2, 3, 4, 5, 6
+</code></pre>
+<h3 id="pattern-matching-with-tuples"><a class="header" href="#pattern-matching-with-tuples">Pattern Matching with Tuples</a></h3>
+<p>Tuple patterns work, and <code>_</code> is a wildcard inside them. What does <strong>not</strong> work is
+binding: patterns cannot introduce variables, and a bare identifier in a pattern
+is read as a string literal. So use <code>_</code> for “anything” and fall through to a
+conditional <code>match</code> when you need to look at the values.</p>
+<pre><code class="language-suji">import std:println
+
+classify_point = |point| {
+    match point {
+        (0, 0) =&gt; "origin",
+        (0, _) =&gt; "on y-axis",
+        (_, 0) =&gt; "on x-axis",
+        _ =&gt; {
+            x, y = point
+            match { x == y =&gt; "on diagonal", _ =&gt; "elsewhere", }
+        }
+    }
+}
+
+println(classify_point((0, 0)))    # origin
+println(classify_point((0, 5)))    # on y-axis
+println(classify_point((3, 0)))    # on x-axis
+println(classify_point((4, 4)))    # on diagonal
+println(classify_point((2, 3)))    # elsewhere
+</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="rgb-to-hsv-conversion"><a class="header" href="#rgb-to-hsv-conversion">RGB to HSV Conversion</a></h3>
+<pre><code class="language-suji">import std:println
+
+rgb_to_hsv = |r, g, b| {
+    r = r / 255
+    g = g / 255
+    b = b / 255
+    
+    max_val = match {
+        r &gt;= g &amp;&amp; r &gt;= b =&gt; r,
+        g &gt;= b =&gt; g,
+        _ =&gt; b,
+    }
+    min_val = match {
+        r &lt;= g &amp;&amp; r &lt;= b =&gt; r,
+        g &lt;= b =&gt; g,
+        _ =&gt; b,
+    }
+    delta = max_val - min_val
+    
+    # Calculate hue
+    h = match {
+        delta == 0 =&gt; 0,
+        max_val == r =&gt; 60 * (((g - b) / delta) % 6),
+        max_val == g =&gt; 60 * (((b - r) / delta) + 2),
+        _ =&gt; 60 * (((r - g) / delta) + 4),
+    }
+    
+    # Calculate saturation
+    s = match max_val {
+        0 =&gt; 0,
+        _ =&gt; delta / max_val,
+    }
+    
+    v = max_val
+    
+    return (h, s, v)
+}
+
+h, s, v = rgb_to_hsv(255, 0, 0)  # Red
+println("H: ${h}, S: ${s}, V: ${v}")  # H: 0, S: 1, V: 1
+</code></pre>
+<h3 id="statistics"><a class="header" href="#statistics">Statistics</a></h3>
+<pre><code class="language-suji">import std:println
+
+calculate_stats = |numbers| {
+    total = numbers::sum()
+    count = numbers::length()
+    mean = total / count
+
+    sorted = numbers::sort()
+    mid = (count / 2)::floor()
+    median = match count % 2 {
+        0 =&gt; (sorted[mid - 1] + sorted[mid]) / 2,
+        _ =&gt; sorted[mid],
+    }
+
+    return (mean, median, total, count)
+}
+
+data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+mean, median, sum, count = calculate_stats(data)
+
+println("Mean: ${mean}")      # Mean: 5.50
+println("Median: ${median}")  # Median: 5.50
+println("Sum: ${sum}")        # Sum: 55
+println("Count: ${count}")    # Count: 10
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use for multiple return values</li>
+<li>Destructure immediately when possible</li>
+<li>Use underscore for unused values</li>
+<li>Keep tuples small (2-4 elements ideal)</li>
+<li>Document tuple structure in function names</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Try to index a tuple (<code>t[0]</code>) or reach for <code>get</code>/<code>first</code>/<code>second</code> — destructure,
+or call <code>to_list()</code> if you really need positional access</li>
+<li>Wrap destructuring targets in parentheses (<code>(a, b) = t</code> is not destructuring)</li>
+<li>Order tuples with <code>&lt;</code>/<code>&gt;</code> — only <code>==</code> and <code>!=</code> are defined</li>
+<li>Use tuples for large collections</li>
+<li>Create deeply nested tuples (use maps instead)</li>
+<li>Forget trailing comma for single-element tuples</li>
+</ul>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="../control-flow/match.html">Pattern Matching</a> with tuples</li>
+<li>Explore <a href="../../functions/multiple-returns.html">Functions</a> returning tuples</li>
+<li>Study <a href="../../advanced/pattern-matching.html">Destructuring</a> patterns</li>
+<li>Check out <a href="lists.html">Lists</a> for variable-size collections</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="lists.html">Lists</a></li>
+<li><a href="maps.html">Maps</a></li>
+<li><a href="../../functions/multiple-returns.html">Multiple Return Values</a></li>
+<li><a href="../control-flow/match.html">Pattern Matching</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/data-types/maps.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/data-types/functions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/data-types/maps.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/data-types/functions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

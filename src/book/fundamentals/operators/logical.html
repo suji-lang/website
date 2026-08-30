@@ -1,0 +1,732 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Logical - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/operators/logical.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="logical-operators"><a class="header" href="#logical-operators">Logical Operators</a></h1>
+<p>Logical operators combine boolean expressions and short-circuit.</p>
+<p>Suji does <strong>not</strong> have general truthiness: only <code>true</code> counts as true in boolean
+contexts. The operators are <code>&amp;&amp;</code>, <code>||</code> and <code>!</code> — the words <code>and</code>, <code>or</code> and <code>not</code> are
+not keywords in Suji and using them produces an <code>Undefined variable</code> error.</p>
+<p>Crucially, <code>&amp;&amp;</code> and <code>||</code> always evaluate to a <strong>boolean</strong>, never to one of their
+operands. That means the <code>x || "default"</code> idiom from other languages does not exist
+here: <code>nil || "default"</code> fails with
+<code>Type error: Logical OR requires boolean operands</code>. See
+<a href="#default-values">Default Values</a> below for what to write instead.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Logical operators are essential for building complex conditions in match expressions, loops, and filters.</p>
+<h2 id="the-three-logical-operators"><a class="header" href="#the-three-logical-operators">The Three Logical Operators</a></h2>
+<h3 id="and-"><a class="header" href="#and-">AND (<code>&amp;&amp;</code>)</a></h3>
+<p>Returns <code>true</code> only if both operands are <code>true</code>:</p>
+<pre><code class="language-suji">import std:println
+
+println(true &amp;&amp; true)    # true
+println(true &amp;&amp; false)   # false
+println(false &amp;&amp; true)   # false
+println(false &amp;&amp; false)  # false
+</code></pre>
+<h3 id="or-"><a class="header" href="#or-">OR (<code>||</code>)</a></h3>
+<p>Returns <code>true</code> if at least one operand is <code>true</code>:</p>
+<pre><code class="language-suji">import std:println
+
+println(true || true)    # true
+println(true || false)   # true
+println(false || true)   # true
+println(false || false)  # false
+</code></pre>
+<h3 id="not-"><a class="header" href="#not-">NOT (<code>!</code>)</a></h3>
+<p>Negates a boolean value:</p>
+<pre><code class="language-suji">import std:println
+
+println(!true)           # false
+println(!false)          # true
+println(!!true)          # true (double negation)
+</code></pre>
+<h2 id="short-circuit-evaluation"><a class="header" href="#short-circuit-evaluation">Short-Circuit Evaluation</a></h2>
+<p>Logical operators use short-circuit evaluation for efficiency and safety.</p>
+<h3 id="and-short-circuit"><a class="header" href="#and-short-circuit">AND Short-Circuit</a></h3>
+<p>If the left side is <code>false</code>, the right side is NOT evaluated:</p>
+<pre><code class="language-suji">import std:println
+
+# Right side never evaluated (no error!)
+result = false &amp;&amp; (10 / 0)
+println(result)  # false
+
+# This is useful for safe operations
+user = nil
+is_admin = user != nil &amp;&amp; user:is_admin == true
+println(is_admin)  # false - no error accessing nil, because user != nil is false
+</code></pre>
+<h3 id="or-short-circuit"><a class="header" href="#or-short-circuit">OR Short-Circuit</a></h3>
+<p>If the left side is <code>true</code>, the right side is NOT evaluated:</p>
+<pre><code class="language-suji">import std:println
+
+# Right side never evaluated
+result = true || (10 / 0)
+println(result)  # true
+
+# `||` short-circuits on boolean `true`, and its result is always a boolean.
+#
+# If you want a default when a value may be `nil`, use `match`:
+maybe_timeout_ms = nil
+timeout_ms = match maybe_timeout_ms {
+    nil =&gt; 1000,
+    _ =&gt; maybe_timeout_ms,
+}
+println(timeout_ms)  # 1000
+</code></pre>
+<p>Note the <code>_</code> arm rather than a binding: patterns cannot bind variables in Suji, and a
+bare identifier in a pattern is treated as a string literal.</p>
+<h2 id="combining-conditions"><a class="header" href="#combining-conditions">Combining Conditions</a></h2>
+<h3 id="multiple-and"><a class="header" href="#multiple-and">Multiple AND</a></h3>
+<p>All conditions must be true:</p>
+<pre><code class="language-suji">import std:println
+
+age = 25
+has_license = true
+has_insurance = true
+
+can_drive = age &gt;= 18 &amp;&amp; has_license &amp;&amp; has_insurance
+println(can_drive)  # true
+</code></pre>
+<h3 id="multiple-or"><a class="header" href="#multiple-or">Multiple OR</a></h3>
+<p>At least one condition must be true:</p>
+<pre><code class="language-suji">import std:println
+
+day = "Sunday"
+is_national_holiday = false
+is_regional_holiday = false
+
+is_weekend = day == "Saturday" || day == "Sunday"
+is_holiday = is_national_holiday || is_regional_holiday
+
+day_off = is_weekend || is_holiday
+println(day_off)  # true
+</code></pre>
+<h3 id="mixed-andor"><a class="header" href="#mixed-andor">Mixed AND/OR</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Must be adult AND (have license OR have permit)
+age = 17
+has_license = false
+has_permit = true
+
+can_drive = age &gt;= 18 &amp;&amp; (has_license || has_permit)
+println(can_drive)  # false (not adult)
+
+age = 18
+can_drive = age &gt;= 18 &amp;&amp; (has_license || has_permit)
+println(can_drive)  # true (adult with permit)
+</code></pre>
+<h2 id="operator-precedence"><a class="header" href="#operator-precedence">Operator Precedence</a></h2>
+<p>Lowest to highest:</p>
+<ol>
+<li><strong>OR (<code>||</code>)</strong> - lowest</li>
+<li><strong>AND (<code>&amp;&amp;</code>)</strong></li>
+<li><strong>NOT (<code>!</code>)</strong> - highest (it sits with the other unary operators, above <code>*</code>/<code>/</code> and
+below <code>^</code>)</li>
+</ol>
+<p>All three bind <em>less</em> tightly than the comparison and regex operators, so
+<code>a == b &amp;&amp; c &gt; d</code> groups the way you would expect without parentheses.</p>
+<pre><code class="language-suji">import std:println
+
+# NOT first, then AND, then OR
+result = true || false &amp;&amp; !false
+# Parsed as: true || (false &amp;&amp; (!false))
+println(result)  # true
+
+# Use parentheses for clarity
+result = (true || false) &amp;&amp; (!false)
+println(result)  # true
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="validation"><a class="header" href="#validation">Validation</a></h3>
+<p>Reading a <strong>missing</strong> map key raises <code>Key not found</code>, so <code>user:name != nil</code> is only
+safe when the key is known to exist. Use <code>::get(key, default)</code> to read defensively:</p>
+<pre><code class="language-suji">import std:println
+
+validate_user = |user| {
+    name = user::get("name", "")
+    email = user::get("email", "")
+    age = user::get("age", 0)
+
+    has_name = name::length() &gt; 0
+    has_email = email ~ /^[^@]+@[^@]+$/
+    is_adult = age &gt;= 18
+
+    has_name &amp;&amp; has_email &amp;&amp; is_adult
+}
+
+println(validate_user({name: "Alice", email: "alice@example.com", age: 30}))  # true
+println(validate_user({name: "Bob"}))                                        # false
+</code></pre>
+<h3 id="range-checking"><a class="header" href="#range-checking">Range Checking</a></h3>
+<pre><code class="language-suji">import std:println
+
+in_range = |value, min_val, max_val| {
+    value &gt;= min_val &amp;&amp; value &lt;= max_val
+}
+
+println(in_range(5, 0, 10))   # true
+println(in_range(15, 0, 10))  # false
+</code></pre>
+<h3 id="default-values"><a class="header" href="#default-values">Default Values</a></h3>
+<p>There is no <code>||</code> fallback and no <code>??</code> operator. Use <code>map::get(key, default)</code> for maps,
+and <code>match</code> for anything else:</p>
+<pre><code class="language-suji">import std:println
+
+get_name = |user| {
+    preferred = user::get("preferred_name", nil)
+    first = user::get("first_name", nil)
+
+    match {
+        preferred != nil =&gt; preferred,
+        first != nil =&gt; first,
+        _ =&gt; "Anonymous",
+    }
+}
+
+println(get_name({preferred_name: "Ada"}))  # Ada
+println(get_name({first_name: "Grace"}))    # Grace
+println(get_name({}))                       # Anonymous
+</code></pre>
+<p>Or, when a single default suffices, let <code>get</code> do the work:</p>
+<pre><code class="language-suji">import std:println
+
+user = {}
+println(user::get("first_name", "Anonymous"))  # Anonymous
+</code></pre>
+<h3 id="guard-clauses"><a class="header" href="#guard-clauses">Guard Clauses</a></h3>
+<pre><code class="language-suji">import std:println
+
+process_user = |user| {
+    # Early returns with logical checks (guard clauses)
+    invalid = user == nil || !user::get("is_active", false)
+    invalid &amp;&amp; return "Invalid user"
+
+    unauthorized = user::get("age", 0) &lt; 18 || !user::get("has_consent", false)
+    unauthorized &amp;&amp; return "Unauthorized"
+
+    "Processing user..."
+}
+
+println(process_user(nil))                                            # Invalid user
+println(process_user({is_active: true, age: 12}))                     # Unauthorized
+println(process_user({is_active: true, age: 30, has_consent: true}))  # Processing user...
+</code></pre>
+<h3 id="access-control"><a class="header" href="#access-control">Access Control</a></h3>
+<pre><code class="language-suji">import std:println
+
+can_edit = |user, document| {
+    is_owner = user:id == document:owner_id
+    is_admin = user:role == "admin"
+    is_collaborator = document:collaborators::contains(user:id)
+
+    is_owner || is_admin || is_collaborator
+}
+
+alice = {id: 1, role: "member"}
+doc = {owner_id: 2, collaborators: [1, 5]}
+println(can_edit(alice, doc))  # true (collaborator)
+</code></pre>
+<h2 id="de-morgans-laws"><a class="header" href="#de-morgans-laws">De Morgan’s Laws</a></h2>
+<p>Useful equivalences for simplifying logical expressions:</p>
+<h3 id="not-a-and-b--not-a-or-not-b"><a class="header" href="#not-a-and-b--not-a-or-not-b">NOT (A AND B) = (NOT A) OR (NOT B)</a></h3>
+<pre><code class="language-suji">import std:println
+
+a = true
+b = false
+
+# These are equivalent:
+result1 = !(a &amp;&amp; b)
+result2 = !a || !b
+
+println(result1 == result2)  # true
+</code></pre>
+<h3 id="not-a-or-b--not-a-and-not-b"><a class="header" href="#not-a-or-b--not-a-and-not-b">NOT (A OR B) = (NOT A) AND (NOT B)</a></h3>
+<pre><code class="language-suji">import std:println
+
+a = true
+b = false
+
+# These are equivalent:
+result1 = !(a || b)
+result2 = !a &amp;&amp; !b
+
+println(result1 == result2)  # true
+</code></pre>
+<h2 id="truth-tables"><a class="header" href="#truth-tables">Truth Tables</a></h2>
+<h3 id="and--1"><a class="header" href="#and--1">AND (<code>&amp;&amp;</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>A</th><th>B</th><th>A &amp;&amp; B</th></tr></thead><tbody>
+<tr><td>T</td><td>T</td><td>T</td></tr>
+<tr><td>T</td><td>F</td><td>F</td></tr>
+<tr><td>F</td><td>T</td><td>F</td></tr>
+<tr><td>F</td><td>F</td><td>F</td></tr>
+</tbody></table>
+</div>
+<h3 id="or--1"><a class="header" href="#or--1">OR (<code>||</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>A</th><th>B</th><th>A || B</th></tr></thead><tbody>
+<tr><td>T</td><td>T</td><td>T</td></tr>
+<tr><td>T</td><td>F</td><td>T</td></tr>
+<tr><td>F</td><td>T</td><td>T</td></tr>
+<tr><td>F</td><td>F</td><td>F</td></tr>
+</tbody></table>
+</div>
+<h3 id="not--1"><a class="header" href="#not--1">NOT (<code>!</code>)</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>A</th><th>!A</th></tr></thead><tbody>
+<tr><td>T</td><td>F</td></tr>
+<tr><td>F</td><td>T</td></tr>
+</tbody></table>
+</div>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-confusing--with-"><a class="header" href="#pitfall-1-confusing--with-">Pitfall 1: Confusing <code>&amp;&amp;</code> with <code>,</code></a></h3>
+<pre><code class="language-suji">import std:println
+
+age = 20
+has_license = true
+
+# Wrong - this is a tuple of two booleans, not a logical AND
+conditions = (age &gt;= 18, has_license)
+println(conditions)  # (true, true)
+
+# Correct - logical AND
+can_drive = age &gt;= 18 &amp;&amp; has_license
+println(can_drive)  # true
+</code></pre>
+<h3 id="pitfall-2-unnecessary-comparisons"><a class="header" href="#pitfall-2-unnecessary-comparisons">Pitfall 2: Unnecessary Comparisons</a></h3>
+<pre><code class="language-suji">is_valid = true
+
+# Redundant comparison
+match is_valid == true {
+    true =&gt; {
+        # ...
+    },
+    false =&gt; {},
+}
+
+# Use directly
+match is_valid {
+    true =&gt; {
+        # ...
+    },
+    false =&gt; {},
+}
+</code></pre>
+<h3 id="pitfall-3-incorrect-negation"><a class="header" href="#pitfall-3-incorrect-negation">Pitfall 3: Incorrect Negation</a></h3>
+<pre><code class="language-suji">is_valid = true
+
+# Wrong (redundant comparison)
+match is_valid == false {
+    true =&gt; {
+        # ...
+    },
+    false =&gt; {},
+}
+
+# Correct (use negation)
+match !is_valid {
+    true =&gt; {
+        # ...
+    },
+    false =&gt; {},
+}
+</code></pre>
+<h3 id="pitfall-4-complex-conditions-without-parentheses"><a class="header" href="#pitfall-4-complex-conditions-without-parentheses">Pitfall 4: Complex Conditions Without Parentheses</a></h3>
+<pre><code class="language-suji">import std:println
+
+a = true
+b = false
+c = true
+d = true
+e = false
+
+# Hard to read
+match (a &amp;&amp; b) || (c &amp;&amp; d) || e {
+    true =&gt; println("matched"),
+    false =&gt; {},
+}
+
+# Clear with parentheses (same as above, but explicit)
+match ((a &amp;&amp; b) || (c &amp;&amp; d) || e) {
+    true =&gt; println("matched"),
+    false =&gt; {},
+}
+</code></pre>
+<h3 id="pitfall-5-side-effects-in-conditions"><a class="header" href="#pitfall-5-side-effects-in-conditions">Pitfall 5: Side Effects in Conditions</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Don't rely on side effects: with short-circuiting, whether the right-hand side
+# runs at all depends on the left-hand side.
+
+# Separate side effects from conditions
+counter = 0
+limit = 5
+
+counter++
+match counter &lt;= limit {
+    true =&gt; println("within limit"),
+    false =&gt; {},
+}
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use parentheses for complex conditions</li>
+<li>Leverage short-circuit evaluation for safety</li>
+<li>Keep conditions simple and readable</li>
+<li>Use meaningful boolean variable names</li>
+<li>Extract complex logic into named variables</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Compare booleans to <code>true</code>/<code>false</code></li>
+<li>Create deeply nested logical expressions</li>
+<li>Put side effects in conditional expressions</li>
+<li>Forget operator precedence</li>
+<li>Mix too many conditions without structure</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="permission-system"><a class="header" href="#permission-system">Permission System</a></h3>
+<pre><code class="language-suji">import std:println
+
+has_permission = |user, resource, action| {
+    # Admin can do anything
+    user:role == "admin" &amp;&amp; return true
+    
+    # Owner can do anything with their resource
+    resource:owner_id == user:id &amp;&amp; return true
+    
+    # Check specific permissions
+    permission_key = "${resource:type}:${action}"
+    user:permissions::contains(permission_key)
+}
+
+editor = {role: "editor", id: 7, permissions: ["post:read", "post:write"]}
+post = {type: "post", owner_id: 99}
+
+println(has_permission(editor, post, "write"))   # true
+println(has_permission(editor, post, "delete"))  # false
+</code></pre>
+<h3 id="input-validation"><a class="header" href="#input-validation">Input Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_password = |password| {
+    long_enough = password::length() &gt;= 8
+    has_upper = password ~ /[A-Z]/
+    has_lower = password ~ /[a-z]/
+    has_digit = password ~ /[0-9]/
+    has_special = password ~ /[!@#$%^&amp;*]/
+    
+    # All conditions must be true
+    long_enough &amp;&amp; has_upper &amp;&amp; has_lower &amp;&amp; has_digit &amp;&amp; has_special
+}
+
+println(validate_password("Passw0rd!"))  # true
+println(validate_password("password"))   # false
+</code></pre>
+<h3 id="feature-flags"><a class="header" href="#feature-flags">Feature Flags</a></h3>
+<pre><code class="language-suji">import std:println
+
+global_features = {dark_mode: true, beta_search: false}
+
+is_feature_enabled = |feature_name, user| {
+    # Check global flag, defaulting to off
+    global_enabled = global_features::get(feature_name, false)
+
+    # Check user-specific override
+    user_enabled = user:feature_flags::get(feature_name, nil)
+
+    # User override takes precedence
+    match user_enabled {
+        nil =&gt; global_enabled,
+        _ =&gt; user_enabled,
+    }
+}
+
+user = {feature_flags: {beta_search: true}}
+
+println(is_feature_enabled("dark_mode", user))    # true (global)
+println(is_feature_enabled("beta_search", user))  # true (user override)
+println(is_feature_enabled("unknown", user))      # false (default)
+</code></pre>
+<h3 id="eligibility-check"><a class="header" href="#eligibility-check">Eligibility Check</a></h3>
+<pre><code class="language-suji">import std:println
+
+is_eligible_for_loan = |applicant| {
+    # Must meet all criteria
+    age_ok = applicant:age &gt;= 21 &amp;&amp; applicant:age &lt;= 65
+    income_ok = applicant:annual_income &gt;= 30000
+    credit_ok = applicant:credit_score &gt;= 650
+    employed = applicant:employment_status == "employed"
+    
+    # No disqualifying factors
+    no_bankruptcy = !applicant:has_bankruptcy
+    no_defaults = !applicant:has_loan_defaults
+    
+    # All positive criteria AND no negative factors
+    age_ok &amp;&amp; income_ok &amp;&amp; credit_ok &amp;&amp; employed &amp;&amp; no_bankruptcy &amp;&amp; no_defaults
+}
+
+applicant = {
+    age: 34,
+    annual_income: 52000,
+    credit_score: 710,
+    employment_status: "employed",
+    has_bankruptcy: false,
+    has_loan_defaults: false,
+}
+
+println(is_eligible_for_loan(applicant))  # true
+</code></pre>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="relational.html">Relational Operators</a> to create conditions</li>
+<li>Explore <a href="../control-flow/conditionals.html">Conditional Logic</a></li>
+<li>Study <a href="../data-types/booleans.html">Boolean Data Type</a></li>
+<li>Check out <a href="../control-flow/match.html">Pattern Matching</a></li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../data-types/booleans.html">Booleans</a></li>
+<li><a href="relational.html">Relational Operators</a></li>
+<li><a href="../control-flow/conditionals.html">Conditional Logic</a></li>
+<li><a href="../control-flow/match.html">Match Expressions</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/operators/relational.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/operators/matching.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/operators/relational.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/operators/matching.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

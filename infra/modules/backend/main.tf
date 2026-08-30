@@ -11,8 +11,15 @@ resource "aws_s3_bucket" "backend" {
   force_destroy = true
 }
 
+locals {
+  web_assets = toset([
+    for f in fileset("${var.web_assets_path}", "**/*") : f
+    if !endswith(f, ".swp") && !endswith(f, ".DS_Store") && !endswith(f, ".nojekyll") && !endswith(f, "SOURCE.txt")
+  ])
+}
+
 resource "aws_s3_object" "upload_assets" {
-  for_each     = fileset("${var.web_assets_path}", "**/*")
+  for_each     = local.web_assets
   bucket       = aws_s3_bucket.backend.bucket
   key          = each.value
   source       = "${var.web_assets_path}/${each.value}"

@@ -1,0 +1,712 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Booleans - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/data-types/booleans.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="booleans"><a class="header" href="#booleans">Booleans</a></h1>
+<p>Booleans represent logical truth values: <code>true</code> or <code>false</code>.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Booleans are fundamental for control flow, conditionals, and logical operations.</p>
+<h3 id="key-characteristics"><a class="header" href="#key-characteristics">Key Characteristics</a></h3>
+<ul>
+<li><strong>Two values</strong> - Only <code>true</code> or <code>false</code></li>
+<li><strong>Logical operators</strong> - <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> (there are no <code>and</code>/<code>or</code>/<code>not</code> keywords)</li>
+<li><strong>Comparison results</strong> - All comparisons return booleans</li>
+<li><strong>Short-circuit evaluation</strong> - Efficient logical operations</li>
+<li><strong>No truthiness</strong> - Other types are not “falsy”; <code>!nil</code> and <code>nil || "x"</code> are
+type errors, and a conditional <code>match</code> only takes an arm that tests <code>true</code></li>
+</ul>
+<h3 id="when-to-use-booleans"><a class="header" href="#when-to-use-booleans">When to Use Booleans</a></h3>
+<p>Use booleans for:</p>
+<ul>
+<li>Conditional logic (match)</li>
+<li>Flags and toggles</li>
+<li>Validation results</li>
+<li>State tracking (enabled/disabled, active/inactive)</li>
+<li>Filter conditions</li>
+</ul>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<h3 id="boolean-literals"><a class="header" href="#boolean-literals">Boolean Literals</a></h3>
+<pre><code class="language-suji">import std:println
+
+# The two boolean values
+is_valid = true
+is_active = false
+
+# In expressions
+user_logged_in = true
+debug_mode = false
+
+println(is_valid)   # true
+println(debug_mode) # false
+</code></pre>
+<h2 id="logical-operators"><a class="header" href="#logical-operators">Logical Operators</a></h2>
+<h3 id="and-"><a class="header" href="#and-">AND (<code>&amp;&amp;</code>)</a></h3>
+<p>Both operands must be true:</p>
+<pre><code class="language-suji">import std:println
+
+println(true &amp;&amp; true)     # true
+println(true &amp;&amp; false)    # false
+println(false &amp;&amp; true)    # false
+println(false &amp;&amp; false)   # false
+
+# Short-circuit: second operand not evaluated if first is false
+result = false &amp;&amp; (10 / 0)  # No error - second part not evaluated
+</code></pre>
+<h3 id="or-"><a class="header" href="#or-">OR (<code>||</code>)</a></h3>
+<p>At least one operand must be true:</p>
+<pre><code class="language-suji">import std:println
+
+println(true || true)     # true
+println(true || false)    # true
+println(false || true)    # true
+println(false || false)   # false
+
+# Short-circuit: second operand not evaluated if first is true
+result = true || (10 / 0)   # No error - second part not evaluated
+</code></pre>
+<h3 id="not-"><a class="header" href="#not-">NOT (<code>!</code>)</a></h3>
+<p>Negates a boolean value:</p>
+<pre><code class="language-suji">import std:println
+
+println(!true)            # false
+println(!false)           # true
+println(!!true)           # true (double negation)
+</code></pre>
+<h2 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h2>
+<p>All comparison operators return booleans:</p>
+<h3 id="equality"><a class="header" href="#equality">Equality</a></h3>
+<pre><code class="language-suji">import std:println
+
+println(5 == 5)           # true
+println(5 == 6)           # false
+println(5 != 6)           # true
+println("hello" == "hello") # true
+</code></pre>
+<h3 id="relational"><a class="header" href="#relational">Relational</a></h3>
+<pre><code class="language-suji">import std:println
+
+println(5 &lt; 10)           # true
+println(5 &gt; 10)           # false
+println(5 &lt;= 5)           # true
+println(10 &gt;= 10)         # true
+</code></pre>
+<h3 id="string-comparison"><a class="header" href="#string-comparison">String Comparison</a></h3>
+<pre><code class="language-suji">import std:println
+
+println("apple" &lt; "banana")   # true (lexicographic)
+println("zebra" &gt; "aardvark") # true
+</code></pre>
+<h2 id="compound-conditions"><a class="header" href="#compound-conditions">Compound Conditions</a></h2>
+<h3 id="combining-operators"><a class="header" href="#combining-operators">Combining Operators</a></h3>
+<pre><code class="language-suji">import std:println
+
+age = 25
+has_license = true
+
+# Can drive if adult with license
+can_drive = age &gt;= 18 &amp;&amp; has_license
+println(can_drive)  # true
+
+# Student or senior discount
+age = 70
+is_student = false
+gets_discount = is_student || age &gt;= 65
+println(gets_discount)  # true
+</code></pre>
+<h3 id="operator-precedence"><a class="header" href="#operator-precedence">Operator Precedence</a></h3>
+<pre><code class="language-suji">import std:println
+
+# NOT has highest precedence
+println(!false &amp;&amp; true)          # true  (parsed as (!false) &amp;&amp; true)
+
+# AND before OR
+println(true || false &amp;&amp; false)  # true  (parsed as true || (false &amp;&amp; false))
+
+# Use parentheses for clarity
+println((true || false) &amp;&amp; false)  # false
+</code></pre>
+<h2 id="short-circuit-evaluation"><a class="header" href="#short-circuit-evaluation">Short-Circuit Evaluation</a></h2>
+<h3 id="and-short-circuit"><a class="header" href="#and-short-circuit">AND Short-Circuit</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Second expression only evaluated if first is true
+check_user = |user| {
+    user != nil &amp;&amp; user:is_active
+}
+
+# Safe - doesn't error on nil user
+println(check_user(nil))  # false
+</code></pre>
+<h3 id="or-short-circuit"><a class="header" href="#or-short-circuit">OR Short-Circuit</a></h3>
+<pre><code class="language-suji">import std:println
+
+# The right side is only evaluated when the left side is not `true`
+is_weekend = |day| day == "sat" || day == "sun"
+
+println(is_weekend("sat"))  # true
+println(is_weekend("mon"))  # false
+
+# Falling back to a default needs a match: `||` will not accept a non-boolean
+get_name = |user| {
+    match user != nil &amp;&amp; user:name != nil {
+        true =&gt; user:name,
+        false =&gt; "Guest",
+    }
+}
+
+println(get_name(nil))              # Guest
+println(get_name({name: "Alice"}))  # Alice
+</code></pre>
+<h2 id="truthiness"><a class="header" href="#truthiness">Truthiness</a></h2>
+<p>Suji has <strong>no truthiness</strong>. Only the value <code>true</code> is true, and non-boolean values
+are never coerced:</p>
+<ul>
+<li><code>true &amp;&amp; expr</code> evaluates <code>expr</code>, which must itself be a boolean</li>
+<li>anything other than <code>true</code> on the left of <code>&amp;&amp;</code> behaves like <code>false</code> and
+short-circuits, without complaining about its type</li>
+<li>a non-boolean on the <strong>right</strong> of <code>&amp;&amp;</code>/<code>||</code> is a type error once it is reached:
+<code>true &amp;&amp; 5</code> fails with <em>Logical AND requires boolean operands</em>, and
+<code>nil || "default"</code> fails with <em>Logical OR requires boolean operands</em></li>
+<li><code>!</code> always requires a boolean: <code>!nil</code> and <code>!5</code> are type errors</li>
+</ul>
+<pre><code class="language-suji">import std:println
+
+# Only boolean `true` counts as true on the left:
+println(true &amp;&amp; true)       # true
+println(5 &amp;&amp; true)          # false
+println("hello" &amp;&amp; true)    # false
+
+# Use comparisons so both sides are really booleans:
+text = "hello"
+println(text != "" &amp;&amp; true) # true
+</code></pre>
+<p>Because <code>||</code> is strict about its right-hand side, the <code>value || fallback</code> idiom
+from other languages does not exist in Suji. Use a <code>match</code> or, for maps,
+<code>map::get(key, default)</code>:</p>
+<pre><code class="language-suji">import std:println
+
+settings = {"retries": 3}
+
+# NOT: settings:timeout || 30      (type error, and a missing key raises anyway)
+timeout = settings::get("timeout", 30)
+println(timeout)  # 30
+</code></pre>
+<h3 id="converting-to-boolean"><a class="header" href="#converting-to-boolean">Converting to Boolean</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Nil check
+value = nil
+is_present = value != nil
+println(is_present)  # false
+
+# Empty check
+list = []
+is_empty = list::length() == 0
+println(is_empty)  # true
+
+# Non-empty
+text = "hello"
+has_text = text::length() &gt; 0
+println(has_text)  # true
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="validation"><a class="header" href="#validation">Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_user = |user| {
+    has_name = user:name != nil &amp;&amp; user:name::length() &gt; 0
+    has_email = user:email != nil &amp;&amp; user:email ~ /^[^@]+@[^@]+$/
+    is_adult = user:age != nil &amp;&amp; user:age &gt;= 18
+    
+    has_name &amp;&amp; has_email &amp;&amp; is_adult
+}
+
+user = {
+    name: "Alice",
+    email: "alice@example.com",
+    age: 30
+}
+
+println(validate_user(user))  # true
+</code></pre>
+<p>Note that <code>user:name</code> raises <em>Key not found</em> if the key is absent, so
+<code>user:name != nil</code> only guards against an explicit <code>nil</code> value. To tolerate
+missing keys, read them with <code>user::get("name")</code>, which returns <code>nil</code> instead.</p>
+<h3 id="flags-and-toggles"><a class="header" href="#flags-and-toggles">Flags and Toggles</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Feature flags
+config = {
+    dark_mode: true,
+    notifications: false,
+    beta_features: true
+}
+
+# Toggle a flag
+config:dark_mode = !config:dark_mode
+println(config:dark_mode)  # false (toggled)
+</code></pre>
+<h3 id="conditional-assignment"><a class="header" href="#conditional-assignment">Conditional Assignment</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Using match
+status = true
+message = match status {
+    true =&gt; "Enabled",
+    false =&gt; "Disabled",
+}
+println(message)  # Enabled
+
+# Using ternary-style match (note the comma after the last arm)
+is_admin = true
+role = match { is_admin =&gt; "Administrator", _ =&gt; "User", }
+println(role)  # Administrator
+</code></pre>
+<h3 id="guard-clauses"><a class="header" href="#guard-clauses">Guard Clauses</a></h3>
+<pre><code class="language-suji">import std:println
+
+process_user = |user| {
+    # Early returns for validation
+    user == nil &amp;&amp; return "Error: No user"
+    !user:is_active &amp;&amp; return "Error: User not active"
+    user:age &lt; 18 &amp;&amp; return "Error: User must be adult"
+    
+    # Main logic here
+    "User processed successfully"
+}
+
+println(process_user(nil))  # Error: No user
+println(process_user({is_active: false, age: 25}))  # Error: User not active
+</code></pre>
+<h2 id="boolean-methods"><a class="header" href="#boolean-methods">Boolean Methods</a></h2>
+<h3 id="type-checking"><a class="header" href="#type-checking">Type Checking</a></h3>
+<pre><code class="language-suji">import std:println
+
+println(true::is_bool())     # true
+println(false::is_bool())    # true
+println(1::is_bool())        # false
+println("true"::is_bool())   # false
+</code></pre>
+<h3 id="conversion"><a class="header" href="#conversion">Conversion</a></h3>
+<pre><code class="language-suji">import std:println
+
+# To string
+println(true::to_string())   # true
+println(false::to_string())  # false
+
+# Parse from string (simple example)
+parse_bool = |s| {
+    match s {
+        "true" =&gt; true,
+        "false" =&gt; false,
+        _ =&gt; nil,
+    }
+}
+println(parse_bool("true"))   # true
+println(parse_bool("false"))  # false
+</code></pre>
+<h2 id="xor-exclusive-or"><a class="header" href="#xor-exclusive-or">XOR (Exclusive OR)</a></h2>
+<p>XOR is true when operands differ:</p>
+<pre><code class="language-suji">import std:println
+
+# Manual XOR
+xor = |a, b| {
+    (a || b) &amp;&amp; !(a &amp;&amp; b)
+}
+
+println(xor(true, true))       # false
+println(xor(true, false))      # true
+println(xor(false, true))      # true
+println(xor(false, false))     # false
+
+# Simpler: != for booleans
+println(true != true)          # false
+println(true != false)         # true
+</code></pre>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-comparing-with-truefalse"><a class="header" href="#pitfall-1-comparing-with-truefalse">Pitfall 1: Comparing with True/False</a></h3>
+<pre><code class="language-suji">import std:println
+
+is_valid = true
+
+# Unnecessary comparison
+println(match { is_valid == true =&gt; "yes", _ =&gt; "no", })   # yes
+
+# Use the boolean directly
+println(match { is_valid =&gt; "yes", _ =&gt; "no", })           # yes
+
+# Unnecessary comparison
+println(match { is_valid == false =&gt; "yes", _ =&gt; "no", })  # no
+
+# Use negation
+println(match { !is_valid =&gt; "yes", _ =&gt; "no", })          # no
+</code></pre>
+<h3 id="pitfall-2-confusing--and-"><a class="header" href="#pitfall-2-confusing--and-">Pitfall 2: Confusing = and ==</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Assignment, not comparison
+x = 5
+x = 10
+
+# Comparison (use this in conditions)
+println(match { x == 10 =&gt; "ten", _ =&gt; "something else", })  # ten
+</code></pre>
+<h3 id="pitfall-3-non-boolean-in-conditionals"><a class="header" href="#pitfall-3-non-boolean-in-conditionals">Pitfall 3: Non-Boolean in Conditionals</a></h3>
+<pre><code class="language-suji">import std:println
+
+# A conditional match only takes an arm whose test is exactly `true`.
+# Any other value simply fails to match:
+text = "hello"
+println(match { text =&gt; "matched", _ =&gt; "fell through", })       # fell through
+
+# Explicit check
+println(match { text != "" =&gt; "matched", _ =&gt; "fell through", }) # matched
+
+# Numbers are not truthy either
+count = 0
+println(match { count =&gt; "matched", _ =&gt; "fell through", })      # fell through
+
+# Explicit comparison
+println(match { count == 0 =&gt; "matched", _ =&gt; "fell through", }) # matched
+</code></pre>
+<h3 id="pitfall-4-operator-precedence"><a class="header" href="#pitfall-4-operator-precedence">Pitfall 4: Operator Precedence</a></h3>
+<pre><code class="language-suji">import std:println
+
+# `!` binds tighter than `&amp;&amp;`, so this is (!false) &amp;&amp; true
+result = !false &amp;&amp; true
+println(result)  # true
+
+# If you meant to negate the whole conjunction, use parentheses
+result = !(false &amp;&amp; true)
+println(result)  # true
+</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="allany-for-lists"><a class="header" href="#allany-for-lists">All/Any for Lists</a></h3>
+<p>Lists have no built-in <code>any()</code> or <code>all()</code>, so write them yourself with a loop and
+an early <code>return</code>:</p>
+<pre><code class="language-suji">import std:println
+
+all = |list, predicate| {
+    loop through list with item {
+        !predicate(item) &amp;&amp; return false
+    }
+    true
+}
+
+any = |list, predicate| {
+    loop through list with item {
+        predicate(item) &amp;&amp; return true
+    }
+    false
+}
+
+numbers = [2, 4, 6, 8]
+
+# All even?
+all_even = all(numbers, |x| x % 2 == 0)
+println(all_even)  # true
+
+# Any odd?
+any_odd = any(numbers, |x| x % 2 == 1)
+println(any_odd)  # false
+</code></pre>
+<h3 id="boolean-algebra"><a class="header" href="#boolean-algebra">Boolean Algebra</a></h3>
+<pre><code class="language-suji">import std:println
+
+# De Morgan's Laws
+a = true
+b = false
+
+# !(a &amp;&amp; b) == !a || !b
+println(!(a &amp;&amp; b) == (!a || !b))  # true
+
+# !(a || b) == !a &amp;&amp; !b
+println(!(a || b) == (!a &amp;&amp; !b))  # true
+</code></pre>
+<h3 id="state-machine"><a class="header" href="#state-machine">State Machine</a></h3>
+<pre><code class="language-suji">import std:println
+
+# A map literal with bare identifier keys is parsed as a block when it is the
+# whole body of a match arm, so quote the keys here.
+traffic_light = |state| {
+    match state {
+        "red" =&gt; {"running": false, "warning": false},
+        "yellow" =&gt; {"running": true, "warning": true},
+        "green" =&gt; {"running": true, "warning": false},
+        _ =&gt; {"running": false, "warning": false},
+    }
+}
+
+state = traffic_light("yellow")
+println("Running: ${state:running}")      # true
+println("Warning: ${state:warning}")      # true
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use boolean values directly in conditionals</li>
+<li>Use descriptive names (<code>is_active</code>, <code>has_permission</code>)</li>
+<li>Keep conditions simple and readable</li>
+<li>Use short-circuit evaluation for safety</li>
+<li>Prefer early returns for validation</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Compare booleans to <code>true</code> or <code>false</code></li>
+<li>Create complex nested conditions</li>
+<li>Use non-descriptive names (<code>flag</code>, <code>b</code>, <code>x</code>)</li>
+<li>Rely on implicit truthiness (Suji requires explicit booleans)</li>
+</ul>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="../control-flow/conditionals.html">Conditional Logic</a></li>
+<li>Explore <a href="../control-flow/match.html">Pattern Matching</a> with booleans</li>
+<li>Study <a href="../operators/logical.html">Logical Operators</a> in depth</li>
+<li>Check out <a href="../operators/relational.html">Relational Operators</a></li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../control-flow/conditionals.html">Conditional Logic</a></li>
+<li><a href="../control-flow/match.html">Match Expressions</a></li>
+<li><a href="../operators/logical.html">Logical Operators</a></li>
+<li><a href="../operators/relational.html">Relational Operators</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/data-types/numbers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/data-types/strings.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/data-types/numbers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/data-types/strings.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

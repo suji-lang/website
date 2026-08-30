@@ -1,0 +1,816 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Strings - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/data-types/strings.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="strings"><a class="header" href="#strings">Strings</a></h1>
+<p>Strings represent text in Suji. They support Unicode, interpolation, and rich manipulation methods.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Strings are sequences of Unicode characters used for text processing.</p>
+<h3 id="key-characteristics"><a class="header" href="#key-characteristics">Key Characteristics</a></h3>
+<ul>
+<li><strong>UTF-8 encoding</strong> - Full Unicode support</li>
+<li><strong>String interpolation</strong> - Embed expressions with <code>${...}</code></li>
+<li><strong>Immutable</strong> - Operations create new strings</li>
+<li><strong>Two quote styles</strong> - Single <code>'</code> or double <code>"</code></li>
+<li><strong>Multiline support</strong> - Triple quotes <code>"""..."""</code></li>
+</ul>
+<h3 id="when-to-use-strings"><a class="header" href="#when-to-use-strings">When to Use Strings</a></h3>
+<p>Use strings for:</p>
+<ul>
+<li>Text and messages</li>
+<li>User input/output</li>
+<li>File paths and URLs</li>
+<li>Configuration values</li>
+<li>Template generation</li>
+</ul>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<h3 id="single-and-double-quotes"><a class="header" href="#single-and-double-quotes">Single and Double Quotes</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Single quotes
+name = 'Alice'
+path = '/tmp/file.txt'
+
+# Double quotes
+greeting = "Hello"
+message = "Welcome to Suji"
+
+println("${greeting}, ${name}!")  # Hello, Alice!
+println(path)                     # /tmp/file.txt
+</code></pre>
+<p>Both work the same for simple strings. String interpolation works with both quote types.</p>
+<h3 id="string-interpolation"><a class="header" href="#string-interpolation">String Interpolation</a></h3>
+<p>Works with both single and double quotes:</p>
+<pre><code class="language-suji">import std:println
+
+name = "Alice"
+age = 30
+
+# Interpolate variables
+println("Hello, ${name}!")  # Hello, Alice!
+println('Hello, ${name}!')  # Hello, Alice! (also works with single quotes)
+
+# Interpolate expressions
+println("Age: ${age + 1}")  # Age: 31
+
+# Multiple interpolations
+println("${name} is ${age} years old")
+</code></pre>
+<h3 id="multiline-strings"><a class="header" href="#multiline-strings">Multiline Strings</a></h3>
+<p>Use triple quotes for multiline text:</p>
+<pre><code class="language-suji">import std:println
+
+text = """
+This is a
+multiline
+string
+"""
+
+println(text)
+</code></pre>
+<h3 id="escape-sequences"><a class="header" href="#escape-sequences">Escape Sequences</a></h3>
+<p>The supported escapes are exactly <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\"</code>, <code>\'</code>, <code>\`</code>, <code>\\</code>
+and <code>\$</code>:</p>
+<pre><code class="language-suji">import std:println
+
+newline = "Line 1\nLine 2"
+tab = "Column 1\tColumn 2"
+quote = "He said \"Hello\""
+backslash = "Path: C:\\Users\\Alice"
+dollar = "Costs \${amount}"   # escape $ to keep it literal
+
+println(newline)
+println(tab)
+println(quote)
+println(backslash)
+println(dollar)  # Costs ${amount}
+</code></pre>
+<p><strong>Any other escape is a lex error</strong>, including the Unicode escapes you may know
+from other languages: <code>\u2764</code>, <code>\u{1F600}</code>, <code>\x41</code>, <code>\0</code> and <code>\e</code> are all
+rejected with <em>Invalid escape sequence</em>. To put a non-ASCII character in a
+string, type the character itself — Suji source is UTF-8:</p>
+<pre><code class="language-suji">import std:println
+
+heart = "❤"
+println(heart)  # ❤
+</code></pre>
+<p>There are also no raw strings; use <code>\\</code> for a literal backslash.</p>
+<h2 id="string-operations"><a class="header" href="#string-operations">String Operations</a></h2>
+<h3 id="concatenation"><a class="header" href="#concatenation">Concatenation</a></h3>
+<pre><code class="language-suji">import std:println
+
+first = "Hello"
+last = "World"
+
+# Using +
+result = first + " " + last
+println(result)  # Hello World
+
+# Using interpolation
+result = "${first} ${last}"
+println(result)  # Hello World
+</code></pre>
+<h3 id="length"><a class="header" href="#length">Length</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "Hello"
+println(text::length())  # 5
+
+# Counts characters, not bytes
+accented = "café"
+println(accented::length())  # 4
+</code></pre>
+<h3 id="indexing"><a class="header" href="#indexing">Indexing</a></h3>
+<p>Access characters by position (0-based):</p>
+<pre><code class="language-suji">import std:println
+
+text = "Hello"
+println(text[0])  # H
+println(text[4])  # o
+
+# Negative indices count from end
+println(text[-1])  # o
+println(text[-2])  # l
+</code></pre>
+<h3 id="slicing"><a class="header" href="#slicing">Slicing</a></h3>
+<p>Extract substrings using semicolon syntax:</p>
+<pre><code class="language-suji">import std:println
+
+text = "Hello, World!"
+
+# Range [start;end) - includes start, excludes end
+println(text[0;5])    # Hello
+println(text[7;12])   # World
+
+# From start
+println(text[;7])     # Hello,
+
+# To end
+println(text[7;])      # World!
+</code></pre>
+<h2 id="string-methods"><a class="header" href="#string-methods">String Methods</a></h2>
+<h3 id="case-conversion"><a class="header" href="#case-conversion">Case Conversion</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "Hello World"
+
+println(text::upper())        # HELLO WORLD
+println(text::lower())        # hello world
+</code></pre>
+<h3 id="trimming"><a class="header" href="#trimming">Trimming</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "  hello  "
+
+println(text::trim())         # hello
+
+# Trim specific characters
+text = "***hello***"
+println(text::trim("*"))      # hello
+</code></pre>
+<p><code>trim()</code> always trims both ends. There is no <code>trim_start()</code> or <code>trim_end()</code>.</p>
+<h3 id="searching"><a class="header" href="#searching">Searching</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "Hello, World!"
+
+# Contains
+println(text::contains("World"))    # true
+println(text::contains("xyz"))      # false
+
+# Starts with / ends with
+println(text::starts_with("Hello")) # true
+println(text::ends_with("!"))       # true
+
+# Find position
+println(text::index_of("World"))    # 7
+println(text::index_of("xyz"))      # -1 (not found)
+</code></pre>
+<h3 id="splitting"><a class="header" href="#splitting">Splitting</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "apple,banana,cherry"
+
+# Split by delimiter
+fruits = text::split(",")
+println(fruits)  # [apple, banana, cherry]
+
+# Split by space (default separator is `" "`)
+text = "one two three"
+words = text::split()
+println(words)  # [one, two, three]
+</code></pre>
+<p><code>split()</code> takes a plain string separator only — you cannot split on a regex.</p>
+<h3 id="replacing"><a class="header" href="#replacing">Replacing</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "Hello, World!"
+
+# Replace all occurrences
+result = text::replace("World", "Suji")
+println(result)  # Hello, Suji!
+
+# Replace in a string with multiple occurrences
+text = "foo bar foo"
+result = text::replace("foo", "baz")
+println(result)  # baz bar baz
+</code></pre>
+<p>Both arguments must be strings. <code>text::replace(/foo/, "baz")</code> is a type error —
+there is no regex-based replacement in Suji.</p>
+<h3 id="repeating"><a class="header" href="#repeating">Repeating</a></h3>
+<pre><code class="language-suji">import std:println
+
+println("*"::repeat(5))      # *****
+println("ab"::repeat(3))      # ababab
+</code></pre>
+<h3 id="reversing"><a class="header" href="#reversing">Reversing</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "Hello"
+println(text::reverse())     # olleH
+</code></pre>
+<h3 id="converting-to-list"><a class="header" href="#converting-to-list">Converting to List</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "hello"
+chars = text::to_list()
+println(chars)  # [h, e, l, l, o]
+</code></pre>
+<p><code>to_list()</code> is also how you iterate a string — a string is not directly
+iterable (see <a href="#character-iteration">Character Iteration</a> below).</p>
+<h3 id="methods-that-do-not-exist"><a class="header" href="#methods-that-do-not-exist">Methods That Do Not Exist</a></h3>
+<p>The complete string method list is <code>length</code>, <code>split</code>, <code>to_number</code>, <code>to_list</code>,
+<code>index_of</code>, <code>contains</code>, <code>starts_with</code>, <code>ends_with</code>, <code>replace</code>, <code>trim</code>, <code>upper</code>,
+<code>lower</code>, <code>reverse</code>, <code>repeat</code>, <code>to_string</code> (plus the <code>is_*</code> type predicates).</p>
+<div class="table-wrapper"><table><thead><tr><th>You might reach for</th><th>Use instead</th></tr></thead><tbody>
+<tr><td><code>trim_start()</code> / <code>trim_end()</code></td><td><code>trim()</code> (both ends), or slice manually</td></tr>
+<tr><td><code>is_empty()</code></td><td><code>s::length() == 0</code></td></tr>
+<tr><td><code>capitalize()</code> / <code>title()</code></td><td>slice and <code>upper()</code> the first character (see <a href="#title-case">Title Case</a>)</td></tr>
+<tr><td><code>pad_start()</code> / <code>pad_end()</code></td><td>build the padding with <code>" "::repeat(n)</code></td></tr>
+<tr><td><code>slice()</code> / <code>substring()</code></td><td>slice syntax <code>s[1;3]</code></td></tr>
+<tr><td><code>chars()</code></td><td><code>to_list()</code></td></tr>
+<tr><td><code>lines()</code></td><td><code>split("\n")</code></td></tr>
+<tr><td><code>find()</code></td><td><code>index_of()</code></td></tr>
+<tr><td><code>match()</code> / <code>captures()</code></td><td>the <code>~</code> operator (boolean only)</td></tr>
+<tr><td><code>format()</code></td><td>interpolation <code>"${a} ${b}"</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="pattern-matching"><a class="header" href="#pattern-matching">Pattern Matching</a></h2>
+<h3 id="with-regular-expressions"><a class="header" href="#with-regular-expressions">With Regular Expressions</a></h3>
+<pre><code class="language-suji">import std:println
+
+email = "user@example.com"
+
+# Match operator
+is_valid = email ~ /^[^@]+@[^@]+\.[^@]+$/
+println(is_valid)  # true
+
+text = "Call me at 555-1234"
+words = text::split(" ")
+phones = words::filter(|w| w ~ /^\d{3}-\d{4}$/)
+match {
+    phones::length() &gt; 0 =&gt; { println("Found phone: " + phones[0]) },
+    _ =&gt; println("No phone found"),
+}
+</code></pre>
+<p>See <a href="regex.html">Regular Expressions</a> for more details.</p>
+<h2 id="advanced-patterns"><a class="header" href="#advanced-patterns">Advanced Patterns</a></h2>
+<h3 id="template-strings"><a class="header" href="#template-strings">Template Strings</a></h3>
+<pre><code class="language-suji">import std:println
+
+template = |name, age| {
+    """
+    Name: ${name}
+    Age: ${age}
+    Status: ${match { age &gt;= 18 =&gt; "Adult", _ =&gt; "Minor", }}
+    """
+}
+
+println(template("Alice", 30))
+</code></pre>
+<h3 id="string-builder-pattern"><a class="header" href="#string-builder-pattern">String Builder Pattern</a></h3>
+<p>For building strings efficiently:</p>
+<pre><code class="language-suji">import std:println
+
+build_html = |items| {
+    html = "&lt;ul&gt;"
+    loop through items with item {
+        html = html + "&lt;li&gt;${item}&lt;/li&gt;"
+    }
+    html = html + "&lt;/ul&gt;"
+    html
+}
+
+items = ["Apple", "Banana", "Cherry"]
+println(build_html(items))
+</code></pre>
+<h3 id="multi-line-with-indentation"><a class="header" href="#multi-line-with-indentation">Multi-line with Indentation</a></h3>
+<pre><code class="language-suji">import std:println
+
+query = """
+    SELECT *
+    FROM users
+    WHERE age &gt;= 18
+      AND status = 'active'
+    ORDER BY name
+"""
+
+println(query)
+</code></pre>
+<h2 id="type-conversion"><a class="header" href="#type-conversion">Type Conversion</a></h2>
+<h3 id="to-string"><a class="header" href="#to-string">To String</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Numbers
+println(42::to_string())       # 42
+
+# Booleans
+println(true::to_string())     # true
+
+# Lists/Maps
+println([1, 2, 3]::to_string())  # [1, 2, 3]
+</code></pre>
+<p><code>to_string()</code> is required whenever you mix types with <code>+</code>: <code>"n = " + 1</code> is a type
+error, while <code>"n = " + 1::to_string()</code> (or just <code>"n = ${1}"</code>) works.</p>
+<h3 id="from-string"><a class="header" href="#from-string">From String</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Parse number
+num = "42"::to_number()
+println(num)                   # 42
+
+# Parse boolean
+parse_bool = |s| {
+    match s {
+        "true" =&gt; true,
+        "false" =&gt; false,
+        _ =&gt; nil,
+    }
+}
+println(parse_bool("true"))    # true
+</code></pre>
+<h2 id="unicode-support"><a class="header" href="#unicode-support">Unicode Support</a></h2>
+<h3 id="unicode-length"><a class="header" href="#unicode-length">Unicode Length</a></h3>
+<p><code>String::length()</code> counts Unicode scalar values (Rust <code>char</code>s), not grapheme clusters:</p>
+<pre><code class="language-suji">import std:println
+
+text = "Hello World"
+println(text::length())         # 11
+
+# Diacritics: a precomposed é is one scalar value
+text = "café"
+println(text::length())         # 4
+
+# An emoji is usually one scalar value too
+text = "👍"
+println(text::length())         # 1
+</code></pre>
+<p>Because the unit is the scalar value and not the grapheme cluster, a character
+written as a base letter plus a combining mark counts as two, and a
+multi-codepoint emoji (a flag, or a family with zero-width joiners) counts as
+several. Indexing and <code>length()</code> are therefore O(n) walks over the string.</p>
+<h3 id="character-iteration"><a class="header" href="#character-iteration">Character Iteration</a></h3>
+<p>A string is <strong>not</strong> iterable: <code>loop through "Hello"</code> fails with
+<em>Cannot iterate over string</em>. Convert it to a list of characters first:</p>
+<pre><code class="language-suji">import std:println
+
+text = "Hello"
+loop through text::to_list() with char {
+    println(char)
+}
+# H
+# e
+# l
+# l
+# o
+</code></pre>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-index-out-of-bounds"><a class="header" href="#pitfall-1-index-out-of-bounds">Pitfall 1: Index Out of Bounds</a></h3>
+<p>There is no way to catch a runtime error, so check the length before indexing:</p>
+<pre><code class="language-suji">import std:println
+
+text = "Hello"
+
+# This would terminate the program:
+# char = text[10]  # Runtime error: Index out of bounds
+
+char = match {
+    text::length() &gt; 10 =&gt; text[10],
+    _ =&gt; nil,
+}
+println(char)  # nil
+</code></pre>
+<h3 id="pitfall-2-mutability-confusion"><a class="header" href="#pitfall-2-mutability-confusion">Pitfall 2: Mutability Confusion</a></h3>
+<pre><code class="language-suji">import std:println
+
+text = "Hello"
+result = text::upper()  # Returns "HELLO", doesn't modify text
+
+# Original unchanged
+println(text)    # Hello
+println(result)  # HELLO
+
+# Rebind the variable to "modify" it
+text = text::upper()
+println(text)    # HELLO
+</code></pre>
+<h3 id="pitfall-3-string-comparison"><a class="header" href="#pitfall-3-string-comparison">Pitfall 3: String Comparison</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Case-sensitive by default
+println("Hello" == "hello")                        # false
+
+# Case-insensitive comparison
+println("Hello"::lower() == "hello"::lower())      # true
+
+# `&lt;` and `&gt;` compare lexicographically, but only between two strings —
+# comparing a string with a number is a type error
+println("apple" &lt; "banana")                        # true
+</code></pre>
+<h2 id="performance-considerations"><a class="header" href="#performance-considerations">Performance Considerations</a></h2>
+<h3 id="string-concatenation"><a class="header" href="#string-concatenation">String Concatenation</a></h3>
+<p>For many concatenations, collect in list then join:</p>
+<pre><code class="language-suji">import std:println
+
+items = ["a", "b", "c"]
+
+# Slow for many items: every + allocates a new string
+result = ""
+loop through items with item {
+    result = result + item + ", "
+}
+println(result)  # a, b, c,
+
+# Faster, and no trailing separator
+println(items::join(", "))  # a, b, c
+</code></pre>
+<h3 id="string-building"><a class="header" href="#string-building">String Building</a></h3>
+<pre><code class="language-suji">import std:println
+
+items = ["Apple", "Banana"]
+
+# Efficient for complex building: collect the pieces, join once
+parts = []
+loop through items with item {
+    parts::push("&lt;li&gt;${item}&lt;/li&gt;")
+}
+html = parts::join("")
+println(html)  # &lt;li&gt;Apple&lt;/li&gt;&lt;li&gt;Banana&lt;/li&gt;
+</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="email-validation"><a class="header" href="#email-validation">Email Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_email = |email| {
+    email ~ /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+}
+
+println(validate_email("user@example.com"))   # true
+println(validate_email("invalid.email"))      # false
+</code></pre>
+<h3 id="slugify"><a class="header" href="#slugify">Slugify</a></h3>
+<p><code>replace()</code> only accepts strings, so a slug has to be built character by
+character rather than with a regex substitution:</p>
+<pre><code class="language-suji">import std:println
+
+allowed = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+slugify = |text| {
+    out = []
+    loop through text::lower()::to_list() with ch {
+        out::push(match {
+            allowed::contains(ch) =&gt; ch,
+            _ =&gt; "-",
+        })
+    }
+    # Collapse runs of "-" and drop the empty leading/trailing pieces
+    words = out::join("")::split("-")::filter(|p| p::length() &gt; 0)
+    words::join("-")
+}
+
+println(slugify("Hello World!"))   # hello-world
+println(slugify("  Foo &amp; Bar  "))  # foo-bar
+</code></pre>
+<h3 id="parse-csv-line"><a class="header" href="#parse-csv-line">Parse CSV Line</a></h3>
+<pre><code class="language-suji">import std:println
+
+parse_csv_line = |line| {
+    line::split(",")::map(|s| s::trim())
+}
+
+line = "Alice, 30, Engineer"
+fields = parse_csv_line(line)
+println(fields)  # [Alice, 30, Engineer]
+</code></pre>
+<h3 id="title-case"><a class="header" href="#title-case">Title Case</a></h3>
+<pre><code class="language-suji">import std:println
+
+title_case = |text| {
+    words = text::lower()::split()
+    result = []
+    loop through words with word {
+        first = word[0]::upper()
+        rest = word[1;]::lower()
+        result::push(first + rest)
+    }
+    result::join(" ")
+}
+
+println(title_case("hello world"))     # Hello World
+println(title_case("the quick BROWN fox"))  # The Quick Brown Fox
+</code></pre>
+<h3 id="password-strength"><a class="header" href="#password-strength">Password Strength</a></h3>
+<pre><code class="language-suji">import std:println
+
+check_password_strength = |password| {
+    has_length = password::length() &gt;= 8
+    has_upper = password ~ /[A-Z]/
+    has_lower = password ~ /[a-z]/
+    has_digit = password ~ /[0-9]/
+    has_special = password ~ /[!@#$%^&amp;*]/
+    
+    checks = [has_length, has_upper, has_lower, has_digit, has_special]
+    score = checks::filter(|x| x)::length()
+    
+    match score {
+        5 =&gt; "Strong",
+        _ =&gt; match score &gt;= 3 {
+            true =&gt; "Medium",
+            false =&gt; "Weak",
+        },
+    }
+}
+
+println(check_password_strength("abc123"))           # Weak
+println(check_password_strength("Abc123"))           # Medium
+println(check_password_strength("Abc123!@"))         # Strong
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use string interpolation with <code>${...}</code> (works with both single and double quotes)</li>
+<li>Use triple quotes for multiline text</li>
+<li>Use method chaining with <code>::</code> syntax</li>
+<li>Use meaningful variable names</li>
+<li>Handle Unicode correctly</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Concatenate in loops (use join instead)</li>
+<li>Forget strings are immutable</li>
+<li>Ignore Unicode edge cases</li>
+<li>Hard-code strings that should be configurable</li>
+</ul>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="lists.html">Lists</a> for collections of strings</li>
+<li>Explore <a href="regex.html">Regular Expressions</a> for pattern matching</li>
+<li>Study <a href="../../advanced/string-interpolation.html">String Interpolation</a> in depth</li>
+<li>Check out <a href="../../stdlib/encoding.html">Text Encoding</a> in the stdlib</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="regex.html">Regular Expressions</a></li>
+<li><a href="../../advanced/string-interpolation.html">String Interpolation</a></li>
+<li><a href="../../stdlib/encoding.html">Text Encoding</a></li>
+<li><a href="../control-flow/match.html">Pattern Matching</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/data-types/booleans.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/data-types/lists.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/data-types/booleans.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/data-types/lists.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

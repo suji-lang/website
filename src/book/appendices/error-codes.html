@@ -1,0 +1,412 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Error Codes - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/appendices/error-codes.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="error-codes"><a class="header" href="#error-codes">Error Codes</a></h1>
+<p>Every diagnostic Suji prints carries a numeric code. This page lists all of them.</p>
+<h2 id="how-errors-behave"><a class="header" href="#how-errors-behave">How Errors Behave</a></h2>
+<p>Suji has no error-handling construct: no <code>try</code>/<code>catch</code>, no <code>throw</code>, no <code>Result</code>
+or <code>Option</code> type, no <code>defer</code>. <strong>Any diagnosed error terminates the script
+immediately with exit status 1</strong>, and there is no way to trap it from Suji code.
+The only strategy is to check before you act — see
+<a href="../advanced/error-handling.html">Error Handling Deep Dive</a>.</p>
+<p>Two failures escape this taxonomy because they abort the process before a
+diagnostic can be produced. Neither carries a code, and neither can be caught:</p>
+<div class="table-wrapper"><table><thead><tr><th>Failure</th><th>What you see</th><th>Exit status</th></tr></thead><tbody>
+<tr><td>Numeric overflow, including <code>10 ^ 16</code></td><td><code>thread 'main' panicked … Multiplication overflowed</code></td><td>101</td></tr>
+<tr><td>Recursion deeper than a few hundred frames</td><td><code>thread 'main' has overflowed its stack</code></td><td>134</td></tr>
+</tbody></table>
+</div>
+<h2 id="code-ranges"><a class="header" href="#code-ranges">Code Ranges</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Range</th><th>Phase</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>1xx</code></td><td>Lexing</td><td>The source could not be turned into tokens</td></tr>
+<tr><td><code>2xx</code></td><td>Parsing</td><td>The tokens do not form a valid program</td></tr>
+<tr><td><code>4xx</code></td><td>Runtime</td><td>The program started and then failed while running</td></tr>
+</tbody></table>
+</div>
+<p>A <code>1xx</code> or <code>2xx</code> error means nothing ran at all. A <code>4xx</code> error means everything
+before the failing line already executed, including its side effects.</p>
+<h2 id="diagnostic-format"><a class="header" href="#diagnostic-format">Diagnostic Format</a></h2>
+<p>The interpreter prints a framed diagnostic to stderr, followed by a one-line
+summary. The code appears in brackets before the title:</p>
+<pre><code class="language-text">[403] Error: Index out of bounds
+   ╭─[ e1.si:4:9 ]
+   │
+ 4 │ println(xs[5])
+   │         ──┬──
+   │           ╰──── Index 5 out of bounds for length 2
+   │
+   │ Note 1: Use list::length() to check the size before indexing
+   │
+   │ Note 2: Check array/map bounds and key existence
+   │
+   │ Note 3: Use length() methods to verify bounds before access
+───╯
+Error: Index out of bounds: Index 5 out of bounds for length 2
+</code></pre>
+<p>Reading it: <code>403</code> is the code, <code>Index out of bounds</code> is the title,
+<code>e1.si:4:9</code> is the file, line and column, the underline marks the offending
+expression, and the notes are generic suggestions for that error category.</p>
+<h2 id="lexer-errors-1xx"><a class="header" href="#lexer-errors-1xx">Lexer Errors (1xx)</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>101</td><td>Unterminated string literal</td><td>A quote was never closed. Check for a stray <code>"</code> or <code>'</code>, and remember that <code>"""</code> must be closed by <code>"""</code></td></tr>
+<tr><td>102</td><td>Unterminated shell command</td><td>A backtick template was never closed. Escape literal backticks inside strings as <code>\`</code></td></tr>
+<tr><td>103</td><td>Unterminated regex literal</td><td>A <code>/pattern/</code> is missing its closing slash. Escape a literal slash inside the pattern as <code>\/</code></td></tr>
+<tr><td>104</td><td>Invalid escape sequence</td><td>Only <code>\n \t \r \" \' \</code> \ $<code>exist.</code>\u0041<code>, </code>\0<code>and</code>\e` are not supported; write the character directly</td></tr>
+<tr><td>105</td><td>Invalid number literal</td><td>Numbers are decimal digits with at most one <code>.</code>. Hex, octal, binary, digit separators and exponents do not exist</td></tr>
+<tr><td>106</td><td>Unexpected character</td><td>A character that is not part of any token, often a smart quote pasted from a document, or <code>@</code>/<code>?</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="parser-errors-2xx"><a class="header" href="#parser-errors-2xx">Parser Errors (2xx)</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>201</td><td>Unexpected token</td><td>Something is in a position the grammar does not allow. The classic case is a missing comma after a bare-expression <code>match</code> arm</td></tr>
+<tr><td>202</td><td>Unexpected end of input</td><td>A brace, bracket or parenthesis was never closed</td></tr>
+<tr><td>203</td><td>Parse error</td><td>A general parse failure that does not fit a more specific code</td></tr>
+<tr><td>204</td><td>Multiple export statements found</td><td>A file may contain at most one <code>export</code>. Merge the values into a single map</td></tr>
+<tr><td>205</td><td>Expected token</td><td>A specific token was required and something else appeared, for example a missing <code>=&gt;</code> in a match arm</td></tr>
+<tr><td>206</td><td>Expected item name after <code>:</code></td><td>An import path ends in a colon, as in <code>import std:</code></td></tr>
+<tr><td>207</td><td>Expected alias name after <code>as</code></td><td><code>import std:println as</code> has no name after <code>as</code>. Note that aliasing a single-segment local import is also rejected</td></tr>
+</tbody></table>
+</div>
+<h2 id="runtime-errors-4xx"><a class="header" href="#runtime-errors-4xx">Runtime Errors (4xx)</a></h2>
+<h3 id="types-and-operations"><a class="header" href="#types-and-operations">Types and Operations</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>400</td><td>Type error</td><td>Mixed types in an operation. <code>"a" + 1</code>, <code>nil || "x"</code>, indexing a tuple, comparing a number with a string using <code>&lt;</code></td></tr>
+<tr><td>402</td><td>Invalid operation</td><td>The operation is not defined for these values at all, such as an unsupported unary application</td></tr>
+<tr><td>410</td><td>Invalid number conversion</td><td><code>"abc"::to_number()</code> on text that is not numeric. Validate with a regex before converting</td></tr>
+</tbody></table>
+</div>
+<h3 id="names-and-access"><a class="header" href="#names-and-access">Names and Access</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>401</td><td>Undefined variable</td><td>A typo, a missing <code>import</code>, or a keyword from another language such as <code>if</code> being read as an identifier</td></tr>
+<tr><td>403</td><td>Index out of bounds</td><td>A list index outside <code>0 .. length-1</code> (or the negative equivalent). Check <code>xs::length()</code> first</td></tr>
+<tr><td>404</td><td>Key not found</td><td><code>m:key</code> or <code>m[k]</code> on an absent key. Use <code>m::get(k, default)</code> or <code>m::contains(k)</code></td></tr>
+<tr><td>405</td><td>Invalid key type</td><td>Map keys must be numbers, booleans, strings or tuples. Lists and maps cannot be keys</td></tr>
+<tr><td>412</td><td>String index error</td><td>A character index outside the string. Check <code>s::length()</code> first</td></tr>
+<tr><td>413</td><td>Range error</td><td>Range bounds must be integers, and very large ranges allocate a full list</td></tr>
+</tbody></table>
+</div>
+<h3 id="calls-and-control-flow"><a class="header" href="#calls-and-control-flow">Calls and Control Flow</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>408</td><td>Arity mismatch</td><td>Wrong number of arguments. Give the parameter a default value if it should be optional</td></tr>
+<tr><td>409</td><td>Method error</td><td>The method does not exist for that type. Check the spelling and the type’s method list</td></tr>
+<tr><td>411</td><td>Internal control flow error</td><td>A <code>break</code>, <code>continue</code> or <code>return</code> escaped its construct. Usually indicates a bug worth reporting</td></tr>
+<tr><td>416</td><td>Conditional match error</td><td>An arm of a <code>match { … }</code> did not evaluate to a boolean</td></tr>
+<tr><td>426</td><td>Map method error</td><td>A map method was called with the wrong arguments, for example <code>m::get()</code> with no key</td></tr>
+</tbody></table>
+</div>
+<h3 id="collections-and-destructuring"><a class="header" href="#collections-and-destructuring">Collections and Destructuring</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>414</td><td>List concatenation error</td><td><code>+</code> was used between a list and a non-list. Use <code>xs::push(v)</code> to add one item</td></tr>
+<tr><td>415</td><td>Map contains error</td><td><code>m::contains(k)</code> was called with a key of an unusable type</td></tr>
+<tr><td>434</td><td>Destructuring type error</td><td><code>a, b = value</code> where the right side is not a tuple</td></tr>
+<tr><td>435</td><td>Destructuring arity mismatch</td><td>The number of targets does not match the tuple size. Use <code>_</code> to discard a position</td></tr>
+<tr><td>436</td><td>Invalid destructuring target</td><td>A destructuring target is not assignable</td></tr>
+</tbody></table>
+</div>
+<h3 id="pipes"><a class="header" href="#pipes">Pipes</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>429</td><td>Pipe stage type error</td><td>A <code>|</code> stage is neither a closure call nor a shell template</td></tr>
+<tr><td>430</td><td>Empty pipe expression</td><td>A <code>|</code> has nothing on one side</td></tr>
+<tr><td>431</td><td>Pipe execution error</td><td>A stage of a <code>|</code> pipeline failed while running</td></tr>
+<tr><td>432</td><td>Pipe apply type error</td><td><code>|&gt;</code> has a non-function on the right</td></tr>
+<tr><td>433</td><td>Pipe apply type error</td><td><code>&lt;|</code> has a non-function on the left</td></tr>
+</tbody></table>
+</div>
+<h3 id="system-streams-and-regex"><a class="header" href="#system-streams-and-regex">System, Streams and Regex</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>406</td><td>Shell command failed</td><td>A backtick command exited non-zero. Neutralise it with <code>`cmd || true`</code> or make the command print a value you can match on</td></tr>
+<tr><td>407</td><td>Regex error</td><td>The pattern could not be compiled, or <code>~</code> was applied to something other than <code>string ~ regex</code></td></tr>
+<tr><td>427</td><td>Stream error</td><td>A read or write on a closed, missing or unreadable stream</td></tr>
+</tbody></table>
+</div>
+<h3 id="data-formats"><a class="header" href="#data-formats">Data Formats</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Code</th><th>Title</th><th>Usual cause and fix</th></tr></thead><tbody>
+<tr><td>417</td><td>JSON parse error</td><td>Malformed JSON text</td></tr>
+<tr><td>418</td><td>JSON generation error</td><td>The value contains something JSON cannot hold, such as a function or a regex</td></tr>
+<tr><td>419</td><td>YAML parse error</td><td>Malformed YAML text, usually indentation</td></tr>
+<tr><td>420</td><td>YAML generation error</td><td>The value contains something YAML cannot hold</td></tr>
+<tr><td>421</td><td>TOML parse error</td><td>Malformed TOML text</td></tr>
+<tr><td>422</td><td>TOML generation error</td><td>TOML has no nil, and functions and regex cannot be written</td></tr>
+<tr><td>423</td><td>TOML conversion error</td><td>A TOML key was not a string, or a nil appeared in the value</td></tr>
+<tr><td>424</td><td>CSV parse error</td><td>Unclosed quotes or an unusable delimiter</td></tr>
+<tr><td>425</td><td>CSV generation error</td><td><code>csv:generate</code> expects a list of lists of strings; convert numbers first</td></tr>
+<tr><td>428</td><td>Serialization error</td><td>A value that cannot be serialised at all, such as a stream, reached a format writer</td></tr>
+</tbody></table>
+</div>
+<h2 id="checking-before-you-act"><a class="header" href="#checking-before-you-act">Checking Before You Act</a></h2>
+<p>Because nothing can be caught, the defensive patterns below are the whole
+error-handling story.</p>
+<pre><code class="language-suji">import std:println
+
+safe_divide = |a, b| {
+    match {
+        b == 0 =&gt; nil,
+        _ =&gt; a / b,
+    }
+}
+
+config = {host: "localhost"}
+xs = [1, 2, 3]
+
+println(safe_divide(10, 0))            # nil
+println(safe_divide(10, 4))            # 2.50
+println(config::get("port", 8080))     # 8080
+println(config::contains("host"))      # true
+println(xs::length() &gt; 0)              # true
+println(xs::first(0))                  # 1
+</code></pre>
+<p>For a shell command that may fail, make failure produce a value instead of an
+error:</p>
+<pre><code class="language-suji">import std:println
+
+status = `test -f /definitely/not/here &amp;&amp; echo found || echo missing`
+
+println(status)  # missing
+</code></pre>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../advanced/error-handling.html">Error Handling Deep Dive</a></li>
+<li><a href="syntax-reference.html">Syntax Reference</a></li>
+<li><a href="../advanced/type-checking.html">Type Checking Methods</a></li>
+<li><a href="../advanced/shell-integration.html">Shell Integration Best Practices</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../appendices/precedence.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../appendices/glossary.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../appendices/precedence.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../appendices/glossary.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

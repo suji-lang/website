@@ -1,0 +1,582 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Multiple Return Values - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/functions/multiple-returns.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="multiple-return-values"><a class="header" href="#multiple-return-values">Multiple Return Values</a></h1>
+<p>Functions can return multiple values using tuples, enabling elegant error handling and complex result patterns.</p>
+<p>Two rules apply throughout this chapter:</p>
+<ul>
+<li>Return several values with <code>return a, b</code>, which builds a tuple.</li>
+<li>Destructure <strong>without</strong> parentheses: <code>a, b = f()</code>. A line that begins with <code>(</code> is
+parsed as a call on the previous expression, so <code>(a, b) = f()</code> does not destructure.</li>
+</ul>
+<h2 id="basic-multiple-returns"><a class="header" href="#basic-multiple-returns">Basic Multiple Returns</a></h2>
+<pre><code class="language-suji">import std:println
+
+divide_with_remainder = |a, b| {
+    quotient = (a / b)::floor()
+    return quotient, a % b
+}
+
+q, r = divide_with_remainder(17, 5)
+println("${q} remainder ${r}")  # 3 remainder 2
+</code></pre>
+<h2 id="destructuring-returns"><a class="header" href="#destructuring-returns">Destructuring Returns</a></h2>
+<h3 id="basic-destructuring"><a class="header" href="#basic-destructuring">Basic Destructuring</a></h3>
+<pre><code class="language-suji">import std:println
+
+get_coordinates = || (10, 20, 30)
+
+x, y, z = get_coordinates()
+println("x:${x}, y:${y}, z:${z}")  # x:10, y:20, z:30
+</code></pre>
+<h3 id="ignoring-values"><a class="header" href="#ignoring-values">Ignoring Values</a></h3>
+<p>Use underscore to ignore unwanted values:</p>
+<pre><code class="language-suji">import std:println
+
+# total, average, min, max
+get_stats = || (100, 50, 25, 10)
+
+total, avg, _, _ = get_stats()
+println("Total: ${total}, Average: ${avg}")  # Total: 100, Average: 50
+</code></pre>
+<h2 id="resulterror-pattern"><a class="header" href="#resulterror-pattern">Result/Error Pattern</a></h2>
+<p>Common pattern for error handling:</p>
+<pre><code class="language-suji">import std:println
+
+safe_divide = |a, b| {
+    match { b == 0 =&gt; (nil, "Division by zero"), _ =&gt; (a / b, nil), }
+}
+
+result, error = safe_divide(10, 2)
+match error {
+    nil =&gt; println("Result: ${result}"),   # Result: 5
+    _ =&gt; println("Error: ${error}"),
+}
+
+failed, why = safe_divide(10, 0)
+println(why)  # Division by zero
+</code></pre>
+<p>Patterns do not bind, so the second arm is <code>_</code> and reads <code>error</code> directly. This is the
+only way to react to a failure: a real division by zero terminates the program, so the
+check has to happen before the operation.</p>
+<h2 id="validation-results"><a class="header" href="#validation-results">Validation Results</a></h2>
+<pre><code class="language-suji">import std:println
+
+validate_user = |user| {
+    # Check multiple conditions
+    user:name == nil &amp;&amp; return false, "Name is required"
+    user:name::length() &lt; 3 &amp;&amp; return false, "Name too short"
+    user:age &lt; 18 &amp;&amp; return false, "Must be 18+"
+
+    return true, nil
+}
+
+valid, error = validate_user({name: "Alice", age: 30})
+match { valid =&gt; println("User is valid"), _ =&gt; println("Validation error: ${error}"), }
+# User is valid
+
+ok, problem = validate_user({name: "Al", age: 30})
+println(problem)  # Name too short
+</code></pre>
+<h2 id="parsing-results"><a class="header" href="#parsing-results">Parsing Results</a></h2>
+<pre><code class="language-suji">import std:println
+
+parse_int = |text| {
+    # Validate before converting: to_number() on junk is a runtime error
+    match { text ~ /^\d+$/ =&gt; (text::to_number(), nil), _ =&gt; (nil, "Invalid integer format"), }
+}
+
+value, error = parse_int("123")
+match error {
+    nil =&gt; println("Parsed: ${value}"),   # Parsed: 123
+    _ =&gt; println("Error: ${error}"),
+}
+
+bad, why = parse_int("12x")
+println(why)  # Invalid integer format
+</code></pre>
+<h2 id="multiple-validation-results"><a class="header" href="#multiple-validation-results">Multiple Validation Results</a></h2>
+<pre><code class="language-suji">import std:println
+
+validate_form = |form| {
+    errors = []
+    warnings = []
+
+    # Collect errors — get() avoids the "Key not found" error on absent keys
+    email = form::get("email")
+    phone = form::get("phone")
+
+    match { email == nil =&gt; errors::push("Email required"), _ =&gt; nil, }
+    match { email != nil &amp;&amp; !(email ~ /@/) =&gt; errors::push("Invalid email"), _ =&gt; nil, }
+
+    # Collect warnings
+    match { phone == nil =&gt; warnings::push("Phone recommended"), _ =&gt; nil, }
+
+    return errors, warnings
+}
+
+errors, warnings = validate_form({email: "test@example.com"})
+println("Errors: ${errors::length()}")      # Errors: 0
+println("Warnings: ${warnings::length()}")  # Warnings: 1
+</code></pre>
+<h2 id="complex-state-returns"><a class="header" href="#complex-state-returns">Complex State Returns</a></h2>
+<pre><code class="language-suji">import std:println
+
+process_transaction = |account, amount| {
+    old_balance = account:balance
+    new_balance = old_balance + amount
+
+    status = match {
+        new_balance &lt; 0 =&gt; "overdrawn",
+        new_balance &lt; 100 =&gt; "low",
+        _ =&gt; "ok",
+    }
+
+    return new_balance, old_balance, status
+}
+
+new_bal, old_bal, status = process_transaction({balance: 150}, -75)
+
+println("Old: ${old_bal}, New: ${new_bal}, Status: ${status}")
+# Old: 150, New: 75, Status: low
+</code></pre>
+<h2 id="option-pattern"><a class="header" href="#option-pattern">Option Pattern</a></h2>
+<p>Represent optional values:</p>
+<pre><code class="language-suji">import std:println
+
+find_user = |id| {
+    users = {
+        1: {name: "Alice", age: 30},
+        2: {name: "Bob", age: 25},
+    }
+
+    user = users::get(id)
+    match user {
+        nil =&gt; (nil, false),
+        _ =&gt; (user, true),
+    }
+}
+
+user, found = find_user(1)
+match { found =&gt; println("Found: ${user:name}"), _ =&gt; println("User not found"), }
+# Found: Alice
+
+missing, was_found = find_user(99)
+println(was_found)  # false
+</code></pre>
+<p>Suji has no <code>Option</code> type; a <code>(value, found)</code> pair is the idiom, and <code>map::get(key)</code>
+returns <code>nil</code> instead of raising when the key is absent.</p>
+<h2 id="tuples-of-structures"><a class="header" href="#tuples-of-structures">Tuples of Structures</a></h2>
+<p>Tuple elements can be any value, including maps:</p>
+<pre><code class="language-suji">import std:println
+
+get_user_with_address = || {
+    person = {name: "Alice", age: 30}
+    address = {city: "Boston", zip: "02101"}
+    return person, address
+}
+
+user, address = get_user_with_address()
+println("${user:name} lives in ${address:city}")  # Alice lives in Boston
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="successfailure"><a class="header" href="#successfailure">Success/Failure</a></h3>
+<pre><code class="language-suji">import std:println
+
+try_operation = |input| {
+    success = input != nil
+
+    match {
+        success =&gt; (input::upper(), nil),
+        _ =&gt; (nil, "no input given"),
+    }
+}
+
+data, error = try_operation("payload")
+println(data)  # PAYLOAD
+
+nothing, problem = try_operation(nil)
+println(problem)  # no input given
+</code></pre>
+<h3 id="beforeafter-state"><a class="header" href="#beforeafter-state">Before/After State</a></h3>
+<pre><code class="language-suji">import std:println
+
+update_counter = |current| {
+    before = current
+    after = current + 1
+    return before, after
+}
+
+old, new = update_counter(5)
+println("Changed from ${old} to ${new}")  # Changed from 5 to 6
+</code></pre>
+<h3 id="minmax-pair"><a class="header" href="#minmax-pair">Min/Max Pair</a></h3>
+<pre><code class="language-suji">import std:println
+
+get_range = |list| {
+    match list::length() {
+        0 =&gt; (nil, nil),
+        _ =&gt; (list::min(), list::max()),
+    }
+}
+
+lowest, highest = get_range([3, 1, 4, 1, 5, 9])
+println("Min: ${lowest}, Max: ${highest}")  # Min: 1, Max: 9
+</code></pre>
+<h3 id="split-result"><a class="header" href="#split-result">Split Result</a></h3>
+<pre><code class="language-suji">import std:println
+
+partition_by_predicate = |list, pred| {
+    matching = []
+    non_matching = []
+
+    loop through list with item {
+        match pred(item) {
+            true =&gt; { matching::push(item) },
+            false =&gt; { non_matching::push(item) },
+        }
+    }
+
+    return matching, non_matching
+}
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+evens, odds = partition_by_predicate(numbers, |x| x % 2 == 0)
+
+println("Evens: ${evens}")  # [2, 4, 6, 8, 10]
+println("Odds: ${odds}")    # [1, 3, 5, 7, 9]
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use tuples for multiple related values</li>
+<li>Use (value, error) pattern for operations that can fail</li>
+<li>Destructure immediately when possible</li>
+<li>Use underscore for unwanted values</li>
+<li>Keep tuple size reasonable (2-4 elements)</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Return large tuples (use maps instead)</li>
+<li>Mix unrelated values in tuples</li>
+<li>Forget to check error values</li>
+<li>Overuse tuples when single value suffices</li>
+<li>Create deeply nested tuples</li>
+</ul>
+<h2 id="tuples-are-not-indexable"><a class="header" href="#tuples-are-not-indexable">Tuples Are Not Indexable</a></h2>
+<p>Destructuring is the only cheap way into a tuple. <code>t[0]</code> is a type error, and there is
+no <code>t::get(0)</code> or <code>t::first()</code>; the fallback is <code>to_list()</code>, which copies:</p>
+<pre><code class="language-suji">import std:println
+
+function_returning_tuple = || (1, 2)
+
+# Preferred
+a, b = function_returning_tuple()
+println("${a} ${b}")  # 1 2
+
+# Works, but allocates a list
+values = function_returning_tuple()::to_list()
+println(values[0])  # 1
+
+# values = function_returning_tuple()
+# values[0]
+# =&gt; Type error: Cannot index tuple
+</code></pre>
+<p>Tuples also support <code>length()</code> and <code>to_string()</code>.</p>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="http-response-pattern"><a class="header" href="#http-response-pattern">HTTP Response Pattern</a></h3>
+<pre><code class="language-suji">import std:println
+
+fetch_data = |url| {
+    # Simulated HTTP response
+    status = 200
+    data = {users: ["Alice", "Bob"]}
+
+    return status, data, nil
+}
+
+status, data, error = fetch_data("https://api.example.com")
+
+match status {
+    200 =&gt; println("Success: ${data}"),
+    _ =&gt; println("Error: ${error}"),
+}
+# Success: {users: [Alice, Bob]}
+</code></pre>
+<h3 id="database-query-result"><a class="header" href="#database-query-result">Database Query Result</a></h3>
+<pre><code class="language-suji">import std:println
+
+query_users = |conditions| {
+    # Simulated query
+    rows = [{id: 1, name: "Alice"}, {id: 2, name: "Bob"}]
+
+    return rows, rows::length(), false
+}
+
+users, total, has_more = query_users({active: true})
+println("Found ${total} users")  # Found 2 users
+</code></pre>
+<h3 id="parser-result"><a class="header" href="#parser-result">Parser Result</a></h3>
+<pre><code class="language-suji">import std:println
+
+parse_command = |input| {
+    parts = input::split()
+
+    match parts::length() {
+        0 =&gt; (nil, nil, "Empty command"),
+        1 =&gt; (parts[0], [], nil),
+        _ =&gt; (parts[0], parts[1;], nil),
+    }
+}
+
+cmd, args, error = parse_command("git commit -m message")
+println(cmd)   # git
+println(args)  # [commit, -m, message]
+</code></pre>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../fundamentals/data-types/tuples.html">Tuples</a></li>
+<li><a href="basics.html">Function Basics</a></li>
+<li><a href="../advanced/error-handling.html">Error Handling</a></li>
+<li><a href="../fundamentals/control-flow/match.html">Pattern Matching</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../functions/recursion.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../modules/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../functions/recursion.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../modules/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

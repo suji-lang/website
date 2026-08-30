@@ -1,0 +1,587 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Higher-Order Functions - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/functions/higher-order.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="higher-order-functions"><a class="header" href="#higher-order-functions">Higher-Order Functions</a></h1>
+<p>Higher-order functions are functions that take other functions as parameters or return functions as results.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Higher-order functions enable powerful abstraction and code reuse by treating functions as first-class values.</p>
+<h2 id="functions-as-parameters"><a class="header" href="#functions-as-parameters">Functions as Parameters</a></h2>
+<h3 id="basic-example"><a class="header" href="#basic-example">Basic Example</a></h3>
+<pre><code class="language-suji">import std:println
+
+apply_twice = |fn, x| {
+    fn(fn(x))
+}
+
+double = |x| x * 2
+increment = |x| x + 1
+
+println(apply_twice(double, 3))     # 12 (double(double(3)))
+println(apply_twice(increment, 5))  # 7 (increment(increment(5)))
+</code></pre>
+<h3 id="map"><a class="header" href="#map">Map</a></h3>
+<p>Transform each element in a collection:</p>
+<pre><code class="language-suji">import std:println
+
+numbers = [1, 2, 3, 4, 5]
+squared = numbers::map(|x| x * x)
+println(squared)  # [1, 4, 9, 16, 25]
+</code></pre>
+<h3 id="filter"><a class="header" href="#filter">Filter</a></h3>
+<p>Keep only elements that match a predicate:</p>
+<pre><code class="language-suji">import std:println
+
+numbers = [1, 2, 3, 4, 5, 6]
+evens = numbers::filter(|x| x % 2 == 0)
+println(evens)  # [2, 4, 6]
+</code></pre>
+<h3 id="fold"><a class="header" href="#fold">Fold</a></h3>
+<p>Combine elements into a single value with <code>fold(initial, fn)</code>. This is the only
+reducing method — there is no <code>list::reduce()</code>:</p>
+<pre><code class="language-suji">import std:println
+
+numbers = [1, 2, 3, 4, 5]
+sum = numbers::fold(0, |acc, x| acc + x)
+product = numbers::fold(1, |acc, x| acc * x)
+
+println(sum)      # 15
+println(product)  # 120
+</code></pre>
+<p><code>map</code>, <code>filter</code> and <code>fold</code> are the built-in higher-order list methods. Anything else
+(<code>each</code>, <code>find</code>, <code>any</code>, <code>all</code>, <code>sort_by</code>, <code>group_by</code>, …) you write yourself with a
+<code>loop through</code>, as shown below.</p>
+<h2 id="functions-as-return-values"><a class="header" href="#functions-as-return-values">Functions as Return Values</a></h2>
+<h3 id="function-factories"><a class="header" href="#function-factories">Function Factories</a></h3>
+<pre><code class="language-suji">import std:println
+
+make_multiplier = |factor| {
+    |x| x * factor
+}
+
+times_2 = make_multiplier(2)
+times_10 = make_multiplier(10)
+
+println(times_2(5))   # 10
+println(times_10(5))  # 50
+</code></pre>
+<h3 id="configurable-functions"><a class="header" href="#configurable-functions">Configurable Functions</a></h3>
+<pre><code class="language-suji">import std:println
+
+create_validator = |min_length, pattern| {
+    check = |input| {
+        long_enough = input::length() &gt;= min_length
+        matches = input ~ pattern
+        long_enough &amp;&amp; matches
+    }
+    check
+}
+
+validate_username = create_validator(3, /^[a-zA-Z0-9_]+$/)
+validate_password = create_validator(8, /^.*[A-Z].*[0-9].*$/)
+
+println(validate_username("abc"))    # true
+println(validate_password("Pass1")) # false (too short)
+</code></pre>
+<h2 id="common-higher-order-functions"><a class="header" href="#common-higher-order-functions">Common Higher-Order Functions</a></h2>
+<h3 id="foreach"><a class="header" href="#foreach">ForEach</a></h3>
+<p>There is no <code>list::each()</code>; <code>loop through</code> is the way to run a function for every
+element, and it wraps up neatly as a helper:</p>
+<pre><code class="language-suji">import std:println
+
+for_each = |list, fn| {
+    loop through list with item {
+        fn(item)
+    }
+}
+
+names = ["Alice", "Bob", "Charlie"]
+for_each(names, |name| println("Hello, ${name}!"))
+</code></pre>
+<h3 id="find"><a class="header" href="#find">Find</a></h3>
+<p><code>list::find()</code> does not exist either. Write it with an early <code>return</code>:</p>
+<pre><code class="language-suji">import std:println
+
+find = |list, predicate| {
+    loop through list with item {
+        predicate(item) &amp;&amp; return item
+    }
+    nil
+}
+
+numbers = [1, 3, 5, 8, 10]
+first_even = find(numbers, |x| x % 2 == 0)
+println(first_even)  # 8
+</code></pre>
+<h3 id="any--all"><a class="header" href="#any--all">Any / All</a></h3>
+<p>Same again — <code>any</code> and <code>all</code> are helpers you define, not methods:</p>
+<pre><code class="language-suji">import std:println
+
+any = |list, predicate| {
+    loop through list with item {
+        predicate(item) &amp;&amp; return true
+    }
+    false
+}
+
+all = |list, predicate| {
+    loop through list with item {
+        !predicate(item) &amp;&amp; return false
+    }
+    true
+}
+
+numbers = [2, 4, 6, 8]
+println(any(numbers, |x| x &gt; 5))        # true
+println(all(numbers, |x| x % 2 == 0))  # true
+</code></pre>
+<h3 id="sort-by"><a class="header" href="#sort-by">Sort By</a></h3>
+<p>There is no built-in <code>list::sort_by()</code>. If you need ordering by a key, write a small helper.</p>
+<pre><code class="language-suji">import std:println
+
+insert_sorted = |list, item, key_fn| {
+    out = []
+    inserted = false
+    loop through list with existing {
+        match { !inserted &amp;&amp; key_fn(item) &lt; key_fn(existing) =&gt; {
+            out::push(item)
+            inserted = true
+        } }
+        out::push(existing)
+    }
+    match { inserted == false =&gt; { out::push(item) } }
+    out
+}
+
+sort_by = |list, key_fn| {
+    result = []
+    loop through list with item {
+        result = insert_sorted(result, item, key_fn)
+    }
+    result
+}
+
+users = [
+    {name: "Alice", age: 30},
+    {name: "Bob", age: 25},
+    {name: "Charlie", age: 35},
+]
+
+by_age = sort_by(users, |u| u:age)
+println(by_age[0]:name)  # Bob (youngest)
+</code></pre>
+<p><code>list::sort()</code> sorts numbers and strings directly; the helper above is only needed when
+you sort by a derived key.</p>
+<h3 id="group-by"><a class="header" href="#group-by">Group By</a></h3>
+<p>Group elements by key function:</p>
+<pre><code class="language-suji">import std:println
+
+group_by = |list, key_fn| {
+    result = {}
+    loop through list with item {
+        key = key_fn(item)
+        group = result::get(key, [])
+        group::push(item)
+        result[key] = group
+    }
+    result
+}
+
+users = [
+    {name: "Alice", role: "admin"},
+    {name: "Bob", role: "user"},
+    {name: "Charlie", role: "admin"},
+]
+
+by_role = group_by(users, |u| u:role)
+println(by_role:admin::length())  # 2
+</code></pre>
+<h2 id="function-combinators"><a class="header" href="#function-combinators">Function Combinators</a></h2>
+<h3 id="compose"><a class="header" href="#compose">Compose</a></h3>
+<p>Combine two functions. Suji has built-in composition operators (<code>&gt;&gt;</code> and <code>&lt;&lt;</code>), but
+writing <code>compose</code> by hand shows what they do:</p>
+<pre><code class="language-suji">import std:println
+
+compose = |f, g| {
+    |x| f(g(x))
+}
+
+add_1 = |x| x + 1
+times_2 = |x| x * 2
+
+# (x + 1) * 2
+add_then_multiply = compose(times_2, add_1)
+println(add_then_multiply(5))  # 12
+
+# The same thing with the operator
+println((add_1 &gt;&gt; times_2)(5))  # 12
+</code></pre>
+<h3 id="pipe"><a class="header" href="#pipe">Pipe</a></h3>
+<p>Apply value through functions:</p>
+<pre><code class="language-suji">import std:println
+
+pipe = |x, functions| {
+    result = x
+    loop through functions with fn {
+        result = fn(result)
+    }
+    result
+}
+
+result = pipe(5, [
+    |x| x + 1,
+    |x| x * 2,
+    |x| x ^ 2,
+])
+println(result)  # 144
+</code></pre>
+<h3 id="partial"><a class="header" href="#partial">Partial</a></h3>
+<p>There are no variadic parameters, so a generic <code>partial</code> is not expressible. Bind the
+known arguments in a closure with the arity you actually need:</p>
+<pre><code class="language-suji">import std:println
+
+add_three = |a, b, c| a + b + c
+
+partial_1 = |fn, first| {
+    rest = |b, c| fn(first, b, c)
+    rest
+}
+
+add_5_and = partial_1(add_three, 5)
+println(add_5_and(3, 7))  # 15
+</code></pre>
+<h2 id="practical-examples"><a class="header" href="#practical-examples">Practical Examples</a></h2>
+<h3 id="data-pipeline"><a class="header" href="#data-pipeline">Data Pipeline</a></h3>
+<pre><code class="language-suji">import std:println
+
+process_data = |data, transformers| {
+    result = data
+    loop through transformers with transform {
+        result = transform(result)
+    }
+    result
+}
+
+data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+result = process_data(data, [
+    |nums| nums::filter(|x| x % 2 == 0),
+    |nums| nums::map(|x| x * x),
+    |nums| nums::fold(0, |acc, x| acc + x)
+])
+
+println(result)  # 220
+</code></pre>
+<h3 id="validation-pipeline"><a class="header" href="#validation-pipeline">Validation Pipeline</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_all = |value, validators| {
+    loop through validators with validator {
+        valid, error = validator(value)
+        !valid &amp;&amp; return false, error
+    }
+    return true, nil
+}
+
+valid, error = validate_all("test@example.com", [
+    |v| match { v != nil =&gt; (true, nil), _ =&gt; (false, "Required"), },
+    |v| match { v::length() &gt; 0 =&gt; (true, nil), _ =&gt; (false, "Not empty"), },
+    |v| match { v ~ /@/ =&gt; (true, nil), _ =&gt; (false, "Invalid email"), },
+])
+
+println(valid)  # true
+println(error)  # nil
+</code></pre>
+<h3 id="retry-logic"><a class="header" href="#retry-logic">Retry Logic</a></h3>
+<p>A function that returns a <code>(value, error)</code> pair can be retried by a higher-order
+wrapper. Suji has no exceptions, so the wrapped function reports failure in its return
+value rather than raising:</p>
+<pre><code class="language-suji">import std:println
+
+retry = |fn, max_attempts| {
+    attempt = 1
+    loop {
+        result, error = fn()
+        done = error == nil || attempt &gt;= max_attempts
+        done &amp;&amp; return result, error
+        attempt = attempt + 1
+    }
+}
+
+# A call that fails the first two times
+attempts = 0
+flaky = || {
+    attempts = attempts + 1
+    match {
+        attempts &lt; 3 =&gt; (nil, "temporary failure"),
+        _ =&gt; ("payload", nil),
+    }
+}
+
+result, error = retry(flaky, 5)
+println(result)   # payload
+println(attempts) # 3
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use higher-order functions for abstraction</li>
+<li>Prefer the built-in methods (<code>map</code>, <code>filter</code>, <code>fold</code>) over hand-written loops</li>
+<li>Name function parameters descriptively</li>
+<li>Keep functions pure when possible</li>
+<li>Use lambdas for simple transformations</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Overuse higher-order functions</li>
+<li>Create deeply nested function calls</li>
+<li>Ignore performance implications</li>
+<li>Make functions too abstract</li>
+<li>Forget about readability</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="basics.html">Function Basics</a></li>
+<li><a href="closures.html">Closures</a></li>
+<li><a href="../fundamentals/operators/composition.html">Function Composition</a></li>
+<li><a href="../fundamentals/data-types/lists.html">Lists</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../functions/closures.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../functions/recursion.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../functions/closures.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../functions/recursion.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

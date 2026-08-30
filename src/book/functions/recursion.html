@@ -1,0 +1,656 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Recursion - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/functions/recursion.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="recursion"><a class="header" href="#recursion">Recursion</a></h1>
+<p>Recursion occurs when a function calls itself to solve a problem by breaking it into smaller sub-problems.</p>
+<p>A function recurses through the name it is assigned to, and every <code>match</code> arm whose
+body is a bare expression needs a trailing comma — including the last arm.</p>
+<blockquote>
+<p><strong>Depth limit:</strong> Suji has no tail-call optimisation. Each call consumes a native stack
+frame, and a few hundred nested calls overflow the stack and abort the process. The
+exact ceiling depends on how much each frame holds — a simple <code>1 + f(n - 1)</code> recursion
+survives 600 levels but not 700, and a two-argument accumulator survives 700 but not
+900. Recursion is for bounded, shallow work; use a <code>loop</code> when the depth grows with the
+size of the input.</p>
+</blockquote>
+<h2 id="basic-recursion"><a class="header" href="#basic-recursion">Basic Recursion</a></h2>
+<pre><code class="language-suji">import std:println
+
+# Factorial
+factorial = |n| {
+    match n {
+        0 =&gt; 1,
+        _ =&gt; n * factorial(n - 1),
+    }
+}
+
+println(factorial(5))  # 120
+</code></pre>
+<h2 id="fibonacci-sequence"><a class="header" href="#fibonacci-sequence">Fibonacci Sequence</a></h2>
+<pre><code class="language-suji">import std:println
+
+fib = |n| {
+    match n {
+        0 =&gt; 0,
+        1 =&gt; 1,
+        _ =&gt; fib(n - 1) + fib(n - 2),
+    }
+}
+
+println(fib(10))  # 55
+</code></pre>
+<h2 id="accumulator-recursion"><a class="header" href="#accumulator-recursion">Accumulator Recursion</a></h2>
+<p>Passing an accumulator keeps the intermediate result in a parameter instead of in the
+pending multiplications:</p>
+<pre><code class="language-suji">import std:println
+
+factorial = |n| {
+    helper = |n, acc| {
+        match n {
+            0 =&gt; acc,
+            _ =&gt; helper(n - 1, n * acc),
+        }
+    }
+    helper(n, 1)
+}
+
+println(factorial(5))  # 120
+</code></pre>
+<p>This is often called <em>tail recursion</em>, but Suji does not optimise it: the accumulator
+version uses exactly as many stack frames as the version above. Its only advantage here
+is that the result is complete as soon as the base case is reached.</p>
+<h2 id="recursion-vs-iteration"><a class="header" href="#recursion-vs-iteration">Recursion vs Iteration</a></h2>
+<h3 id="recursive-sum"><a class="header" href="#recursive-sum">Recursive Sum</a></h3>
+<pre><code class="language-suji">import std:println
+
+sum_recursive = |list| {
+    match list::length() {
+        0 =&gt; 0,
+        _ =&gt; list[0] + sum_recursive(list[1;]),
+    }
+}
+
+println(sum_recursive([1, 2, 3, 4, 5]))  # 15
+</code></pre>
+<h3 id="iterative-sum"><a class="header" href="#iterative-sum">Iterative Sum</a></h3>
+<pre><code class="language-suji">import std:println
+
+sum_iterative = |list| {
+    total = 0
+    loop through list with n {
+        total = total + n
+    }
+    total
+}
+
+println(sum_iterative([1, 2, 3, 4, 5]))  # 15
+</code></pre>
+<p>Both print the same answer, but only the iterative version survives a long list:
+<code>sum_recursive</code> needs one stack frame per element, so it aborts somewhere past a few
+hundred elements.</p>
+<h2 id="common-recursive-patterns"><a class="header" href="#common-recursive-patterns">Common Recursive Patterns</a></h2>
+<h3 id="list-processing"><a class="header" href="#list-processing">List Processing</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Recursive map
+map_recursive = |list, fn| {
+    match list::length() {
+        0 =&gt; [],
+        _ =&gt; [fn(list[0])] + map_recursive(list[1;], fn),
+    }
+}
+
+numbers = [1, 2, 3, 4, 5]
+doubled = map_recursive(numbers, |x| x * 2)
+println(doubled)  # [2, 4, 6, 8, 10]
+</code></pre>
+<h3 id="tree-traversal"><a class="header" href="#tree-traversal">Tree Traversal</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Sum all values in tree
+sum_tree = |node| {
+    match node {
+        nil =&gt; 0,
+        _ =&gt; node:value + sum_tree(node:left) + sum_tree(node:right),
+    }
+}
+
+tree = {
+    value: 10,
+    left: {value: 5, left: nil, right: nil},
+    right: {value: 15, left: nil, right: nil},
+}
+
+println(sum_tree(tree))  # 30
+</code></pre>
+<p>Patterns cannot bind values: a bare identifier in a <code>match</code> pattern is a string literal,
+so the recursive arm is <code>_</code> and reads <code>node</code> directly.</p>
+<h3 id="path-finding"><a class="header" href="#path-finding">Path Finding</a></h3>
+<pre><code class="language-suji">import std:println
+
+find_path = |graph, start, goal, visited| {
+    seen = match visited {
+        nil =&gt; [],
+        _ =&gt; visited,
+    }
+
+    start == goal &amp;&amp; return [goal]
+    seen::contains(start) &amp;&amp; return nil
+
+    seen::push(start)
+    neighbors = graph::get(start, [])
+
+    loop through neighbors with neighbor {
+        path = find_path(graph, neighbor, goal, seen)
+        path != nil &amp;&amp; return [start] + path
+    }
+
+    nil
+}
+
+graph = {
+    a: ["b", "c"],
+    b: ["d"],
+    c: ["d"],
+    d: [],
+}
+
+println(find_path(graph, "a", "d", nil))  # [a, b, d]
+println(find_path(graph, "d", "a", nil))  # nil
+</code></pre>
+<h2 id="recursive-data-structures"><a class="header" href="#recursive-data-structures">Recursive Data Structures</a></h2>
+<h3 id="linked-list"><a class="header" href="#linked-list">Linked List</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Count elements
+count_list = |node| {
+    match node {
+        nil =&gt; 0,
+        _ =&gt; 1 + count_list(node:next),
+    }
+}
+
+list = {value: 1, next: {value: 2, next: {value: 3, next: nil}}}
+println(count_list(list))  # 3
+</code></pre>
+<h3 id="directory-tree"><a class="header" href="#directory-tree">Directory Tree</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Count all files
+count_files = |entry| {
+    match entry:type {
+        "file" =&gt; 1,
+        "directory" =&gt; {
+            total = 0
+            loop through entry:children with child {
+                total = total + count_files(child)
+            }
+            total
+        }
+        _ =&gt; 0,
+    }
+}
+
+tree = {
+    type: "directory",
+    children: [
+        {type: "file"},
+        {type: "directory", children: [{type: "file"}, {type: "file"}]},
+    ],
+}
+
+println(count_files(tree))  # 3
+</code></pre>
+<p>The <code>_ =&gt; 0</code> arm matters: a <code>match</code> with no matching arm evaluates to <code>nil</code>, which would
+break the <code>total + …</code> addition on the next level up.</p>
+<h2 id="mutual-recursion"><a class="header" href="#mutual-recursion">Mutual Recursion</a></h2>
+<p>Functions that call each other:</p>
+<pre><code class="language-suji">import std:println
+
+is_even = |n| {
+    match n {
+        0 =&gt; true,
+        _ =&gt; is_odd(n - 1),
+    }
+}
+
+is_odd = |n| {
+    match n {
+        0 =&gt; false,
+        _ =&gt; is_even(n - 1),
+    }
+}
+
+println(is_even(4))  # true
+println(is_odd(5))   # true
+</code></pre>
+<p><code>is_even</code> may refer to <code>is_odd</code> before it is defined, because the name is looked up when
+the call happens, not when the lambda is created.</p>
+<h2 id="performance-optimization"><a class="header" href="#performance-optimization">Performance Optimization</a></h2>
+<h3 id="memoization"><a class="header" href="#memoization">Memoization</a></h3>
+<p>Cache results to avoid recomputation. The cache has to be consulted <strong>inside</strong> the
+recursive function, so that every sub-call benefits:</p>
+<pre><code class="language-suji">import std:println
+
+fib_cache = {0: 0, 1: 1}
+
+fib = |n| {
+    fib_cache::contains(n) &amp;&amp; return fib_cache[n]
+    result = fib(n - 1) + fib(n - 2)
+    fib_cache[n] = result
+    result
+}
+
+println(fib(60))  # 1548008755920
+</code></pre>
+<p>Without the cache, <code>fib(60)</code> would make more calls than you have patience for; with it,
+each value is computed once. Note that the recursion still goes 60 frames deep, so this
+trick makes the function faster, not deeper.</p>
+<p>A generic wrapper is also possible, but it only caches repeated calls at the top level —
+the recursive calls inside <code>fib_slow</code> still go to the unmemoized function:</p>
+<pre><code class="language-suji">import std:println
+
+memoize = |fn| {
+    cache = {}
+    cached = |arg| {
+        cache::contains(arg) &amp;&amp; return cache[arg]
+        result = fn(arg)
+        cache[arg] = result
+        result
+    }
+    cached
+}
+
+fib_slow = |n| {
+    match n {
+        0 =&gt; 0,
+        1 =&gt; 1,
+        _ =&gt; fib_slow(n - 1) + fib_slow(n - 2),
+    }
+}
+
+fib_fast = memoize(fib_slow)
+println(fib_fast(20))  # 6765 (computed)
+println(fib_fast(20))  # 6765 (from the cache)
+</code></pre>
+<h3 id="no-tail-call-optimization"><a class="header" href="#no-tail-call-optimization">No Tail-Call Optimization</a></h3>
+<p>Suji does <strong>not</strong> optimise tail calls. Both functions below use one stack frame per
+element, so both overflow on a long list — the accumulator version is not a way to
+recurse deeper:</p>
+<pre><code class="language-suji">import std:println
+
+# Tail-recursive in shape, but not optimised
+sum_tail = |list, acc| {
+    match list::length() {
+        0 =&gt; acc,
+        _ =&gt; sum_tail(list[1;], acc + list[0]),
+    }
+}
+
+# Plainly recursive
+sum_regular = |list| {
+    match list::length() {
+        0 =&gt; 0,
+        _ =&gt; list[0] + sum_regular(list[1;]),
+    }
+}
+
+small = 1..=50
+println(sum_tail(small, 0))    # 1275
+println(sum_regular(small))    # 1275
+
+# sum_tail(1..=5000, 0)
+# =&gt; aborts with "thread 'main' has overflowed its stack"
+</code></pre>
+<p>When the depth follows the size of the input, use <code>list::fold()</code> or a <code>loop</code>:</p>
+<pre><code class="language-suji">import std:println
+
+big = 1..=10000
+println(big::fold(0, |acc, x| acc + x))  # 50005000
+</code></pre>
+<h2 id="when-to-use-recursion"><a class="header" href="#when-to-use-recursion">When to Use Recursion</a></h2>
+<h3 id="good-use-cases"><a class="header" href="#good-use-cases">Good Use Cases:</a></h3>
+<ul>
+<li>Tree/graph traversal</li>
+<li>Divide-and-conquer algorithms</li>
+<li>Parsing nested structures</li>
+<li>Mathematical sequences</li>
+<li>Backtracking algorithms</li>
+</ul>
+<h3 id="avoid-recursion-for"><a class="header" href="#avoid-recursion-for">Avoid Recursion For:</a></h3>
+<ul>
+<li>Simple list iteration (use loops)</li>
+<li>Deep recursion (stack overflow risk)</li>
+<li>When iterative solution is clearer</li>
+<li>Performance-critical hot paths</li>
+</ul>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Always have base case</li>
+<li>Keep the depth bounded and small (a few hundred frames at most)</li>
+<li>Consider memoization for expensive recursion</li>
+<li>Document recursive logic</li>
+<li>Test with edge cases (empty, single element)</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Forget the base case</li>
+<li>Create infinite recursion — there is no trampolining, it aborts the process</li>
+<li>Use recursion for simple loops</li>
+<li>Expect tail calls to be optimised</li>
+<li>Over-complicate with recursion</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="flatten-nested-lists"><a class="header" href="#flatten-nested-lists">Flatten Nested Lists</a></h3>
+<pre><code class="language-suji">import std:println
+
+flatten = |list| {
+    result = []
+    loop through list with item {
+        match {
+            item::is_list() =&gt; { result = result + flatten(item) },
+            _ =&gt; result::push(item),
+        }
+    }
+    result
+}
+
+nested = [1, [2, 3], [4, [5, 6]], 7]
+println(flatten(nested))  # [1, 2, 3, 4, 5, 6, 7]
+</code></pre>
+<h3 id="quick-sort"><a class="header" href="#quick-sort">Quick Sort</a></h3>
+<pre><code class="language-suji">import std:println
+
+quicksort = |list| {
+    match list::length() {
+        0 =&gt; [],
+        1 =&gt; list,
+        _ =&gt; {
+            pivot = list[0]
+            rest = list[1;]
+
+            less = rest::filter(|x| x &lt; pivot)
+            greater = rest::filter(|x| x &gt;= pivot)
+
+            quicksort(less) + [pivot] + quicksort(greater)
+        },
+    }
+}
+
+unsorted = [3, 1, 4, 1, 5, 9, 2, 6, 5]
+println(quicksort(unsorted))  # [1, 1, 2, 3, 4, 5, 5, 6, 9]
+</code></pre>
+<h3 id="generate-permutations"><a class="header" href="#generate-permutations">Generate Permutations</a></h3>
+<pre><code class="language-suji">import std:println
+
+permutations = |list| {
+    match list::length() {
+        0 =&gt; [[]],
+        _ =&gt; {
+            result = []
+            i = 0
+            loop through list with item {
+                rest = list[0;i] + list[i + 1;]
+                loop through permutations(rest) with perm {
+                    result::push([item] + perm)
+                }
+                i = i + 1
+            }
+            result
+        }
+    }
+}
+
+println(permutations([1, 2, 3]))
+# [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]
+</code></pre>
+<p><code>loop through</code> over a list binds one variable, the element. Track the index with a
+counter, as above; the two-binding form (<code>with k, v</code>) is for maps only.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="basics.html">Function Basics</a></li>
+<li><a href="higher-order.html">Higher-Order Functions</a></li>
+<li><a href="../fundamentals/control-flow/loops.html">Loops</a></li>
+<li><a href="../fundamentals/control-flow/match.html">Pattern Matching</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../functions/higher-order.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../functions/multiple-returns.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../functions/higher-order.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../functions/multiple-returns.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,3 @@
+Built artifact from https://github.com/suji-lang/book
+Tag: v0.1.0
+Commit: c3a18d7c87e9040785a0ac80af7b04559f0c43da
