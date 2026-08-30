@@ -13,6 +13,14 @@ resource "aws_cloudfront_origin_access_control" "oac" {
   signing_protocol                  = "sigv4"
 }
 
+resource "aws_cloudfront_function" "url_rewrite" {
+  name    = "suji-url-rewrite"
+  runtime = "cloudfront-js-1.0"
+  comment = "Redirect /book to /book/ and serve directory indexes"
+  publish = true
+  code    = file("${path.module}/url-rewrite.js")
+}
+
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
     domain_name              = var.backend_fqdn
@@ -35,6 +43,11 @@ resource "aws_cloudfront_distribution" "cdn" {
       cookies {
         forward = "all"
       }
+    }
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.url_rewrite.arn
     }
   }
 

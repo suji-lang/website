@@ -1,0 +1,384 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>HTTP with curl - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/cookbook/http.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="http-with-curl-cookbook"><a class="header" href="#http-with-curl-cookbook">HTTP with <code>curl</code> (Cookbook)</a></h1>
+<p>Suji has no built-in HTTP client. Use shell commands (e.g. <code>curl</code>) plus Suji’s stdlib modules like <code>std:json</code> to work with HTTP APIs.</p>
+<p>The pattern is always the same: a backtick command returns the response body as a <strong>string</strong>, and <code>json:parse</code> turns that string into maps and lists.</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:json
+import std:println
+
+text = `curl -fsSL https://jsonplaceholder.typicode.com/users/1`
+user = json:parse(text)
+
+println(user:name)          # Leanne Graham
+println(user:company:name)  # Romaguera-Crona
+</code></pre>
+<p>Every recipe on this page is a real request against
+<a href="https://jsonplaceholder.typicode.com">JSONPlaceholder</a>, a public test API that
+returns fixed data, so you can run each block verbatim and get the output shown
+in the comments. These are the only blocks in the book that need network access.</p>
+<h2 id="get-json-and-parse-it"><a class="header" href="#get-json-and-parse-it">GET JSON and parse it</a></h2>
+<p>Once the body is parsed, it is ordinary Suji data — <code>filter</code>, <code>fold</code> and indexing all work on it:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:json
+import std:println
+
+text = `curl -fsSL 'https://jsonplaceholder.typicode.com/todos?userId=1'`
+todos = json:parse(text)
+
+done = todos::filter(|t| t:completed)
+summary = "${todos::length()} todos, ${done::length()} completed"
+
+println(summary)  # 20 todos, 11 completed
+</code></pre>
+<p>Quote the URL in the shell command whenever it contains <code>?</code> or <code>&amp;</code>, as above. Unquoted, the shell treats them as a glob and a background-job separator.</p>
+<h2 id="inspect-status-codes"><a class="header" href="#inspect-status-codes">Inspect status codes</a></h2>
+<p>Ask <code>curl</code> to print only the status code, then branch on the string it returns:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:println
+
+url = "https://jsonplaceholder.typicode.com/users/999"
+
+status = `curl -s -o /dev/null -w '%{http_code}' ${url}`
+
+message = match status {
+    "200" =&gt; "healthy",
+    "404" =&gt; "no such endpoint",
+    "500" | "502" | "503" =&gt; "server error",
+    _ =&gt; "unexpected status ${status}",
+}
+
+println(message)  # no such endpoint
+</code></pre>
+<p>Note that <code>-f</code> is deliberately absent here. With <code>-f</code>, <code>curl</code> exits non-zero on a 4xx/5xx response, and a non-zero exit status from a backtick command is a runtime error that <strong>terminates the script</strong> — there is no way to catch it. Reading the status code as a string keeps the decision in Suji.</p>
+<h2 id="post-json"><a class="header" href="#post-json">POST JSON</a></h2>
+<p>Long <code>curl</code> invocations read better when the parts are named first. Interpolating a value you wrote yourself, like the URL and header below, is safe:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:json
+import std:println
+
+url = "https://jsonplaceholder.typicode.com/posts"
+head = "Content-Type: application/json"
+data = '{"title":"hello","userId":1}'
+
+body = `curl -fsSL -X POST -H '${head}' --data '${data}' ${url}`
+created = json:parse(body)
+
+println(created:id)     # 101
+println(created:title)  # hello
+</code></pre>
+<p>A body built at runtime is a different matter. Never interpolate <code>json:generate</code> output into a command — a value containing a quote or a <code>$</code> would break the command or inject into it. Write the payload to a file and let <code>curl</code> read it with <code>--data @file</code>:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:io
+import std:json
+import std:os
+import std:println
+
+url = "https://jsonplaceholder.typicode.com/posts"
+head = "Content-Type: application/json"
+
+payload = json:generate({ title: "hello", userId: 1 })
+
+p = `mktemp`
+f = io:open(p, true, true)
+f::write(payload)
+f::close()
+
+body = `curl -fsSL -X POST -H '${head}' --data @${p} ${url}`
+
+os:rm(p)
+
+println(json:parse(body):id)  # 101
+</code></pre>
+<h2 id="requests-that-are-allowed-to-fail"><a class="header" href="#requests-that-are-allowed-to-fail">Requests that are allowed to fail</a></h2>
+<p>A failing request aborts the script. This program prints nothing — it dies on line 3:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:println
+
+body = `curl -fsSL https://jsonplaceholder.typicode.com/nope`
+
+println(body)
+</code></pre>
+<pre><code class="language-text">[406] Error: Shell command failed
+Shell command 'curl -fsSL https://jsonplaceholder.typicode.com/nope' failed with
+exit code 56: curl: (56) The requested URL returned error: 404
+</code></pre>
+<p>The script itself exits with status 1. The inner number is <code>curl</code>’s own exit code and varies between <code>curl</code> versions; what matters is that it is non-zero.</p>
+<p>Since a non-zero exit terminates the script, make the shell itself absorb the failure and return something you can test:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:json
+import std:println
+
+body = `curl -fsSL https://jsonplaceholder.typicode.com/nope || true`
+
+result = match {
+    body::length() == 0 =&gt; "request failed",
+    _ =&gt; "got ${json:parse(body)::length()} records",
+}
+
+println(result)  # request failed
+</code></pre>
+<p>The same trick covers connectivity checks:</p>
+<!-- verify: skip -->
+<pre><code class="language-suji">import std:println
+
+url = "https://jsonplaceholder.typicode.com"
+
+up = `curl -fsS -o /dev/null ${url} &amp;&amp; echo up || echo down`
+
+println(up)  # up
+</code></pre>
+<h2 id="notes"><a class="header" href="#notes">Notes</a></h2>
+<ul>
+<li><code>curl</code> output is a string with the trailing newline trimmed; parse structured responses with <code>std:json:parse</code>, <code>std:yaml:parse</code>, etc.</li>
+<li>Only stdout is captured. Add <code>-s</code> to silence the progress meter, which <code>curl</code> writes to stderr.</li>
+<li>Interpolating <strong>runtime data</strong> into a command is a shell injection risk — prefer <code>--data @file</code> for bodies, and <code>percent_encode</code> from <code>std:encoding</code> for query parameters.</li>
+<li>There is no timeout inside Suji, so <code>curl --max-time</code> is worth setting on every call in a long-running script.</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="apis.html">Working with APIs</a></li>
+<li><a href="../stdlib/data-formats/json.html">JSON Module</a></li>
+<li><a href="../advanced/shell-integration.html">Shell Integration Best Practices</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../cookbook/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../cookbook/file-processing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../cookbook/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../cookbook/file-processing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,707 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Syntax Reference - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/appendices/syntax-reference.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="syntax-reference"><a class="header" href="#syntax-reference">Syntax Reference</a></h1>
+<p>Every piece of Suji syntax on one page, with the things that look like Suji but are not.</p>
+<h2 id="reserved-words"><a class="header" href="#reserved-words">Reserved Words</a></h2>
+<p>Suji has exactly thirteen keywords:</p>
+<pre><code class="language-text">break   continue   export   import   loop   match   return
+as      through    with     true     false  nil
+</code></pre>
+<p><code>_</code> is a wildcard in patterns and destructuring targets. Everything else is an
+identifier, including words familiar from other languages: <code>if</code>, <code>else</code>, <code>while</code>,
+<code>for</code>, <code>fn</code>, <code>def</code>, <code>let</code>, <code>var</code>, <code>const</code>, <code>class</code>, <code>try</code>, <code>catch</code>, <code>throw</code>,
+<code>and</code>, <code>or</code>, and <code>not</code> are <strong>not</strong> keywords. Writing <code>if x &gt; 1 { … }</code> produces
+<code>Undefined variable: if</code>.</p>
+<h2 id="comments-and-separators"><a class="header" href="#comments-and-separators">Comments and Separators</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code># text</code></td><td>Line comment, runs to end of line</td></tr>
+<tr><td>newline</td><td>Ends a statement</td></tr>
+<tr><td><code>;</code></td><td>Optional statement separator</td></tr>
+</tbody></table>
+</div>
+<p>There are no block comments.</p>
+<pre><code class="language-suji">import std:println
+
+a = 1; b = 2  # two statements on one line
+
+println(a + b)  # 3
+</code></pre>
+<p>A bare <code>{ … }</code> is a block, not an expression, so <code>x = { 1 }</code> is a parse error.</p>
+<h2 id="numbers"><a class="header" href="#numbers">Numbers</a></h2>
+<p>There is one numeric type: an exact base-10 decimal. <code>42</code> and <code>42.0</code> are the
+same type; there is no separate integer type.</p>
+<pre><code class="language-suji">import std:println
+
+println(0.1 + 0.2)   # 0.3
+println(7 / 2)       # 3.50
+println(1.50)        # 1.50
+</code></pre>
+<p>Literals accept decimal digits and at most one <code>.</code>. These forms <strong>do not exist</strong>:</p>
+<div class="table-wrapper"><table><thead><tr><th>Not supported</th><th>Write instead</th></tr></thead><tbody>
+<tr><td><code>0xFF</code>, <code>0o77</code>, <code>0b1010</code></td><td>decimal digits only</td></tr>
+<tr><td><code>1_000_000</code></td><td><code>1000000</code></td></tr>
+<tr><td><code>3e8</code>, <code>6.626e-34</code></td><td><code>300000000</code>, or a product such as <code>6.626 * 0.0000000000000000000000000000001</code></td></tr>
+<tr><td><code>-5</code> as a literal</td><td><code>-5</code> is unary minus applied to <code>5</code></td></tr>
+</tbody></table>
+</div>
+<p>Precision is roughly 28–29 significant digits, with a maximum of
+<code>79228162514264337593543950335</code>. Exceeding it aborts the program.</p>
+<h2 id="strings"><a class="header" href="#strings">Strings</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Notes</th></tr></thead><tbody>
+<tr><td><code>"text"</code></td><td>Double-quoted</td></tr>
+<tr><td><code>'text'</code></td><td>Single-quoted, identical behaviour</td></tr>
+<tr><td><code>"""text"""</code></td><td>Triple-quoted, spans newlines</td></tr>
+<tr><td><code>'''text'''</code></td><td>Triple-quoted, single-quote flavour</td></tr>
+</tbody></table>
+</div>
+<p>Interpolation is <code>${expr}</code> and works in every string form and in backtick shell
+templates. The escape set is closed:</p>
+<div class="table-wrapper"><table><thead><tr><th>Escape</th><th>Produces</th></tr></thead><tbody>
+<tr><td><code>\n</code></td><td>newline</td></tr>
+<tr><td><code>\t</code></td><td>tab</td></tr>
+<tr><td><code>\r</code></td><td>carriage return</td></tr>
+<tr><td><code>\"</code></td><td><code>"</code></td></tr>
+<tr><td><code>\'</code></td><td><code>'</code></td></tr>
+<tr><td><code>\`</code></td><td>backtick</td></tr>
+<tr><td><code>\\</code></td><td>backslash</td></tr>
+<tr><td><code>\$</code></td><td>literal <code>$</code>, suppressing interpolation</td></tr>
+</tbody></table>
+</div>
+<p>Any other escape is a lex error. <code>\u0041</code>, <code>\u{1F600}</code> and <code>\0</code> are not
+supported, and there are no raw strings.</p>
+<pre><code class="language-suji">import std:println
+
+who = "world"
+
+println("Hello, ${who}!")     # Hello, world!
+println("tab:\tdone")         # tab:	done
+println("literal \${who}")    # literal ${who}
+</code></pre>
+<h2 id="booleans-and-nil"><a class="header" href="#booleans-and-nil">Booleans and Nil</a></h2>
+<p><code>true</code>, <code>false</code> and <code>nil</code> are literals. There is no truthiness: <code>&amp;&amp;</code>, <code>||</code> and
+<code>!</code> require boolean operands, and <code>nil || "default"</code> is a type error rather than
+a defaulting idiom.</p>
+<pre><code class="language-suji">import std:println
+
+x = nil
+
+println(x == nil)   # true
+println(!false)     # true
+</code></pre>
+<h2 id="lists-maps-and-tuples"><a class="header" href="#lists-maps-and-tuples">Lists, Maps and Tuples</a></h2>
+<pre><code class="language-suji">import std:println
+
+xs = [1, "two", true]                # heterogeneous, 0-based
+m  = {a: 1, "b": 2, 3: "c"}          # insertion-ordered
+t  = (1, 2)                          # fixed size
+
+println(xs::length())   # 3
+println(m::keys())      # [a, b, 3]
+println(t::to_list())   # [1, 2]
+</code></pre>
+<p>Map keys may be bare identifiers, strings, numbers or booleans. Map literals
+with bare identifier keys are only recognised where a map is expected — as a
+whole match-arm body or lambda body, <code>{ name: "x" }</code> parses as a block, so quote
+the keys or wrap the literal in parentheses there.</p>
+<p>Tuples are <strong>not indexable</strong>: <code>t[0]</code> is a type error and there is no <code>t::get(0)</code>.
+Destructure with <code>a, b = t</code>, or convert with <code>t::to_list()</code>.</p>
+<h2 id="indexing-and-slicing"><a class="header" href="#indexing-and-slicing">Indexing and Slicing</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>xs[i]</code></td><td>Element at <code>i</code> (lists, strings)</td></tr>
+<tr><td><code>xs[-1]</code></td><td>Element counted from the end</td></tr>
+<tr><td><code>xs[a;b]</code></td><td>Slice from <code>a</code> up to but excluding <code>b</code></td></tr>
+<tr><td><code>xs[;b]</code></td><td>Slice from the start</td></tr>
+<tr><td><code>xs[a;]</code></td><td>Slice to the end</td></tr>
+</tbody></table>
+</div>
+<p>The slice separator is a <strong>semicolon</strong>, not a colon; <code>:</code> is reserved for map
+access.</p>
+<pre><code class="language-suji">import std:println
+
+xs = [10, 20, 30, 40, 50]
+
+println(xs[0])     # 10
+println(xs[-1])    # 50
+println(xs[1;3])   # [20, 30]
+println(xs[;2])    # [10, 20]
+println(xs[3;])    # [40, 50]
+
+s = "hello"
+
+println(s[1])      # e
+println(s[1;3])    # el
+</code></pre>
+<p>Strings are indexed and sliced by character, not byte. An out-of-range index is
+a fatal runtime error.</p>
+<h2 id="map-access"><a class="header" href="#map-access">Map Access</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>m:key</code></td><td>Bare identifier key</td></tr>
+<tr><td><code>m["key"]</code></td><td>Any expression as key</td></tr>
+<tr><td><code>m::get(k, default)</code></td><td>Safe read, no error when missing</td></tr>
+<tr><td><code>m::contains(k)</code></td><td>Membership test</td></tr>
+</tbody></table>
+</div>
+<p>A missing key read through <code>m:key</code> or <code>m[k]</code> raises <code>Key not found</code> and
+terminates the program. Access chains nest to any depth and are assignable.</p>
+<pre><code class="language-suji">import std:println
+
+data = {users: [{email: "a@example.com"}]}
+
+println(data:users[0]:email)        # a@example.com
+println(data::get("missing", "-"))  # -
+
+data:users[0]:email = "b@example.com"
+
+println(data:users[0]:email)        # b@example.com
+</code></pre>
+<h2 id="method-calls"><a class="header" href="#method-calls">Method Calls</a></h2>
+<p>Methods use <code>::</code> and exist on values, not on modules. Chains may break across
+lines with a leading <code>::</code>.</p>
+<pre><code class="language-suji">import std:println
+
+result = [1, 2, 3, 4]
+    ::map(|x| x * 2)
+    ::filter(|x| x &gt; 4)
+    ::sum()
+
+println(result)  # 14
+</code></pre>
+<h2 id="variables-and-assignment"><a class="header" href="#variables-and-assignment">Variables and Assignment</a></h2>
+<p>There is no declaration keyword — assignment creates or updates a binding. There
+is no shadowing: assigning inside a nested scope writes to the outer variable if
+one exists.</p>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>x = expr</code></td><td>Bind or rebind</td></tr>
+<tr><td><code>x += expr</code></td><td>Also <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>%=</code></td></tr>
+<tr><td><code>x++</code>, <code>x--</code></td><td>Postfix statements that mutate <code>x</code></td></tr>
+<tr><td><code>a, b = expr</code></td><td>Destructure a tuple or multi-value return</td></tr>
+<tr><td><code>a, _ = expr</code></td><td>Discard a position</td></tr>
+</tbody></table>
+</div>
+<p>There is no prefix <code>++x</code>.</p>
+<pre><code class="language-suji">import std:println
+
+n = 5
+n += 3
+n++
+
+println(n)  # 9
+
+pair = (1, 2)
+a, b = pair
+
+println("${a} ${b}")  # 1 2
+</code></pre>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<p>Functions are lambdas assigned to names; there is no <code>fn</code> or <code>def</code> form.</p>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>|x| expr</code></td><td>One parameter, expression body</td></tr>
+<tr><td><code>|x, y| { … }</code></td><td>Block body</td></tr>
+<tr><td><code>|| expr</code></td><td>No parameters</td></tr>
+<tr><td><code>|a, b = 10| …</code></td><td>Default parameter value</td></tr>
+<tr><td><code>return expr</code></td><td>Explicit return</td></tr>
+<tr><td><code>return a, b</code></td><td>Return a tuple</td></tr>
+</tbody></table>
+</div>
+<p>The last expression of a body is returned implicitly. Recursion works through
+the assigned name, but there is no tail-call optimisation, so depth is bounded
+by the native stack. There are no variadic parameters and no keyword arguments.</p>
+<pre><code class="language-suji">import std:println
+
+add = |a, b = 10| a + b
+
+minmax = |xs| {
+    return xs::min(), xs::max()
+}
+
+lo, hi = minmax([3, 1, 4])
+
+println(add(1))        # 11
+println(add(1, 2))     # 3
+println("${lo} ${hi}") # 1 4
+</code></pre>
+<p>Closures capture the enclosing environment by reference and can mutate what they
+capture.</p>
+<pre><code class="language-suji">import std:println
+
+make_counter = || {
+    count = 0
+    return || {
+        count++
+        return count
+    }
+}
+
+next = make_counter()
+next()
+
+println(next())  # 2
+</code></pre>
+<h2 id="match"><a class="header" href="#match">Match</a></h2>
+<p><code>match</code> is the only conditional construct. It has two forms and is always an
+expression.</p>
+<pre><code class="language-suji">import std:println
+
+value = 2
+
+subject = match value {        # patterns compared against the subject
+    1 =&gt; "one",
+    2 =&gt; "two",
+    _ =&gt; "other",
+}
+
+conditional = match {          # each arm is a boolean expression
+    value &gt; 10 =&gt; "big",
+    _ =&gt; "small",
+}
+
+println(subject)      # two
+println(conditional)  # small
+</code></pre>
+<h3 id="the-comma-rule"><a class="header" href="#the-comma-rule">The Comma Rule</a></h3>
+<p>An arm whose body is a bare expression <strong>must</strong> be followed by a comma,
+including the last arm. An arm whose body is a <code>{ … }</code> block may omit it. This
+is the most common syntax error in Suji code:</p>
+<pre><code class="language-text">match x { 1 =&gt; "one", _ =&gt; "other" }     # parse error: no comma after last arm
+match x { 1 =&gt; "one", _ =&gt; "other", }    # correct
+match x { 1 =&gt; { "one" } _ =&gt; { "other" } }  # also correct
+</code></pre>
+<p>A <code>match</code> with no matching arm evaluates to <code>nil</code> rather than raising an error.</p>
+<h3 id="patterns"><a class="header" href="#patterns">Patterns</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Supported</th><th>Example</th></tr></thead><tbody>
+<tr><td>Number, string, boolean, <code>nil</code> literals</td><td><code>1</code>, <code>"a"</code>, <code>true</code>, <code>nil</code></td></tr>
+<tr><td>Negative numbers</td><td><code>-1</code></td></tr>
+<tr><td>Regex literals</td><td><code>/^h/</code></td></tr>
+<tr><td>Tuple patterns</td><td><code>(1, 2)</code>, <code>(1, _)</code></td></tr>
+<tr><td>Alternatives</td><td><code>1 | 2 | 3</code></td></tr>
+<tr><td>Wildcard</td><td><code>_</code></td></tr>
+</tbody></table>
+</div><div class="table-wrapper"><table><thead><tr><th>Not supported</th><th>Note</th></tr></thead><tbody>
+<tr><td>Variable binding</td><td>A bare identifier is read as a <strong>string literal</strong></td></tr>
+<tr><td>List patterns <code>[a, b]</code></td><td>Use indexing after a length check</td></tr>
+<tr><td>Map patterns</td><td>Use <code>m::get</code> / <code>m::contains</code> in a conditional match</td></tr>
+<tr><td>Range patterns <code>1..10</code></td><td>Use a conditional match with comparisons</td></tr>
+<tr><td><code>if</code> guards</td><td>Use a conditional match</td></tr>
+<tr><td>Interpolated strings</td><td>Not allowed as patterns</td></tr>
+</tbody></table>
+</div>
+<p>Because a bare identifier is a string literal, <code>match 5 { n =&gt; n * 2, }</code> yields
+<code>nil</code>, not <code>10</code>.</p>
+<pre><code class="language-suji">import std:println
+
+classify = |v| {
+    match v {
+        0 =&gt; "zero",
+        1 | 2 | 3 =&gt; "small",
+        -1 =&gt; "minus one",
+        /^[a-z]+$/ =&gt; "lowercase word",
+        _ =&gt; "other",
+    }
+}
+
+println(classify(2))        # small
+println(classify(-1))       # minus one
+println(classify("abc"))    # lowercase word
+println(classify(99))       # other
+</code></pre>
+<h2 id="loop"><a class="header" href="#loop">Loop</a></h2>
+<p><code>loop</code> is the only iteration keyword.</p>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>loop { … }</code></td><td>Infinite; needs <code>break</code></td></tr>
+<tr><td><code>loop as name { … }</code></td><td>Labeled</td></tr>
+<tr><td><code>loop through xs { … }</code></td><td>Iterate without binding</td></tr>
+<tr><td><code>loop through xs with x { … }</code></td><td>Bind each element (list or range)</td></tr>
+<tr><td><code>loop through m with k, v { … }</code></td><td>Bind key and value — maps only</td></tr>
+</tbody></table>
+</div>
+<p><code>break</code>, <code>continue</code>, <code>break label</code> and <code>continue label</code> are statements. A label
+must sit on the same line as the keyword. <code>break &lt;value&gt;</code> does not exist, and a
+loop always evaluates to <code>nil</code>.</p>
+<pre><code class="language-suji">import std:println
+
+total = 0
+loop through 1..=4 with n {
+    n == 3 &amp;&amp; continue
+    total += n
+}
+
+println(total)  # 7
+
+i = 0
+loop {
+    i++
+    i &gt;= 3 &amp;&amp; break
+}
+
+println(i)  # 3
+
+loop as outer {
+    loop as inner {
+        break outer
+    }
+}
+
+println("done")  # done
+</code></pre>
+<p>Iterables are lists, ranges and maps. Iterating a string or a stream is a
+runtime error — use <code>s::to_list()</code> or <code>stream::read_lines()</code> first. Two bindings
+on a list is also a runtime error.</p>
+<h2 id="ranges"><a class="header" href="#ranges">Ranges</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>a..b</code></td><td>Exclusive of <code>b</code></td></tr>
+<tr><td><code>a..=b</code></td><td>Inclusive of <code>b</code></td></tr>
+</tbody></table>
+</div>
+<p>Ranges evaluate immediately to a list; they are not lazy. Descending ranges
+work.</p>
+<pre><code class="language-suji">import std:println
+
+println(1..4)    # [1, 2, 3]
+println(1..=4)   # [1, 2, 3, 4]
+println(5..1)    # [5, 4, 3, 2]
+</code></pre>
+<h2 id="regular-expressions"><a class="header" href="#regular-expressions">Regular Expressions</a></h2>
+<p>Regex literals are written <code>/pattern/</code> and support matching only.</p>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>s ~ /re/</code></td><td><code>true</code> when the pattern matches</td></tr>
+<tr><td><code>s !~ /re/</code></td><td><code>true</code> when it does not</td></tr>
+</tbody></table>
+</div>
+<p>There are no capture groups, no regex-based replace and no regex split.
+<code>/${var}/</code> is not interpolated. A regex may be stored in a variable and used as
+a match-arm pattern.</p>
+<pre><code class="language-suji">import std:println
+
+digits = /^[0-9]+$/
+
+println("2024" ~ digits)          # true
+println("hello" !~ digits)        # true
+println("a@b.co" ~ /^[^@]+@[^@]+$/)  # true
+</code></pre>
+<h2 id="shell-templates-and-pipelines"><a class="header" href="#shell-templates-and-pipelines">Shell Templates and Pipelines</a></h2>
+<p>A backtick template runs a command through the shell and evaluates to its stdout
+with the trailing newline trimmed. <code>${expr}</code> interpolation works inside.</p>
+<pre><code class="language-suji">import std:println
+
+word = "suji"
+
+println(`echo hello`)        # hello
+println(`echo ${word}`)      # suji
+</code></pre>
+<p>stderr is not captured, and a non-zero exit status is a fatal runtime error with
+no way to trap it. Guard commands that may fail, for example with
+<code>`cmd || true`</code> or <code>`test -f f &amp;&amp; echo yes || echo no`</code>.</p>
+<p>The <code>|</code> operator pipes stdout between closures and shell templates. A closure on
+the receiving side reads with <code>io:stdin::read_lines()</code> or <code>read_all()</code>.</p>
+<pre><code class="language-suji">import std:io
+import std:println
+
+producer = || {
+    println("alpha")
+    println("beta")
+}
+
+count = || {
+    return io:stdin::read_lines()::length()
+}
+
+println(producer() | `grep a` | count())  # 2
+</code></pre>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<p>Full precedence and associativity live in <a href="precedence.html">Operator Precedence</a>.
+The set is:</p>
+<div class="table-wrapper"><table><thead><tr><th>Group</th><th>Operators</th></tr></thead><tbody>
+<tr><td>Assignment</td><td><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code></td></tr>
+<tr><td>Pipe apply</td><td><code>|&gt;</code> <code>&lt;|</code></td></tr>
+<tr><td>Stream pipe</td><td><code>|</code></td></tr>
+<tr><td>Composition</td><td><code>&gt;&gt;</code> <code>&lt;&lt;</code></td></tr>
+<tr><td>Logical</td><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td></tr>
+<tr><td>Regex</td><td><code>~</code> <code>!~</code></td></tr>
+<tr><td>Equality</td><td><code>==</code> <code>!=</code></td></tr>
+<tr><td>Relational</td><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td></tr>
+<tr><td>Range</td><td><code>..</code> <code>..=</code></td></tr>
+<tr><td>Arithmetic</td><td><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>%</code> <code>^</code></td></tr>
+<tr><td>Postfix</td><td><code>()</code> <code>[]</code> <code>::</code> <code>:</code> <code>++</code> <code>--</code></td></tr>
+</tbody></table>
+</div>
+<p><code>+</code> concatenates strings and lists but never mixes types: <code>"a" + 1</code> is a type
+error. <code>^</code> requires an integer exponent and is right-associative.</p>
+<h2 id="modules"><a class="header" href="#modules">Modules</a></h2>
+<p>Only <code>std</code>, the internal <code>__builtins__</code>, and local <code>.si</code> files are importable.
+Nothing is available without an import — there is no prelude, so every program
+that prints needs <code>import std:println</code>.</p>
+<div class="table-wrapper"><table><thead><tr><th>Form</th><th>Binds</th></tr></thead><tbody>
+<tr><td><code>import std</code></td><td><code>std</code>, used as <code>std:println(…)</code></td></tr>
+<tr><td><code>import std:math</code></td><td><code>math</code></td></tr>
+<tr><td><code>import std:println</code></td><td><code>println</code></td></tr>
+<tr><td><code>import std:json:parse</code></td><td><code>parse</code></td></tr>
+<tr><td><code>import std:println as say</code></td><td><code>say</code></td></tr>
+</tbody></table>
+</div>
+<pre><code class="language-suji">import std:println as say
+import std:math
+
+say(math:E)  # 2.71828182845904523536
+</code></pre>
+<p>Local imports use path segments, not strings — <code>import "./helpers.si"</code> is a
+parse error. Segments are directory and file names relative to the importing
+file, without the <code>.si</code> extension:</p>
+<pre><code class="language-text">import helpers          # ./helpers.si       binds `helpers`
+import lib:util         # ./lib/util.si      binds `util`
+import lib:util:greet   # one key out of util.si's exported map
+import lib:util as u    # alias; only legal when the path has 2+ segments
+</code></pre>
+<p>A file has at most one <code>export</code>, and its value is whatever the export evaluates
+to:</p>
+<pre><code class="language-text">export 42                        # `import leaf` binds the number 42
+export { value: 1, f: |x| x }    # `util:value` and `util:f` become available
+</code></pre>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="precedence.html">Operator Precedence</a></li>
+<li><a href="error-codes.html">Error Codes</a></li>
+<li><a href="glossary.html">Glossary</a></li>
+<li><a href="../fundamentals/overview.html">Language Overview</a></li>
+<li><a href="../stdlib/README.html">Standard Library Overview</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../appendices/versions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../appendices/precedence.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../appendices/versions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../appendices/precedence.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

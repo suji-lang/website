@@ -1,0 +1,632 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Matching - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/operators/matching.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="matching-operators"><a class="header" href="#matching-operators">Matching Operators</a></h1>
+<p>Matching operators test if strings match regular expression patterns.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Suji provides two operators for testing strings against regular expressions, making
+text validation concise and readable.</p>
+<p>The operators are <code>~</code> and <code>!~</code> — there is no <code>=~</code>. Both yield <strong>only a boolean</strong>.
+Suji’s regex support is deliberately match-only:</p>
+<ul>
+<li>no capture groups (<code>::captures()</code>, <code>::match()</code>, <code>::find()</code> do not exist)</li>
+<li>no regex replace — <code>::replace(old, new)</code> takes <strong>strings</strong> only</li>
+<li>no regex split — <code>::split(sep)</code> takes a string separator</li>
+<li>regex literals are <strong>not</strong> interpolated: <code>/${var}/</code> is passed to the engine
+literally and fails to compile</li>
+</ul>
+<p>Regex values are first class: you can store one in a variable and use it as a <code>match</code>
+arm pattern.</p>
+<h2 id="match-operator-"><a class="header" href="#match-operator-">Match Operator (<code>~</code>)</a></h2>
+<p>Tests if a string matches a regex pattern:</p>
+<pre><code class="language-suji">import std:println
+
+text = "user@example.com"
+pattern = /^[^@]+@[^@]+\.[^@]+$/
+
+# Returns true if matches
+is_email = text ~ pattern
+println(is_email)  # true
+</code></pre>
+<h3 id="basic-matching"><a class="header" href="#basic-matching">Basic Matching</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Check if string contains pattern
+println("hello world" ~ /world/)      # true
+println("hello world" ~ /goodbye/)    # false
+
+# Case-sensitive by default
+println("Hello" ~ /hello/)            # false
+println("Hello" ~ /(?i)hello/)        # true (case-insensitive)
+</code></pre>
+<h2 id="negative-match-operator-"><a class="header" href="#negative-match-operator-">Negative Match Operator (<code>!~</code>)</a></h2>
+<p>Tests if a string does NOT match a pattern:</p>
+<pre><code class="language-suji">import std:println
+
+text = "hello123"
+
+println(text !~ /world/)      # true (doesn't contain "world")
+println(text !~ /hello/)      # false (contains "hello")
+
+# Useful for validation
+username = "alice_123"
+is_valid_username = username !~ /[^a-zA-Z0-9_]/
+println(is_valid_username)    # true - contains NO invalid characters
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="email-validation"><a class="header" href="#email-validation">Email Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_email = |email| {
+    email ~ /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+}
+
+println(validate_email("user@example.com"))    # true
+println(validate_email("invalid.email"))        # false
+</code></pre>
+<h3 id="url-validation"><a class="header" href="#url-validation">URL Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_url = |url| {
+    url ~ /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/.*)?$/
+}
+
+println(validate_url("https://example.com"))       # true
+println(validate_url("http://site.co.uk/path"))    # true
+println(validate_url("not-a-url"))                 # false
+</code></pre>
+<h3 id="phone-number"><a class="header" href="#phone-number">Phone Number</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_phone = |phone| {
+    phone ~ /^\d{3}-\d{3}-\d{4}$/
+}
+
+println(validate_phone("555-123-4567"))  # true
+println(validate_phone("555-1234"))      # false
+println(validate_phone("5551234567"))    # false
+</code></pre>
+<h3 id="contains-digits"><a class="header" href="#contains-digits">Contains Digits</a></h3>
+<pre><code class="language-suji">import std:println
+
+has_digits = |text| {
+    text ~ /\d/
+}
+
+println(has_digits("hello123"))  # true
+println(has_digits("hello"))     # false
+</code></pre>
+<h3 id="startsends-with"><a class="header" href="#startsends-with">Starts/Ends With</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Starts with "http"
+println("http://example.com" ~ /^http/)    # true
+println("https://example.com" ~ /^http/)   # true
+println("ftp://example.com" ~ /^http/)     # false
+
+# Ends with ".com"
+println("example.com" ~ /\.com$/)          # true
+println("example.org" ~ /\.com$/)          # false
+</code></pre>
+<h2 id="in-conditionals"><a class="header" href="#in-conditionals">In Conditionals</a></h2>
+<p>Matching operators work well with match expressions:</p>
+<pre><code class="language-suji">import std:println
+
+username = "alice_123"
+
+match username ~ /^[a-zA-Z0-9_]+$/ {
+    true =&gt; println("Valid username"),
+    false =&gt; println("Invalid username: contains special characters"),
+}
+</code></pre>
+<h2 id="in-filters"><a class="header" href="#in-filters">In Filters</a></h2>
+<p>Use matching to filter lists:</p>
+<pre><code class="language-suji">import std:println
+
+emails = [
+    "valid@example.com",
+    "invalid.email",
+    "another@test.org",
+    "bad@"
+]
+
+pattern = /^[^@]+@[^@]+\.[^@]+$/
+valid_emails = emails::filter(|e| e ~ pattern)
+
+println(valid_emails)
+# [valid@example.com, another@test.org]
+</code></pre>
+<h2 id="pattern-matching-with-match"><a class="header" href="#pattern-matching-with-match">Pattern Matching with Match</a></h2>
+<p>Combine with <code>match</code> for branching on patterns:</p>
+<pre><code class="language-suji">import std:println
+
+text = "Call me at 555-1234"
+
+words = text::split(" ")
+phones = words::filter(|w| w ~ /^\d{3}-\d{4}$/)
+
+match {
+    phones::length() &gt; 0 =&gt; println("Phone: " + phones[0]),
+    _ =&gt; println("No phone found"),
+}
+</code></pre>
+<p>A regex literal can also be used directly as a <strong>match arm pattern</strong>, which is often
+tidier than a chain of <code>~</code> tests:</p>
+<pre><code class="language-suji">import std:println
+
+classify = |token| {
+    match token {
+        /^\d+$/ =&gt; "number",
+        /^[a-z]+$/ =&gt; "word",
+        _ =&gt; "mixed",
+    }
+}
+
+println(classify("42"))       # number
+println(classify("hello"))    # word
+println(classify("h3llo"))    # mixed
+</code></pre>
+<p>Because regex values are ordinary values, you can name them and reuse them:</p>
+<pre><code class="language-suji">import std:println
+
+digits_only = /^\d+$/
+
+println("123" ~ digits_only)  # true
+println("12a" ~ digits_only)  # false
+</code></pre>
+<p>What you cannot do is build a pattern dynamically. Regex literals are not
+interpolated, so <code>/${some_var}/</code> is handed to the engine verbatim and fails with a
+<code>Regex error</code>, and there is no function that turns a string into a regex. Patterns
+must be written out literally in the source.</p>
+<h2 id="negation-patterns"><a class="header" href="#negation-patterns">Negation Patterns</a></h2>
+<p>Use <code>!~</code> to check absence of patterns:</p>
+<pre><code class="language-suji">import std:println
+
+# Check password doesn't contain spaces
+password = "MyP@ssw0rd"
+no_spaces = password !~ /\s/
+println(no_spaces)  # true
+
+# Check username has no special chars
+username = "alice_123"
+only_alphanumeric = username !~ /[^a-zA-Z0-9_]/
+println(only_alphanumeric)  # true
+</code></pre>
+<h2 id="combining-with-logical-operators"><a class="header" href="#combining-with-logical-operators">Combining with Logical Operators</a></h2>
+<pre><code class="language-suji">import std:println
+
+validate_password = |password| {
+    # All these conditions must be true
+    long_enough = password::length() &gt;= 8
+    has_upper = password ~ /[A-Z]/
+    has_lower = password ~ /[a-z]/
+    has_digit = password ~ /[0-9]/
+    has_special = password ~ /[!@#$%^&amp;*]/
+    
+    long_enough &amp;&amp; has_upper &amp;&amp; has_lower &amp;&amp; has_digit &amp;&amp; has_special
+}
+
+println(validate_password("Passw0rd!"))  # true
+println(validate_password("password"))   # false
+</code></pre>
+<h2 id="inline-regex-modes"><a class="header" href="#inline-regex-modes">Inline Regex Modes</a></h2>
+<p>The regex engine supports inline mode modifiers like <code>(?i)</code> (case-insensitive) and <code>(?m)</code> (multiline).</p>
+<pre><code class="language-suji">import std:println
+
+text = "Hello World"
+
+# Case-insensitive
+println(text ~ /(?i)hello/)       # true
+
+# Multiline
+multiline = "line1\nline2"
+println(multiline ~ /(?m)^line2/) # true
+</code></pre>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-not-escaping-special-characters"><a class="header" href="#pitfall-1-not-escaping-special-characters">Pitfall 1: Not Escaping Special Characters</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Unescaped dot matches any character
+println("axb" ~ /a.b/)   # true  - the dot matched "x"
+println("a.b" ~ /a.b/)   # true  - and it matches a literal dot too
+
+# Escape the dot to match only a literal dot
+println("axb" ~ /a\.b/)  # false
+println("a.b" ~ /a\.b/)  # true
+</code></pre>
+<h3 id="pitfall-2-forgetting-anchors"><a class="header" href="#pitfall-2-forgetting-anchors">Pitfall 2: Forgetting Anchors</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Partial match (finds "123" anywhere)
+println("hello123world" ~ /\d+/)  # true
+
+# Anchored (entire string must be digits)
+println("hello123world" ~ /^\d+$/)  # false
+println("123" ~ /^\d+$/)            # true
+</code></pre>
+<h3 id="pitfall-3-case-sensitivity"><a class="header" href="#pitfall-3-case-sensitivity">Pitfall 3: Case Sensitivity</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Case-sensitive by default
+println("Hello" ~ /hello/)   # false
+
+# Use inline case-insensitive mode
+println("Hello" ~ /(?i)hello/)  # true
+</code></pre>
+<h3 id="pitfall-4-expecting-greediness-to-matter"><a class="header" href="#pitfall-4-expecting-greediness-to-matter">Pitfall 4: Expecting Greediness to Matter</a></h3>
+<p>Greedy and non-greedy quantifiers are both accepted, but since <code>~</code> returns only
+“did it match”, the difference is invisible — you never get to see <em>what</em> matched:</p>
+<pre><code class="language-suji">import std:println
+
+text = "&lt;tag&gt;content&lt;/tag&gt;"
+
+println(text ~ /&lt;.*&gt;/)   # true
+println(text ~ /&lt;.*?&gt;/)  # true - same answer
+</code></pre>
+<p>If you need the matched text, regex will not help you: use string methods such as
+<code>::index_of()</code>, <code>::split()</code> and slicing (<code>s[1;4]</code>) to carve the value out yourself.</p>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use anchors (<code>^</code>, <code>$</code>) for exact matches</li>
+<li>Escape special regex characters</li>
+<li>Reach for <code>::contains()</code>, <code>::starts_with()</code> and <code>::ends_with()</code> when a plain
+substring test will do</li>
+<li>Test patterns thoroughly</li>
+<li>Add comments for complex regex</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Expect captured groups, regex replace or regex split — none exist</li>
+<li>Write <code>=~</code>; the operator is <code>~</code></li>
+<li>Try to interpolate a pattern (<code>/${var}/</code> is a regex error)</li>
+<li>Forget case sensitivity</li>
+<li>Use regex to parse HTML/XML</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="username-validation"><a class="header" href="#username-validation">Username Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_username = |username| {
+    # 3-20 characters, alphanumeric and underscore only
+    valid_format = username ~ /^[a-zA-Z0-9_]{3,20}$/
+    no_double_underscore = username !~ /__/
+    not_starts_with_number = username !~ /^[0-9]/
+    
+    valid_format &amp;&amp; no_double_underscore &amp;&amp; not_starts_with_number
+}
+
+println(validate_username("alice_123"))    # true
+println(validate_username("ab"))           # false (too short)
+println(validate_username("alice__bob"))   # false (double underscore)
+println(validate_username("123alice"))     # false (starts with number)
+</code></pre>
+<h3 id="extract-domain-from-url"><a class="header" href="#extract-domain-from-url">Extract Domain from URL</a></h3>
+<pre><code class="language-suji">import std:println
+
+get_domain = |url| {
+    url !~ /^https?:\/\// &amp;&amp; return nil
+
+    parts = url::split("://")
+    parts::length() &lt; 2 &amp;&amp; return nil
+
+    host_and_path = parts[1]
+    host_parts = host_and_path::split("/")
+    host_parts[0]
+}
+
+println(get_domain("https://example.com/path"))  # example.com
+println(get_domain("http://site.org"))           # site.org
+println(get_domain("ftp://site.org"))            # nil
+</code></pre>
+<h3 id="sanitize-input"><a class="header" href="#sanitize-input">Sanitize Input</a></h3>
+<p>There is no regex replace, so filtering has to be done character by character. Note
+that strings are <strong>not iterable</strong> — <code>loop through text</code> is a runtime error, so convert
+with <code>::to_list()</code> first:</p>
+<pre><code class="language-suji">import std:println
+
+sanitize = |text| {
+    # Keep only alphanumerics, spaces, hyphens and underscores
+    result = ""
+    loop through text::to_list() with char {
+        match { char ~ /[a-zA-Z0-9 _-]/ =&gt; { result = result + char } }
+    }
+    result
+}
+
+println(sanitize("Hello, World!"))      # Hello World
+println(sanitize("Test@#$%123"))        # Test123
+</code></pre>
+<h3 id="password-strength-checker"><a class="header" href="#password-strength-checker">Password Strength Checker</a></h3>
+<pre><code class="language-suji">import std:println
+
+check_password_strength = |password| {
+    score = 0
+    
+    match { password::length() &gt;= 8 =&gt; { score = score + 1 } }
+    match { password::length() &gt;= 12 =&gt; { score = score + 1 } }
+    match { password ~ /[A-Z]/ =&gt; { score = score + 1 } }
+    match { password ~ /[a-z]/ =&gt; { score = score + 1 } }
+    match { password ~ /[0-9]/ =&gt; { score = score + 1 } }
+    match { password ~ /[!@#$%^&amp;*]/ =&gt; { score = score + 1 } }
+    
+    match {
+        score &gt;= 5 =&gt; "Strong",
+        score &gt;= 3 =&gt; "Medium",
+        _ =&gt; "Weak",
+    }
+}
+
+println(check_password_strength("abc123"))          # Weak
+println(check_password_strength("Abc123"))          # Medium
+println(check_password_strength("Abc123!@"))        # Strong
+</code></pre>
+<h3 id="file-extension-check"><a class="header" href="#file-extension-check">File Extension Check</a></h3>
+<pre><code class="language-suji">import std:println
+
+is_image = |filename| {
+    filename ~ /(?i)\.(jpg|jpeg|png|gif|webp)$/
+}
+
+is_document = |filename| {
+    filename ~ /(?i)\.(pdf|doc|docx|txt)$/
+}
+
+println(is_image("photo.jpg"))        # true
+println(is_image("document.pdf"))     # false
+println(is_document("report.pdf"))    # true
+</code></pre>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="../data-types/regex.html">Regular Expressions</a> in detail</li>
+<li>Explore <a href="../data-types/strings.html">String Methods</a></li>
+<li>Study <a href="../control-flow/match.html">Pattern Matching</a></li>
+<li>Check out <a href="../../cookbook/text-processing.html">Text Processing</a></li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../data-types/regex.html">Regular Expressions</a></li>
+<li><a href="../data-types/strings.html">Strings</a></li>
+<li><a href="../control-flow/match.html">Pattern Matching</a></li>
+<li><a href="../control-flow/match.html">Match Expression</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/operators/logical.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/operators/pipe.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/operators/logical.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/operators/pipe.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

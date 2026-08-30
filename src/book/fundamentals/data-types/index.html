@@ -1,0 +1,519 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Data Types - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/data-types/README.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="data-types"><a class="header" href="#data-types">Data Types</a></h1>
+<p>Suji provides a rich set of data types for representing different kinds of values.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Understanding data types is fundamental to writing effective Suji programs. This chapter covers all built-in types, their characteristics, operations, and best practices.</p>
+<h2 id="type-system"><a class="header" href="#type-system">Type System</a></h2>
+<p>Suji uses <strong>dynamic typing</strong> - variables can hold any type of value, and types are checked at runtime. However, the type system is <strong>strong</strong> - operations between incompatible types raise errors rather than coercing values.</p>
+<pre><code class="language-suji"># Dynamic typing - no type declarations needed
+name = "Alice"      # String
+age = 30            # Number
+active = true       # Boolean
+
+# Strong typing - no automatic coercion
+# result = "5" + 3  # Error: Can't add string and number
+
+# Explicit conversion required
+result = "5"::to_number() + 3  # Works: 8
+</code></pre>
+<p>There is also no truthiness. <code>!</code> and the right-hand side of <code>&amp;&amp;</code>/<code>||</code> require an
+actual boolean — <code>!nil</code> and <code>nil || "default"</code> are type errors — and a
+conditional <code>match</code> only takes an arm whose test is exactly <code>true</code>. <code>nil</code>, <code>0</code>
+and <code>""</code> are not “falsy”; they simply are not booleans. See
+<a href="booleans.html">Booleans</a> for the details.</p>
+<h2 id="core-types"><a class="header" href="#core-types">Core Types</a></h2>
+<h3 id="primitive-types"><a class="header" href="#primitive-types">Primitive Types</a></h3>
+<p>Simple, fundamental types:</p>
+<ul>
+<li><strong><a href="numbers.html">Numbers</a></strong> - A single fixed-precision decimal number type</li>
+<li><strong><a href="booleans.html">Booleans</a></strong> - Logical true/false values</li>
+<li><strong><a href="strings.html">Strings</a></strong> - Unicode text with interpolation</li>
+<li><strong><a href="nil.html">Nil</a></strong> - Represents absence of a value</li>
+</ul>
+<h3 id="collection-types"><a class="header" href="#collection-types">Collection Types</a></h3>
+<p>Types for grouping multiple values:</p>
+<ul>
+<li><strong><a href="lists.html">Lists</a></strong> - Ordered, indexed sequences</li>
+<li><strong><a href="maps.html">Maps</a></strong> - Key-value dictionaries</li>
+<li><strong><a href="tuples.html">Tuples</a></strong> - Fixed-size, immutable collections</li>
+</ul>
+<h3 id="special-types"><a class="header" href="#special-types">Special Types</a></h3>
+<p>Types with unique behaviors:</p>
+<ul>
+<li><strong><a href="regex.html">Regular Expressions</a></strong> - Pattern matching</li>
+<li><strong><a href="functions.html">Functions</a></strong> - First-class callable values</li>
+<li><strong><a href="streams.html">Streams</a></strong> - I/O handles for files and standard streams</li>
+</ul>
+<h2 id="type-characteristics"><a class="header" href="#type-characteristics">Type Characteristics</a></h2>
+<h3 id="immutability"><a class="header" href="#immutability">Immutability</a></h3>
+<p>Strings and tuples are immutable. Lists and maps are mutable (some methods modify the value in place).</p>
+<pre><code class="language-suji">import std:println
+
+# Lists are mutable
+list = [1, 2, 3]
+list::push(4)
+println(list)  # [1, 2, 3, 4]
+
+# Strings are immutable
+text = "hello"
+upper = text::upper()
+println(text)   # hello (unchanged)
+println(upper)  # HELLO
+</code></pre>
+<h3 id="type-checking"><a class="header" href="#type-checking">Type Checking</a></h3>
+<p>Check types at runtime:</p>
+<pre><code class="language-suji">import std:println
+
+value = 42
+
+println(value::is_number())      # true
+println(value::is_string())      # false
+println(value::is_bool())        # false
+
+text = "hello"
+println(text::is_string())       # true
+</code></pre>
+<h3 id="type-conversion"><a class="header" href="#type-conversion">Type Conversion</a></h3>
+<p>Explicit conversion between types:</p>
+<pre><code class="language-suji">import std:println
+
+# Number to string
+num = 42
+str = num::to_string()
+println(str)  # 42
+
+# String to number
+text = "123"
+num = text::to_number()
+println(num)  # 123
+
+# Tuple to list
+tuple = (1, 2, 3)
+list = tuple::to_list()
+println(list)  # [1, 2, 3]
+</code></pre>
+<h2 id="choosing-the-right-type"><a class="header" href="#choosing-the-right-type">Choosing the Right Type</a></h2>
+<h3 id="use-numbers-for"><a class="header" href="#use-numbers-for">Use Numbers For:</a></h3>
+<ul>
+<li>Counting, indexing</li>
+<li>Mathematical calculations</li>
+<li>Measurements, coordinates</li>
+</ul>
+<h3 id="use-strings-for"><a class="header" href="#use-strings-for">Use Strings For:</a></h3>
+<ul>
+<li>Text and messages</li>
+<li>User input/output</li>
+<li>File paths, URLs</li>
+</ul>
+<h3 id="use-booleans-for"><a class="header" href="#use-booleans-for">Use Booleans For:</a></h3>
+<ul>
+<li>Conditional logic</li>
+<li>Flags and toggles</li>
+<li>Validation results</li>
+</ul>
+<h3 id="use-lists-for"><a class="header" href="#use-lists-for">Use Lists For:</a></h3>
+<ul>
+<li>Ordered collections</li>
+<li>Variable-length sequences</li>
+<li>Data transformations</li>
+</ul>
+<h3 id="use-maps-for"><a class="header" href="#use-maps-for">Use Maps For:</a></h3>
+<ul>
+<li>Structured data</li>
+<li>Key-value associations</li>
+<li>JSON-like objects</li>
+</ul>
+<h3 id="use-tuples-for"><a class="header" href="#use-tuples-for">Use Tuples For:</a></h3>
+<ul>
+<li>Multiple return values</li>
+<li>Fixed-size groups</li>
+<li>Coordinate pairs</li>
+</ul>
+<h3 id="use-functions-for"><a class="header" href="#use-functions-for">Use Functions For:</a></h3>
+<ul>
+<li>Reusable logic</li>
+<li>Callbacks</li>
+<li>Higher-order operations</li>
+</ul>
+<h3 id="use-regex-for"><a class="header" href="#use-regex-for">Use Regex For:</a></h3>
+<ul>
+<li>Pattern matching</li>
+<li>Text validation</li>
+<li>Data extraction</li>
+</ul>
+<h2 id="type-hierarchy"><a class="header" href="#type-hierarchy">Type Hierarchy</a></h2>
+<pre><code>All Types
+├── Primitive
+│   ├── Number
+│   ├── Boolean
+│   ├── String
+│   └── Nil
+├── Collection
+│   ├── List
+│   ├── Map
+│   └── Tuple
+└── Special
+    ├── Function
+    ├── Regex
+    └── Stream
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="type-guards"><a class="header" href="#type-guards">Type Guards</a></h3>
+<pre><code class="language-suji">import std:println
+
+process_value = |value| {
+    match {
+        value::is_number() =&gt; "Number: ${value}",
+        value::is_string() =&gt; "String: ${value}",
+        value::is_bool() =&gt; "Boolean: ${value}",
+        _ =&gt; "Unknown type",
+    }
+}
+
+println(process_value(42))      # Number: 42
+println(process_value("hello")) # String: hello
+println(process_value(true))    # Boolean: true
+</code></pre>
+<h3 id="type-safe-operations"><a class="header" href="#type-safe-operations">Type-Safe Operations</a></h3>
+<pre><code class="language-suji">import std:println
+
+safe_add = |a, b| {
+    match { a::is_number() &amp;&amp; b::is_number() =&gt; a + b, _ =&gt; nil, }
+}
+
+println(safe_add(5, 3))      # 8
+println(safe_add("5", 3))    # nil
+</code></pre>
+<h3 id="polymorphic-functions"><a class="header" href="#polymorphic-functions">Polymorphic Functions</a></h3>
+<pre><code class="language-suji">import std:println
+
+length_of = |value| {
+    match {
+        value::is_string() =&gt; value::length(),
+        value::is_list() =&gt; value::length(),
+        value::is_map() =&gt; value::length(),
+        _ =&gt; 0,
+    }
+}
+
+println(length_of("hello"))        # 5
+println(length_of([1, 2, 3]))      # 3
+println(length_of({a: 1, b: 2}))   # 2
+</code></pre>
+<h2 id="performance-considerations"><a class="header" href="#performance-considerations">Performance Considerations</a></h2>
+<h3 id="memory-usage"><a class="header" href="#memory-usage">Memory Usage</a></h3>
+<p>Different types have different memory characteristics:</p>
+<ul>
+<li><strong>Numbers</strong>: Fixed size (a 128-bit decimal)</li>
+<li><strong>Booleans</strong>: Fixed size</li>
+<li><strong>Strings</strong>: Variable, proportional to length</li>
+<li><strong>Lists</strong>: Variable, grows with elements</li>
+<li><strong>Maps</strong>: Variable, based on number of keys</li>
+<li><strong>Functions</strong>: Small closure overhead</li>
+</ul>
+<h3 id="operation-costs"><a class="header" href="#operation-costs">Operation Costs</a></h3>
+<ul>
+<li><strong>Number operations</strong>: Decimal arithmetic is done in software, so it is
+slower than hardware floating point but exact in base 10</li>
+<li><strong>String concatenation</strong>: Can be slow for many ops (build a list and
+<code>::join()</code> instead)</li>
+<li><strong>String indexing</strong>: O(n) — indexes and <code>length()</code> count characters, not bytes</li>
+<li><strong>List access</strong>: O(1) by index, O(n) by value</li>
+<li><strong>Map access</strong>: O(1) average for lookups</li>
+<li><strong>Function calls</strong>: Small overhead (closure capture); there are no tail calls,
+so deep recursion will overflow the stack</li>
+</ul>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use the most appropriate type for your data</li>
+<li>Check types when accepting external input</li>
+<li>Convert types explicitly</li>
+<li>Document expected types in functions</li>
+<li>Use type-safe helper functions</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Expect implicit type coercion — there is none</li>
+<li>Mix types without validation</li>
+<li>Ignore nil possibilities</li>
+<li>Use strings when numbers are more appropriate</li>
+<li>Assume list and map methods copy: <code>push</code>, <code>pop</code>, <code>merge</code> and <code>delete</code> mutate
+the value in place</li>
+</ul>
+<h2 id="quick-reference"><a class="header" href="#quick-reference">Quick Reference</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Literal</th><th>Example</th><th>Mutable?</th></tr></thead><tbody>
+<tr><td>Number</td><td><code>42</code>, <code>3.14</code></td><td><code>age = 30</code></td><td>Immutable</td></tr>
+<tr><td>Boolean</td><td><code>true</code>, <code>false</code></td><td><code>active = true</code></td><td>Immutable</td></tr>
+<tr><td>String</td><td><code>"text"</code>, <code>'text'</code></td><td><code>name = "Alice"</code></td><td>Immutable</td></tr>
+<tr><td>Nil</td><td><code>nil</code></td><td><code>optional = nil</code></td><td>Immutable</td></tr>
+<tr><td>List</td><td><code>[...]</code></td><td><code>nums = [1, 2, 3]</code></td><td>Mutable</td></tr>
+<tr><td>Map</td><td><code>{...}</code></td><td><code>user = {name: "Alice"}</code></td><td>Mutable</td></tr>
+<tr><td>Tuple</td><td><code>(...)</code></td><td><code>point = (10, 20)</code></td><td>Immutable</td></tr>
+<tr><td>Function</td><td><code>|x| x * 2</code></td><td><code>double = |x| x * 2</code></td><td>Immutable</td></tr>
+<tr><td>Regex</td><td><code>/pattern/</code></td><td><code>email = /^.+@.+$/</code></td><td>Immutable</td></tr>
+<tr><td>Stream</td><td>(I/O handles)</td><td><code>s = io:open("file.txt")</code></td><td>I/O</td></tr>
+</tbody></table>
+</div>
+<p>Mutable types are changed in place by a few methods (<code>list::push</code>, <code>list::pop</code>,
+<code>map::merge</code>, <code>map::delete</code>) and by index assignment; every other method returns
+a new value and leaves the receiver alone.</p>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<p>Start with the primitive types to build a solid foundation:</p>
+<ol>
+<li><strong><a href="numbers.html">Numbers</a></strong> - Learn arithmetic and math operations</li>
+<li><strong><a href="strings.html">Strings</a></strong> - Master text manipulation</li>
+<li><strong><a href="booleans.html">Booleans</a></strong> - Understand logical operations</li>
+<li><strong><a href="lists.html">Lists</a></strong> - Work with collections</li>
+<li><strong><a href="maps.html">Maps</a></strong> - Handle structured data</li>
+</ol>
+<p>Then explore special types for advanced use cases.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../overview.html">Language Overview</a></li>
+<li><a href="../operators/">Operators</a></li>
+<li><a href="../../advanced/type-checking.html">Type Checking</a></li>
+<li><a href="../../advanced/performance.html">Performance Guide</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/overview.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/data-types/numbers.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/overview.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/data-types/numbers.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Common Patterns - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/cookbook/README.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="cookbook"><a class="header" href="#cookbook">Cookbook</a></h1>
+<p>Practical recipes for common programming tasks in Suji.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The Cookbook provides ready-to-use solutions for everyday programming challenges. Each recipe includes:</p>
+<ul>
+<li>Complete working code</li>
+<li>Step-by-step explanations</li>
+<li>Real-world use cases</li>
+<li>Common variations</li>
+<li>Best practices</li>
+</ul>
+<p>Every code block on these pages is a complete program: it creates whatever input it needs — a literal, or a temp file it cleans up afterwards — so you can copy one into <code>recipe.si</code> and run <code>suji recipe.si</code> unchanged. The only exception is <a href="http.html">HTTP with curl</a>, whose recipes make real network requests.</p>
+<h2 id="recipe-categories"><a class="header" href="#recipe-categories">Recipe Categories</a></h2>
+<h3 id="file-processing"><a class="header" href="#file-processing">File Processing</a></h3>
+<p>Work with files efficiently:</p>
+<ul>
+<li><strong><a href="file-processing.html#reading-line-by-line">Reading Files Line by Line</a></strong> - Stream a file with <code>read_line()</code> instead of loading it</li>
+<li><strong><a href="file-processing.html#csv-processing">Processing CSV Files</a></strong> - Parse and transform CSV data</li>
+<li><strong><a href="file-processing.html#log-analysis">Log File Analysis</a></strong> - Extract insights from log files</li>
+<li><strong><a href="file-processing.html#batch-operations">Batch File Operations</a></strong> - Rename, copy or back up many files</li>
+<li><strong><a href="file-processing.html#directory-traversal">Directory Traversal</a></strong> - Walk directory trees with <code>find</code></li>
+<li><strong><a href="file-processing.html#checking-whether-a-file-exists">Checking a File Exists</a></strong> - Test paths without aborting the script</li>
+</ul>
+<h3 id="data-transformation"><a class="header" href="#data-transformation">Data Transformation</a></h3>
+<p>Transform data between formats:</p>
+<ul>
+<li><strong><a href="data-transformation.html#json-to-yaml">JSON to YAML</a></strong> - Convert between data formats</li>
+<li><strong><a href="data-transformation.html#csv-to-json">CSV to JSON</a></strong> - Transform tabular data</li>
+<li><strong><a href="data-transformation.html#filtering">Data Filtering</a></strong> - Filter datasets with predicates</li>
+<li><strong><a href="data-transformation.html#nested-data">Nested Data Manipulation</a></strong> - Work with complex structures</li>
+<li><strong><a href="data-transformation.html#aggregation">Aggregation and Grouping</a></strong> - Summarize data</li>
+<li><strong><a href="data-transformation.html#validation">Data Validation</a></strong> - Validate data structures</li>
+</ul>
+<h3 id="configuration-management"><a class="header" href="#configuration-management">Configuration Management</a></h3>
+<p>Manage application configuration:</p>
+<ul>
+<li><strong><a href="config-management.html#loading">Loading Config</a></strong> - Read from multiple sources</li>
+<li><strong><a href="config-management.html#environments">Environment Settings</a></strong> - Handle different environments</li>
+<li><strong><a href="config-management.html#validation">Config Validation</a></strong> - Ensure valid configuration</li>
+<li><strong><a href="config-management.html#merging">Config Merging</a></strong> - Combine configuration objects</li>
+<li><strong><a href="config-management.html#type-safe-access">Type-Safe Access</a></strong> - Access config safely</li>
+</ul>
+<h3 id="working-with-apis"><a class="header" href="#working-with-apis">Working with APIs</a></h3>
+<p>HTTP and API integration:</p>
+<ul>
+<li><strong><a href="apis.html#http-requests">Making HTTP Requests</a></strong> - GET, POST, PUT, DELETE with <code>curl</code></li>
+<li><strong><a href="apis.html#json-apis">JSON API Consumption</a></strong> - Parse API responses</li>
+<li><strong><a href="apis.html#authentication">Authentication</a></strong> - Handle API keys and tokens</li>
+<li><strong><a href="apis.html#error-handling">Error Handling</a></strong> - Graceful failure handling</li>
+<li><strong><a href="apis.html#rate-limiting">Rate Limiting</a></strong> - Respect API limits</li>
+<li><strong><a href="apis.html#pagination">Pagination</a></strong> - Handle paginated responses</li>
+</ul>
+<h3 id="text-processing"><a class="header" href="#text-processing">Text Processing</a></h3>
+<p>String manipulation and regex:</p>
+<ul>
+<li><strong><a href="text-processing.html#email-validation">Email Validation</a></strong> - Validate email formats</li>
+<li><strong><a href="text-processing.html#url-extraction">URL Extraction</a></strong> - Extract URLs from text</li>
+<li><strong><a href="text-processing.html#log-parsing">Log Parsing</a></strong> - Parse structured logs</li>
+<li><strong><a href="text-processing.html#template-generation">Template Generation</a></strong> - Generate text from templates</li>
+<li><strong><a href="text-processing.html#text-search-and-replace">Text Search and Replace</a></strong> - Normalize and rewrite text</li>
+</ul>
+<h3 id="scripting-tasks"><a class="header" href="#scripting-tasks">Scripting Tasks</a></h3>
+<p>Automation and workflows:</p>
+<ul>
+<li><strong><a href="scripting.html#script-arguments">Script Arguments</a></strong> - Read <code>env:args</code> safely</li>
+<li><strong><a href="scripting.html#reading-standard-input">Standard Input</a></strong> - Consume piped input</li>
+<li><strong><a href="scripting.html#running-shell-commands">Shell Commands</a></strong> - Backticks, quoting and failure handling</li>
+<li><strong><a href="scripting.html#pipelines">Pipelines</a></strong> - Pipe closures into commands and back</li>
+<li><strong><a href="scripting.html#retry-and-poll-loops">Retry and Poll Loops</a></strong> - Wait for something to become ready</li>
+<li><strong><a href="scripting.html#worked-example-backup-script">Backup Script</a></strong> - A complete worked script</li>
+</ul>
+<h2 id="quick-examples"><a class="header" href="#quick-examples">Quick Examples</a></h2>
+<h3 id="read-and-process-csv"><a class="header" href="#read-and-process-csv">Read and Process CSV</a></h3>
+<pre><code class="language-suji">import std:csv
+import std:io
+import std:os
+import std:println
+
+path = `mktemp`
+f = io:open(path, true, true)
+f::write("name,age\nAlice,34\nBob,12\nCarol,29\n")
+f::close()
+
+file = io:open(path)
+rows = csv:parse(file::read_all())
+file::close()
+
+adults = rows[1;]
+    ::filter(|row| row[1]::to_number() &gt;= 18)
+    ::map(|row| row[0])
+
+println("Adults: ${adults::join(", ")}")  # Adults: Alice, Carol
+
+os:rm(path)
+</code></pre>
+<h3 id="parse-api-data"><a class="header" href="#parse-api-data">Parse API Data</a></h3>
+<pre><code class="language-suji">import std:json
+import std:println
+
+text = '[{"name": "Alice"}, {"name": "Bob"}]'
+users = json:parse(text)
+
+println("Loaded ${users::length()} users")  # Loaded 2 users
+</code></pre>
+<p>Swap the literal for <code>`curl -fsSL &lt;url&gt;`</code> to read the same shape off the network — see <a href="http.html">HTTP with curl</a>.</p>
+<h3 id="process-log-files"><a class="header" href="#process-log-files">Process Log Files</a></h3>
+<pre><code class="language-suji">import std:io
+import std:os
+import std:println
+
+path = `mktemp`
+f = io:open(path, true, true)
+f::write("INFO started\nERROR disk full\nERROR disk full\n")
+f::close()
+
+file = io:open(path)
+lines = file::read_lines()
+file::close()
+
+errors = lines::filter(|line| line ~ /ERROR/)
+println("Found ${errors::length()} errors")  # Found 2 errors
+
+os:rm(path)
+</code></pre>
+<h3 id="generate-report"><a class="header" href="#generate-report">Generate Report</a></h3>
+<pre><code class="language-suji">import std:io
+import std:os
+import std:println
+
+data = { total: 12500, average: 4166.67 }
+
+report = """&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Sales Report&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Sales Report&lt;/h1&gt;
+    &lt;p&gt;Total Sales: ${data:total}&lt;/p&gt;
+    &lt;p&gt;Average: ${data:average}&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"""
+
+path = `mktemp`
+out_file = io:open(path, true, true)  # create=true, truncate=true
+out_file::write(report)
+out_file::close()
+
+println(`grep -c '&lt;p&gt;' ${path}`)  # 2
+
+os:rm(path)
+</code></pre>
+<h2 id="how-to-use-this-cookbook"><a class="header" href="#how-to-use-this-cookbook">How to Use This Cookbook</a></h2>
+<ol>
+<li><strong>Browse by Category</strong> - Find recipes related to your task</li>
+<li><strong>Copy and Adapt</strong> - Start with working code, modify for your needs</li>
+<li><strong>Understand the Pattern</strong> - Learn the underlying approach</li>
+<li><strong>Experiment</strong> - Try variations and extensions</li>
+</ol>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="defensive-checking-pattern"><a class="header" href="#defensive-checking-pattern">Defensive Checking Pattern</a></h3>
+<p>Suji has no exceptions: a runtime error prints a diagnostic and ends the process. The only strategy is to check before you act, and to return a <code>(value, error)</code> tuple instead of throwing.</p>
+<pre><code class="language-suji">import std:io
+import std:println
+
+exists = |p| `test -f "${p}" &amp;&amp; echo yes || echo no` == "yes"
+
+process_file = |filename| {
+    !exists(filename) &amp;&amp; return (nil, "File not found")
+
+    file = io:open(filename)
+    content = file::read_all()
+    file::close()
+
+    return (content::length(), nil)
+}
+
+size, error = process_file("/no/such/file")
+
+match {
+    error != nil =&gt; { println("Error: ${error}") },
+    _ =&gt; { println("Read ${size} bytes") },
+}
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Error: File not found
+</code></pre>
+<h3 id="pipeline-pattern"><a class="header" href="#pipeline-pattern">Pipeline Pattern</a></h3>
+<p>Chain transformations with method calls, or compose named steps with <code>&gt;&gt;</code>:</p>
+<pre><code class="language-suji">import std:println
+
+validate = |xs| xs::filter(|x| x::is_number())
+transform = |xs| xs::map(|x| x * 2)
+summarize = |xs| xs::sum()
+
+pipeline = validate &gt;&gt; transform &gt;&gt; summarize
+
+println(pipeline([1, "two", 3, 4]))  # 16
+</code></pre>
+<h3 id="configuration-pattern"><a class="header" href="#configuration-pattern">Configuration Pattern</a></h3>
+<p>Layer defaults, file values and environment variables, then validate the result:</p>
+<pre><code class="language-suji">import std:env
+import std:println
+
+defaults = { port: 8080, log_level: "info" }
+file_config = { log_level: "debug" }
+
+# merge mutates the receiver, so copy the defaults first
+config = defaults
+config::merge(file_config)
+
+override = env:var::get("APP_PORT", nil)
+match { override != nil =&gt; { config["port"] = override::to_number() } }
+
+println("${config:port} / ${config:log_level}")  # 8080 / debug
+</code></pre>
+<h2 id="tips-for-success"><a class="header" href="#tips-for-success">Tips for Success</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Start with working examples</li>
+<li>Check for missing keys, missing files and empty lists before using them</li>
+<li>Use <code>map::get(key, default)</code> for anything optional</li>
+<li>Break complex tasks into small named functions</li>
+<li>Guard shell commands that may fail with <code>|| true</code></li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Expect <code>try</code>/<code>catch</code>, <code>if</code>/<code>else</code>, <code>for</code> or <code>while</code> — Suji has none of them</li>
+<li>Rely on truthiness; <code>&amp;&amp;</code>, <code>||</code> and <code>!</code> require real booleans</li>
+<li>Read a huge file with <code>read_all()</code> when <code>read_line()</code> will do</li>
+<li>Hardcode configuration or absolute paths</li>
+<li>Assume a non-zero exit status from a command is recoverable</li>
+</ul>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<p>Start with the recipe category most relevant to your task:</p>
+<ol>
+<li><strong><a href="file-processing.html">File Processing</a></strong> - Working with files and directories</li>
+<li><strong><a href="data-transformation.html">Data Transformation</a></strong> - Converting and filtering data</li>
+<li><strong><a href="config-management.html">Configuration</a></strong> - Managing app configuration</li>
+<li><strong><a href="apis.html">APIs</a></strong> - HTTP requests and API integration</li>
+<li><strong><a href="text-processing.html">Text Processing</a></strong> - String manipulation and regex</li>
+<li><strong><a href="scripting.html">Scripting</a></strong> - Automation and workflows</li>
+</ol>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../stdlib/README.html">Standard Library</a> - Built-in modules reference</li>
+<li><a href="../functions/README.html">Functions</a> - Function programming guide</li>
+<li><a href="../examples/README.html">Examples</a> - Complete example programs</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../examples/cli-tools.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../cookbook/http.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../examples/cli-tools.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../cookbook/http.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

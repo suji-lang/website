@@ -1,0 +1,375 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Glossary - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/appendices/glossary.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="glossary"><a class="header" href="#glossary">Glossary</a></h1>
+<p>Terms as this book uses them, which is to say as Suji actually defines them.</p>
+<h2 id="a"><a class="header" href="#a">A</a></h2>
+<p><strong>Arm</strong> — One <code>pattern =&gt; body</code> clause of a <a href="../fundamentals/control-flow/match.html"><code>match</code></a>.
+An arm whose body is a bare expression must be followed by a comma, including
+the last one; an arm whose body is a <code>{ … }</code> block may omit it.</p>
+<p><strong>Arity</strong> — The number of parameters a function declares. Suji checks arity at
+call time and raises error 408 on a mismatch, unless the missing parameters have
+defaults.</p>
+<h2 id="b"><a class="header" href="#b">B</a></h2>
+<p><strong>Backtick template</strong> — A <code>`command`</code> literal that runs a command through
+the shell and evaluates to its stdout with the trailing newline trimmed. Also
+called a shell template. See <a href="../advanced/shell-integration.html">Shell Integration</a>.</p>
+<p><strong>Binding</strong> — The association of a name with a value, created by assignment.
+Suji has no declaration keyword and no shadowing: assigning inside a nested
+scope writes to the outer binding when one exists.</p>
+<h2 id="c"><a class="header" href="#c">C</a></h2>
+<p><strong>Closure</strong> — A function that captures its enclosing environment. Suji closures
+capture <strong>by reference</strong>, so they can read and mutate the variables they close
+over. See <a href="../functions/closures.html">Closures</a>.</p>
+<p><strong>Composition</strong> — Building one function from two with <code>&gt;&gt;</code> or <code>&lt;&lt;</code>. <code>f &gt;&gt; g</code>
+means “f then g”; <code>f &lt;&lt; g</code> means “g then f”. See
+<a href="../fundamentals/operators/composition.html">Function Composition</a>.</p>
+<p><strong>Conditional match</strong> — The <code>match { condition =&gt; body, … }</code> form, in which each
+arm is a boolean expression rather than a pattern. This is Suji’s replacement
+for <code>if</code>/<code>else if</code> chains. See <a href="../fundamentals/control-flow/conditionals.html">Conditional Logic</a>.</p>
+<h2 id="d"><a class="header" href="#d">D</a></h2>
+<p><strong>Decimal number</strong> — Suji’s only numeric type: an exact base-10 fixed-precision
+decimal of roughly 28–29 significant digits. <code>0.1 + 0.2 == 0.3</code> is <code>true</code>. There
+is no integer type and no floating-point type. See <a href="../fundamentals/data-types/numbers.html">Numbers</a>.</p>
+<p><strong>Deep import</strong> — An import that reaches past a module to one of its members,
+such as <code>import std:json:parse</code>, which binds <code>parse</code> directly. See
+<a href="../modules/imports.html">Imports</a>.</p>
+<p><strong>Destructuring</strong> — Unpacking a tuple or a multi-value return into several
+bindings at once: <code>a, b = point</code>. Use <code>_</code> to discard a position. See
+<a href="../functions/multiple-returns.html">Multiple Return Values</a>.</p>
+<h2 id="e"><a class="header" href="#e">E</a></h2>
+<p><strong>Eager</strong> — Evaluated immediately rather than on demand. Suji is eager
+throughout: ranges materialise as lists, <code>map</code> and <code>filter</code> allocate a new list
+per step, and stream reads block.</p>
+<p><strong>Expression statement</strong> — A statement that is just an expression evaluated for
+its value or its side effects, such as a bare function call.</p>
+<p><strong>Export</strong> — The single value a module makes available, written <code>export expr</code>.
+A file may have at most one. <code>export { a: 1, f: |x| x }</code> makes <code>module:a</code> and
+<code>module:f</code> reachable. See <a href="../modules/exports.html">Exports</a>.</p>
+<h2 id="g"><a class="header" href="#g">G</a></h2>
+<p><strong>Guard</strong> — An early exit written with a short-circuit operator, such as
+<code>n &lt; 0 &amp;&amp; return nil</code> or <code>done || continue</code>. Suji has no <code>if</code> guards inside
+match patterns, so guards live either in a conditional match or in these
+short-circuit statements. See <a href="../fundamentals/control-flow/guards.html">Guard Clauses</a>.</p>
+<h2 id="h"><a class="header" href="#h">H</a></h2>
+<p><strong>Higher-order function</strong> — A function that takes or returns a function.
+<code>list::map</code>, <code>list::filter</code> and <code>list::fold</code> are the built-in examples. See
+<a href="../functions/higher-order.html">Higher-Order Functions</a>.</p>
+<h2 id="i"><a class="header" href="#i">I</a></h2>
+<p><strong>Implicit return</strong> — The value of the last expression in a function body,
+returned without a <code>return</code> keyword.</p>
+<p><strong>Interpolation</strong> — Embedding an expression in a string or shell template with
+<code>${expr}</code>. It is the only interpolation syntax, and it does not apply inside
+regex literals. See <a href="../advanced/string-interpolation.html">String Interpolation</a>.</p>
+<p><strong>Iterable</strong> — A value <code>loop through</code> accepts: a list, a range (which is a
+list), or a map. Strings and streams are <strong>not</strong> iterable; convert with
+<code>s::to_list()</code> or <code>stream::read_lines()</code> first.</p>
+<h2 id="l"><a class="header" href="#l">L</a></h2>
+<p><strong>Lambda</strong> — A function literal, <code>|params| body</code>. Suji has no other way to
+define a function; a named function is a lambda assigned to a name. See
+<a href="../functions/basics.html">Basic Functions</a>.</p>
+<h2 id="m"><a class="header" href="#m">M</a></h2>
+<p><strong>Map</strong> — An insertion-ordered collection of key-value pairs, written
+<code>{a: 1, "b": 2}</code>. Keys may be strings, numbers, booleans or tuples. Read with
+<code>m:key</code>, <code>m["key"]</code> or <code>m::get(k, default)</code>. See <a href="../fundamentals/data-types/maps.html">Maps</a>.</p>
+<p><strong>Match</strong> — Suji’s only conditional construct, and always an expression. It has
+a subject form (<code>match value { … }</code>) and a conditional form (<code>match { … }</code>). A
+match with no matching arm evaluates to <code>nil</code>. See <a href="../fundamentals/control-flow/match.html">Match Expressions</a>.</p>
+<p><strong>Method</strong> — A function attached to a value and called with <code>::</code>, as in
+<code>xs::length()</code>. Methods belong to types, not to modules; module functions are
+called with <code>:</code>, as in <code>json:parse(text)</code>.</p>
+<p><strong>Module</strong> — A unit of importable code: <code>std</code> and its submodules, or a local
+<code>.si</code> file. Local imports use colon-separated path segments relative to the
+importing file, never string paths. See <a href="../modules/README.html">Modules</a>.</p>
+<h2 id="n"><a class="header" href="#n">N</a></h2>
+<p><strong>Nil</strong> — The absence of a value, written <code>nil</code>. It is not falsey — Suji has no
+truthiness — so test it with <code>x == nil</code>. See <a href="../fundamentals/data-types/nil.html">Nil</a>.</p>
+<h2 id="p"><a class="header" href="#p">P</a></h2>
+<p><strong>Pattern</strong> — The left side of a match arm. Suji supports literal, negative
+number, regex, tuple, alternative (<code>|</code>) and wildcard patterns. It does <strong>not</strong>
+support variable binding, so a bare identifier in a pattern is read as a string
+literal. See <a href="../advanced/pattern-matching.html">Pattern Matching</a>.</p>
+<p><strong>Pipe apply</strong> — The <code>|&gt;</code> and <code>&lt;|</code> operators, which apply a value to a function.
+<code>5 |&gt; inc</code> and <code>inc &lt;| 5</code> both call <code>inc(5)</code>. See <a href="../fundamentals/operators/pipe-apply.html">Pipe Apply</a>.</p>
+<p><strong>Pipeline</strong> — A chain of stages joined by <code>|</code>, where each stage’s stdout
+becomes the next stage’s stdin. Stages are closure calls or shell templates. See
+<a href="../fundamentals/operators/pipe.html">Pipe</a>.</p>
+<p><strong>Predicate method</strong> — One of <code>is_number()</code>, <code>is_bool()</code>, <code>is_string()</code>,
+<code>is_list()</code>, <code>is_map()</code>, <code>is_stream()</code>, <code>is_function()</code>, <code>is_tuple()</code>,
+<code>is_regex()</code>, available on every value. There is no <code>is_nil()</code> and no <code>type()</code>.
+See <a href="../advanced/type-checking.html">Type Checking Methods</a>.</p>
+<h2 id="r"><a class="header" href="#r">R</a></h2>
+<p><strong>Range</strong> — <code>a..b</code> (exclusive) or <code>a..=b</code> (inclusive). A range evaluates
+immediately to a list, so <code>0..1000000</code> allocates a million elements. Descending
+ranges work: <code>5..1</code> is <code>[5, 4, 3, 2]</code>.</p>
+<p><strong>Regex literal</strong> — A <code>/pattern/</code> value used with <code>~</code> and <code>!~</code> or as a match
+pattern. Matching is the only operation: there are no capture groups, no
+regex replace and no regex split. See <a href="../fundamentals/data-types/regex.html">Regular Expressions</a>.</p>
+<h2 id="s"><a class="header" href="#s">S</a></h2>
+<p><strong>Scale</strong> — The number of decimal places a number carries. Suji preserves it, so
+<code>1.50</code> prints as <code>1.50</code> and <code>2.50 + 1</code> prints as <code>3.50</code>, while the literal <code>1.0</code>
+normalises to <code>1</code>.</p>
+<p><strong>Shell template</strong> — See <strong>backtick template</strong>.</p>
+<p><strong>Spec test</strong> — A single-assertion <code>.si</code> program under <code>spec/</code>, whose final
+<code>println</code> carries the expected output in a trailing <code>#</code> comment. See
+<a href="../development/testing/spec-tests.html">Spec Tests</a>.</p>
+<p><strong>Stream</strong> — A blocking I/O handle produced by <code>io:open(path)</code> or supplied as
+<code>io:stdin</code>, <code>io:stdout</code> and <code>io:stderr</code>. All reads are eager. See
+<a href="../fundamentals/data-types/streams.html">Streams</a>.</p>
+<p><strong>Subject</strong> — The value between <code>match</code> and <code>{</code> in the subject form of a match,
+against which each pattern is compared.</p>
+<h2 id="t"><a class="header" href="#t">T</a></h2>
+<p><strong>Tuple</strong> — A fixed-size ordered group, written <code>(1, 2)</code>. Tuples are <strong>not
+indexable</strong>: use destructuring or <code>t::to_list()</code>. Their only methods are
+<code>length()</code>, <code>to_list()</code> and <code>to_string()</code>. See <a href="../fundamentals/data-types/tuples.html">Tuples</a>.</p>
+<h2 id="w"><a class="header" href="#w">W</a></h2>
+<p><strong>Wildcard</strong> — <code>_</code>, which matches any value in a pattern and discards a position
+in destructuring. It is conventionally the last arm of a match; without it, an
+unmatched match yields <code>nil</code>.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="syntax-reference.html">Syntax Reference</a></li>
+<li><a href="precedence.html">Operator Precedence</a></li>
+<li><a href="error-codes.html">Error Codes</a></li>
+<li><a href="../fundamentals/overview.html">Language Overview</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../appendices/error-codes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../appendices/resources.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../appendices/error-codes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../appendices/resources.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

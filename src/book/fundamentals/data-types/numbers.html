@@ -1,0 +1,767 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Numbers - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/data-types/numbers.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="numbers"><a class="header" href="#numbers">Numbers</a></h1>
+<p>Numbers in Suji are represented as fixed-precision decimal numbers (base-10 arithmetic).</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Suji has a single number type: <strong>Decimal</strong>. All numbers are decimal numbers, whether they have a fractional part or not. Integers are simply decimal numbers with no fractional component.</p>
+<h3 id="key-characteristics"><a class="header" href="#key-characteristics">Key Characteristics</a></h3>
+<ul>
+<li><strong>Single type</strong> - All numbers are decimals (no separate integer/float types)</li>
+<li><strong>Decimal arithmetic</strong> - Base-10 arithmetic, so <code>0.1 + 0.2 == 0.3</code> is <code>true</code></li>
+<li><strong>Fixed precision</strong> - About 28–29 significant digits, with a hard maximum of
+<code>79228162514264337593543950335</code>. This is <em>not</em> arbitrary precision: exceeding
+the range aborts the program.</li>
+<li><strong>No NaN/Infinity</strong> - Invalid operations raise runtime errors</li>
+<li><strong>Simple literals</strong> - Only decimal digits and an optional <code>.</code> (see below)</li>
+</ul>
+<h3 id="when-to-use-numbers"><a class="header" href="#when-to-use-numbers">When to Use Numbers</a></h3>
+<p>Use numbers for:</p>
+<ul>
+<li>Counting and indexing</li>
+<li>Mathematical calculations</li>
+<li>Measurements and quantities</li>
+<li>Coordinates and positions</li>
+<li>Financial calculations (decimal arithmetic provides exact precision)</li>
+</ul>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<p>All numbers in Suji are decimal numbers. Whether a number has a fractional part or not, it’s still the same decimal type.</p>
+<h3 id="number-literals"><a class="header" href="#number-literals">Number Literals</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Whole numbers (decimals with no fractional part)
+age = 30
+count = 100
+negative = -42
+
+# Decimal numbers (with fractional part)
+pi = 3.14159
+temperature = -40.5
+tiny = 0.000001
+
+println(age)          # 30
+println(negative)     # -42
+println(temperature)  # -40.5
+</code></pre>
+<p>A number literal is <strong>only</strong> a run of decimal digits with an optional <code>.</code> and
+fractional part. The following forms that other languages accept do <strong>not</strong>
+exist in Suji, and each one is a lex or parse error:</p>
+<div class="table-wrapper"><table><thead><tr><th>Not supported</th><th>Write instead</th></tr></thead><tbody>
+<tr><td>Hex <code>0xFF</code>, octal <code>0o77</code>, binary <code>0b1010</code></td><td>the decimal value (<code>255</code>, <code>63</code>, <code>10</code>)</td></tr>
+<tr><td>Digit separators <code>1_000_000</code></td><td><code>1000000</code></td></tr>
+<tr><td>Scientific notation <code>3e8</code></td><td><code>300000000</code> (write the digits out)</td></tr>
+</tbody></table>
+</div>
+<p>Negative numbers are not part of the literal syntax either: <code>-42</code> is unary minus
+applied to the literal <code>42</code>.</p>
+<p>Very small magnitudes are also limited: a decimal keeps at most 28 digits after
+the point, so a value like <code>6.626e-34</code> simply cannot be represented. Rescale your
+units instead of trying to write it.</p>
+<p><strong>Note</strong>: There’s no distinction between “integers” and “floats” in Suji. Both <code>42</code> and <code>42.0</code> are decimal numbers. The difference is only whether they have a fractional component.</p>
+<h3 id="trailing-zeros-and-scale"><a class="header" href="#trailing-zeros-and-scale">Trailing Zeros and Scale</a></h3>
+<p>Every number carries a <em>scale</em> (the number of digits it keeps after the decimal
+point), and arithmetic keeps the larger scale of its operands:</p>
+<pre><code class="language-suji">import std:println
+
+println(1.50)       # 1.50   (scale preserved)
+println(2.50 + 1)   # 3.50
+println(1.0)        # 1      (a literal with only zeros normalises)
+println(42.0)       # 42
+</code></pre>
+<h2 id="arithmetic-operations"><a class="header" href="#arithmetic-operations">Arithmetic Operations</a></h2>
+<h3 id="basic-operations"><a class="header" href="#basic-operations">Basic Operations</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Addition
+println(5 + 3)        # 8
+
+# Subtraction
+println(10 - 4)       # 6
+
+# Multiplication
+println(6 * 7)        # 42
+
+# Division (always returns decimal result)
+println(15 / 3)       # 5
+println(10 / 3)       # 3.3333333333333333333333333333 (rounded at 28 digits)
+
+# Floor division (get integer part)
+println((10 / 3)::floor())  # 3
+
+# Modulo (remainder)
+println(10 % 3)       # 1
+
+# Exponentiation (the exponent must be a whole number)
+println(2 ^ 10)       # 1024
+
+# For roots use the sqrt() method, not a fractional exponent:
+# 4 ^ 0.5 is a runtime error, "Power exponent must be an integer"
+println(4::sqrt())    # 2
+</code></pre>
+<p><code>^</code> is right-associative and binds tighter than unary minus, so <code>2 ^ 3 ^ 2</code> is
+<code>512</code> (not <code>64</code>) and <code>-2 ^ 2</code> is <code>-4</code> (not <code>4</code>).</p>
+<h3 id="compound-assignment"><a class="header" href="#compound-assignment">Compound Assignment</a></h3>
+<pre><code class="language-suji">import std:println
+
+x = 10
+
+x += 5   # x is now 15
+x -= 3   # x is now 12
+x *= 2   # x is now 24
+x /= 4   # x is now 6
+x %= 4   # x is now 2
+
+println(x)  # 2
+
+# Postfix increment and decrement are statements, not expressions
+x++
+println(x)  # 3
+x--
+println(x)  # 2
+</code></pre>
+<h3 id="operator-precedence"><a class="header" href="#operator-precedence">Operator Precedence</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Standard precedence (PEMDAS)
+result = 2 + 3 * 4    # 14, not 20
+println(result)
+
+# Use parentheses for clarity
+result = (2 + 3) * 4  # 20
+println(result)
+
+# Exponentiation has highest precedence
+result = 2 * 3 ^ 2    # 18 (2 * 9)
+println(result)
+</code></pre>
+<h2 id="comparison-operations"><a class="header" href="#comparison-operations">Comparison Operations</a></h2>
+<pre><code class="language-suji">import std:println
+
+# Equality
+println(5 == 5)       # true
+println(5 == 6)       # false
+println(5 != 6)       # true
+
+# Relational
+println(5 &lt; 10)       # true
+println(5 &gt; 10)       # false
+println(5 &lt;= 5)       # true
+println(10 &gt;= 10)     # true
+</code></pre>
+<h2 id="mathematical-functions"><a class="header" href="#mathematical-functions">Mathematical Functions</a></h2>
+<p>Arithmetic that works on a single number is exposed as <strong>methods</strong> on the number
+itself. The <code>std:math</code> module contains only the transcendental functions and two
+constants.</p>
+<h3 id="basic-math-number-methods"><a class="header" href="#basic-math-number-methods">Basic Math (number methods)</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Absolute value
+println((-5)::abs())      # 5
+
+# Rounding
+println(3.7::floor())     # 3
+println(3.2::ceil())      # 4
+println(3.5::round())     # 4
+println(3.4::round())     # 3
+
+# Min/Max (a method on one of the two values)
+println(5::min(10))       # 5
+println(5::max(10))       # 10
+
+# Power and square root
+println(2::pow(10))       # 1024
+println(16::sqrt())       # 4
+</code></pre>
+<blockquote>
+<p><strong>There is no <code>math:abs</code>, <code>math:floor</code>, <code>math:ceil</code>, <code>math:round</code>, <code>math:min</code>,
+<code>math:max</code>, <code>math:pow</code>, <code>math:sqrt</code> or <code>math:cbrt</code>.</strong> Use the methods above.
+Suji has no cube-root operation at all; <code>27 ^ (1/3)</code> will not work either
+because <code>^</code> requires a whole-number exponent. If you need one, write a
+Newton-iteration helper yourself.</p>
+</blockquote>
+<p><code>sqrt()</code> returns a decimal approximation for non-perfect squares:</p>
+<pre><code class="language-suji">import std:println
+
+println(2::sqrt())   # 1.4142135623730950488016887242
+</code></pre>
+<p><code>pow()</code> requires a non-negative whole-number exponent (<code>2::pow(-1)</code> fails with
+<em>Negative exponents not supported</em>).</p>
+<p>Both <code>^</code> and <code>pow()</code> overflow far earlier than plain multiplication does. They
+work by repeated squaring and square the base once more than the result needs, so
+the intermediate value exceeds the decimal range long before the answer would:</p>
+<pre><code class="language-suji">import std:println
+
+println(10 ^ 15)  # 1000000000000000
+println(2 ^ 63)   # 9223372036854775808
+</code></pre>
+<p><code>10 ^ 16</code> and <code>2 ^ 64</code> both abort the program, even though both results are
+comfortably inside the decimal range — <code>1000000000000000 * 10 * 10</code> computes
+<code>100000000000000000</code> without complaint. Overflow is not a catchable Suji error
+either: it is a panic that prints <code>Multiplication overflowed</code> and exits with
+status 101 instead of a framed diagnostic.</p>
+<h3 id="trigonometry"><a class="header" href="#trigonometry">Trigonometry</a></h3>
+<pre><code class="language-suji">import std:math
+import std:println
+
+# Angles in radians
+println(math:sin(math:PI / 2))    # 1
+println(math:cos(0))              # 1
+
+# Trig results are approximations, so don't expect exact values
+println(math:tan(math:PI / 4))    # 0.9999999956815324130588099842
+
+# Inverse functions
+println(math:asin(1))      # 1.570796326794897   (π/2)
+println(math:acos(1))      # 0
+println(math:atan(1))      # 0.785398163397448   (π/4)
+println(math:atan2(1, 1))  # 0.785398163397448   (two-argument arctangent)
+</code></pre>
+<p>There are no hyperbolic functions (<code>sinh</code>, <code>cosh</code>, <code>tanh</code>) and no inverse
+hyperbolics.</p>
+<h3 id="logarithms-and-exponentials"><a class="header" href="#logarithms-and-exponentials">Logarithms and Exponentials</a></h3>
+<pre><code class="language-suji">import std:math
+import std:println
+
+# Natural logarithm
+println(math:log(math:E))  # 0.9999999999999999999998942453
+
+# Base 10 logarithm
+println(math:log10(100))   # 2
+
+# Exponential
+println(math:exp(1))       # 2.7182818261984928651595318263
+
+# Constants (uppercase)
+println(math:PI)           # 3.14159265358979323846
+println(math:E)            # 2.71828182845904523536
+</code></pre>
+<p>The complete contents of <code>std:math</code> are <code>PI</code>, <code>E</code>, <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>asin</code>,
+<code>acos</code>, <code>atan</code>, <code>atan2</code>, <code>log</code>, <code>log10</code> and <code>exp</code>. There is no <code>log2</code>, <code>hypot</code>,
+<code>sign</code>, <code>clamp</code>, <code>trunc</code> or <code>random</code> (for randomness see
+<a href="../../stdlib/random.html"><code>std:random</code></a>).</p>
+<h2 id="number-methods"><a class="header" href="#number-methods">Number Methods</a></h2>
+<h3 id="type-checking"><a class="header" href="#type-checking">Type Checking</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Check if a number has no fractional part (is an integer)
+println(42::is_int())        # true (no fractional part)
+println(3.14::is_int())      # false (has fractional part)
+println(42.0::is_int())      # true (no fractional part, even with .0)
+
+# Check if a value is a number
+println(42::is_number())         # true
+println("text"::is_number())    # false
+
+# Note: Suji uses decimal arithmetic, so NaN and Infinity don't exist
+# Division by zero raises a runtime error instead
+</code></pre>
+<h3 id="conversion"><a class="header" href="#conversion">Conversion</a></h3>
+<pre><code class="language-suji">import std:println
+
+# To string
+println(42::to_string())         # 42
+println(3.14::to_string())       # 3.14
+
+# Parse from string
+num = "42"::to_number()
+println(num)                   # 42
+
+decimal = "3.14"::to_number()
+println(decimal)               # 3.14
+</code></pre>
+<p><code>to_number()</code> raises a runtime error on input that isn’t a number, and Suji has
+no way to trap a runtime error, so validate the text <strong>before</strong> converting:</p>
+<pre><code class="language-suji">import std:println
+
+parse_or_nil = |text| {
+    match {
+        text ~ /^-?[0-9]+(\.[0-9]+)?$/ =&gt; text::to_number(),
+        _ =&gt; nil,
+    }
+}
+
+println(parse_or_nil("42"))     # 42
+println(parse_or_nil("abc"))    # nil
+</code></pre>
+<h3 id="formatting"><a class="header" href="#formatting">Formatting</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Rounding methods
+num = 3.14159
+println(num::round())    # 3
+println(num::floor())    # 3
+println(num::ceil())     # 4
+
+# Note: number::to_fixed(), to_exponential() and to_precision() do not exist.
+# To show a fixed number of decimals, scale, round and divide yourself:
+two_dp = |x| (x * 100)::round() / 100
+println(two_dp(3.14159))  # 3.14
+println(two_dp(2.5))      # 2.50
+println(two_dp(2))        # 2
+</code></pre>
+<p>This rounds correctly, but how many decimals get <em>printed</em> still depends on the
+input’s scale: <code>two_dp(2)</code> shows <code>2</code>, not <code>2.00</code>. Suji has no formatting
+mini-language, so pad the string yourself when you need fixed-width output.</p>
+<h2 id="number-ranges"><a class="header" href="#number-ranges">Number Ranges</a></h2>
+<pre><code class="language-suji">import std:println
+
+# Range literals (list of numbers)
+range1 = 0..5          # [0, 1, 2, 3, 4]
+range2 = 0..=5         # [0, 1, 2, 3, 4, 5] (inclusive)
+range3 = 5..0          # [5, 4, 3, 2, 1] (descending)
+
+println(range1)
+
+# Note: Suji doesn't support step ranges directly
+# Use filter to get evens/odds:
+evens = (0..10)::filter(|x| x % 2 == 0)  # [0, 2, 4, 6, 8]
+odds = (1..10)::filter(|x| x % 2 == 1)   # [1, 3, 5, 7, 9]
+
+println(evens)
+</code></pre>
+<h2 id="special-values"><a class="header" href="#special-values">Special Values</a></h2>
+<h3 id="division-by-zero"><a class="header" href="#division-by-zero">Division by Zero</a></h3>
+<p>Suji uses decimal arithmetic and raises a runtime error on division by zero:</p>
+<pre><code class="language-suji">import std:println
+
+# Division by zero raises a runtime error
+# result = 1 / 0  # Runtime error
+
+# Check before dividing
+safe_divide = |a, b| {
+    match b {
+        0 =&gt; nil,
+        _ =&gt; a / b,
+    }
+}
+
+println(safe_divide(10, 2))  # 5
+println(safe_divide(10, 0))  # nil
+</code></pre>
+<p>Note: Suji does not have Infinity or NaN values. Invalid operations raise runtime errors instead.</p>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="clamping"><a class="header" href="#clamping">Clamping</a></h3>
+<pre><code class="language-suji">import std:println
+
+clamp = |value, min_val, max_val| {
+    match {
+        value &lt; min_val =&gt; min_val,
+        value &gt; max_val =&gt; max_val,
+        _ =&gt; value,
+    }
+}
+
+println(clamp(5, 0, 10))      # 5
+println(clamp(-5, 0, 10))     # 0
+println(clamp(15, 0, 10))     # 10
+</code></pre>
+<h3 id="linear-interpolation"><a class="header" href="#linear-interpolation">Linear Interpolation</a></h3>
+<pre><code class="language-suji">import std:println
+
+lerp = |a, b, t| {
+    a + (b - a) * t
+}
+
+# Interpolate between 0 and 100
+println(lerp(0, 100, 0.0))    # 0
+println(lerp(0, 100, 0.5))    # 50
+println(lerp(0, 100, 1.0))    # 100
+</code></pre>
+<h3 id="range-mapping"><a class="header" href="#range-mapping">Range Mapping</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Map value from one range to another
+map_range = |value, in_min, in_max, out_min, out_max| {
+    (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+}
+
+# Map 0-100 to 0-1
+println(map_range(50, 0, 100, 0, 1))   # 0.50
+
+# Map 0-255 to 0-100 (RGB to percentage)
+println(map_range(128, 0, 255, 0, 100)) # 50.196078431372549019607843137
+</code></pre>
+<p>Note the <code>0.50</code> in the first result: division keeps the scale of its operands, so
+round explicitly when the exact number of decimals matters.</p>
+<h3 id="averaging"><a class="header" href="#averaging">Averaging</a></h3>
+<pre><code class="language-suji">import std:println
+
+numbers = [1, 2, 3, 4, 5]
+
+# Mean (::average() does the same thing, and returns nil for an empty list)
+mean = numbers::sum() / numbers::length()
+println(mean)                # 3
+println(numbers::average())  # 3
+
+# Median
+sorted = numbers::sort()
+median = match sorted::length() % 2 {
+    0 =&gt; {
+        mid = sorted::length() / 2
+        (sorted[mid - 1] + sorted[mid]) / 2
+    },
+    _ =&gt; {
+        mid = (sorted::length() / 2)::floor()
+        sorted[mid]
+    },
+}
+println(median)  # 3
+</code></pre>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-decimal-precision"><a class="header" href="#pitfall-1-decimal-precision">Pitfall 1: Decimal Precision</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Decimal arithmetic is exact for values that fit in base 10
+println(0.1 + 0.2 == 0.3)     # true
+println(0.1 + 0.2)            # 0.3
+
+# But precision is finite: repeating divisions are rounded to 28 digits
+println(1 / 3)                # 0.3333333333333333333333333333
+println((1 / 3) * 3 == 1)     # false
+</code></pre>
+<p>So the familiar <code>0.1 + 0.2</code> surprise is gone, but you can still lose digits.
+Anything that does not terminate in base 10 is rounded, and results larger than
+<code>79228162514264337593543950335</code> abort the program instead of wrapping or
+becoming infinity.</p>
+<h3 id="pitfall-2-division-by-zero"><a class="header" href="#pitfall-2-division-by-zero">Pitfall 2: Division by Zero</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Division by zero raises a runtime error (not infinity)
+# result = 10 / 0  # Runtime error: "Division by zero"
+
+# Check before dividing
+divide_safe = |a, b| {
+    match b {
+        0 =&gt; nil,
+        _ =&gt; a / b,
+    }
+}
+
+println(divide_safe(10, 2))  # 5
+println(divide_safe(10, 0))  # nil
+</code></pre>
+<h3 id="pitfall-3-whole-number-vs-decimal-division"><a class="header" href="#pitfall-3-whole-number-vs-decimal-division">Pitfall 3: Whole Number vs Decimal Division</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Suji uses decimal division (always returns decimal result)
+println(10 / 3)              # 3.3333333333333333333333333333 (exact decimal)
+println((10 / 3)::floor())   # 3 (get whole number part using floor)
+
+# All numbers are decimals, so division always returns a decimal
+# Use floor() if you need the whole number part
+</code></pre>
+<h3 id="pitfall-4-modulo-with-negatives"><a class="header" href="#pitfall-4-modulo-with-negatives">Pitfall 4: Modulo with Negatives</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Result has sign of dividend
+println(10 % 3)       # 1
+println(-10 % 3)      # -1
+println(10 % -3)      # 1
+</code></pre>
+<h2 id="performance-tips"><a class="header" href="#performance-tips">Performance Tips</a></h2>
+<h3 id="all-numbers-are-decimals"><a class="header" href="#all-numbers-are-decimals">All Numbers Are Decimals</a></h3>
+<pre><code class="language-suji"># All numbers are decimals, so there's no "conversion" between types
+count = 0
+count = count + 1
+
+# Adding 1.0 is the same as adding 1 (both are decimals)
+count = count + 1.0  # Same result
+
+# The only difference is whether the result has a fractional part
+whole = 42        # Decimal with no fractional part
+decimal = 42.5    # Decimal with fractional part
+# Both are the same type: Decimal
+</code></pre>
+<p>Decimal arithmetic is implemented in software rather than by the CPU’s
+floating-point unit, so it is exact but not free. In hot loops, hoist work that
+does not depend on the loop variable.</p>
+<h3 id="avoid-repeated-calculations"><a class="header" href="#avoid-repeated-calculations">Avoid Repeated Calculations</a></h3>
+<pre><code class="language-suji">import std:println
+
+items = [1, 2, 3, 4]
+
+# Recalculates the square root on every iteration
+total = 0
+loop through items with item {
+    total += item / items::length()::sqrt()
+}
+println(total)  # 5
+
+# Calculate once, outside the loop
+sqrt_len = items::length()::sqrt()
+total = 0
+loop through items with item {
+    total += item / sqrt_len
+}
+println(total)  # 5
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Handle division by zero before it happens (it raises a runtime error that
+cannot be caught)</li>
+<li>Use exact decimal comparisons for terminating values (no epsilon needed)</li>
+<li>Round explicitly with <code>round()</code>/<code>floor()</code>/<code>ceil()</code> when a result’s scale matters</li>
+<li>Keep magnitudes well inside the 28–29 significant digit range</li>
+<li>Document units and ranges</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Think of numbers as separate integer/float types (they’re all decimals)</li>
+<li>Assume arbitrary precision — overflow aborts the program</li>
+<li>Ignore division by zero (it raises an error, not infinity)</li>
+<li>Expect NaN or Infinity (invalid operations raise runtime errors)</li>
+<li>Reach for <code>math:</code> for abs/round/sqrt/pow/min/max — those are number methods</li>
+</ul>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="booleans.html">Booleans</a> for logical values</li>
+<li>Explore the <a href="../../stdlib/math.html">Math Module</a> for trigonometry and logarithms</li>
+<li>Study <a href="../operators/arithmetic.html">Operators</a> in detail</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="booleans.html">Booleans</a></li>
+<li><a href="../../stdlib/math.html">Math Module</a></li>
+<li><a href="../operators/arithmetic.html">Arithmetic Operators</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/data-types/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/data-types/booleans.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/data-types/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/data-types/booleans.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

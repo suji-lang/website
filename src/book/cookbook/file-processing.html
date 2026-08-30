@@ -1,0 +1,649 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>File Processing - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/cookbook/file-processing.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="file-processing-recipes"><a class="header" href="#file-processing-recipes">File Processing Recipes</a></h1>
+<p>Practical recipes for working with files and directories.</p>
+<p>Every recipe below creates its own sample input in a temp file, so you can paste any block straight into a <code>.si</code> file and run it.</p>
+<h2 id="reading-line-by-line"><a class="header" href="#reading-line-by-line">Reading Line by Line</a></h2>
+<p><code>stream::read_all()</code> and <code>stream::read_lines()</code> are eager — they pull the whole file into memory. To process a large file one line at a time, loop on <code>read_line()</code>, which returns <code>nil</code> at end of file.</p>
+<h3 id="recipe"><a class="header" href="#recipe">Recipe</a></h3>
+<pre><code class="language-suji">import std:io
+import std:os
+import std:println
+
+# Sample input
+path = `mktemp`
+f = io:open(path, true, true)
+f::write("""INFO  service started
+ERROR database connection refused
+INFO  retrying
+ERROR database connection refused
+""")
+f::close()
+
+process_large_file = |filename| {
+    line_count = 0
+    error_count = 0
+
+    file = io:open(filename)
+    loop {
+        line = file::read_line()
+        line == nil &amp;&amp; break
+
+        line_count++
+        match { line ~ /ERROR/ =&gt; { error_count++ } }
+    }
+    file::close()
+
+    { "lines": line_count, "errors": error_count }
+}
+
+stats = process_large_file(path)
+println("Processed ${stats:lines} lines, found ${stats:errors} errors")
+
+os:rm(path)
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Processed 4 lines, found 2 errors
+</code></pre>
+<h3 id="use-cases"><a class="header" href="#use-cases">Use Cases</a></h3>
+<ul>
+<li>Processing log files</li>
+<li>Analyzing large text files</li>
+<li>Streaming data transformation</li>
+<li>Memory-efficient file parsing</li>
+</ul>
+<h2 id="csv-processing"><a class="header" href="#csv-processing">CSV Processing</a></h2>
+<p>Parse and transform CSV data with <code>std:csv</code>. <code>csv:parse</code> returns a list of rows, and every cell is a <strong>string</strong> — convert with <code>::to_number()</code> when you need arithmetic.</p>
+<h3 id="recipe-1"><a class="header" href="#recipe-1">Recipe</a></h3>
+<pre><code class="language-suji">import std:csv
+import std:io
+import std:os
+import std:println
+
+# Sample input
+path = `mktemp`
+f = io:open(path, true, true)
+f::write("""customer,amount,date,category
+Alice,1200,2024-01-15,retail
+Bob,300,2024-01-16,retail
+Carol,4500,2024-01-17,wholesale
+""")
+f::close()
+
+file = io:open(path)
+content = file::read_all()
+file::close()
+rows = csv:parse(content)
+
+# Skip the header row, keep the large orders
+large = rows[1;]
+    ::filter(|row| row[1]::to_number() &gt; 1000)
+    ::map(|row| {
+        "customer": row[0],
+        "amount": row[1]::to_number(),
+        "date": row[2],
+        "category": row[3],
+    })
+
+total = large::fold(0, |acc, row| acc + row:amount)
+println("Large orders: ${large::length()}")
+println("Total: ${total}")
+
+# Write the filtered rows back out. csv:generate requires string cells,
+# so convert numbers with ::to_string().
+body = large::map(|row| [row:customer, row:amount::to_string()])
+out_rows = [["customer", "amount"]] + body
+out_path = `mktemp`
+out_file = io:open(out_path, true, true)  # create=true, truncate=true
+out_file::write(csv:generate(out_rows))
+out_file::close()
+
+println(`cat ${out_path}`)
+
+os:rm(path)
+os:rm(out_path)
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Large orders: 2
+Total: 5700
+customer,amount
+Alice,1200
+Carol,4500
+</code></pre>
+<h3 id="variations"><a class="header" href="#variations">Variations</a></h3>
+<h4 id="convert-csv-to-json"><a class="header" href="#convert-csv-to-json">Convert CSV to JSON</a></h4>
+<pre><code class="language-suji">import std:csv
+import std:io
+import std:json
+import std:os
+import std:println
+
+path = `mktemp`
+f = io:open(path, true, true)
+f::write("id,name\n1,Alice\n2,Bob\n")
+f::close()
+
+file = io:open(path)
+rows = csv:parse(file::read_all())
+file::close()
+
+headers = rows[0]
+records = rows[1;]::map(|row| {
+    record = {}
+    loop through 0..headers::length() with i {
+        record[headers[i]] = row[i]
+    }
+    record
+})
+
+println(json:generate(records))
+
+os:rm(path)
+</code></pre>
+<pre><code class="language-text">[{"id":"1","name":"Alice"},{"id":"2","name":"Bob"}]
+</code></pre>
+<h2 id="log-analysis"><a class="header" href="#log-analysis">Log Analysis</a></h2>
+<p>Extract and analyze information from log files. Suji’s regex support is match-only (no capture groups), so pull fields out with <code>index_of</code> and slicing.</p>
+<h3 id="recipe-2"><a class="header" href="#recipe-2">Recipe</a></h3>
+<pre><code class="language-suji">import std:io
+import std:os
+import std:println
+
+# Sample input
+path = `mktemp`
+f = io:open(path, true, true)
+f::write("""[2024-01-15 10:30:00] ERROR: Database connection failed
+[2024-01-15 10:30:05] WARN: Retry scheduled
+[2024-01-15 10:30:06] INFO: HTTP GET /health 200
+[2024-01-15 10:31:00] ERROR: Database connection failed
+""")
+f::close()
+
+parse_entry = |line| {
+    close = line::index_of("]")
+    timestamp = match { close &gt;= 0 =&gt; line[1;close], _ =&gt; "unknown", }
+
+    rest = match { close &gt;= 0 =&gt; line[(close + 2);], _ =&gt; line, }
+    sep = rest::index_of(": ")
+    level = match { sep &gt;= 0 =&gt; rest[0;sep], _ =&gt; "UNKNOWN", }
+    message = match { sep &gt;= 0 =&gt; rest[(sep + 2);], _ =&gt; rest, }
+
+    { "timestamp": timestamp, "level": level, "message": message }
+}
+
+analyze_logs = |log_file| {
+    errors = []
+    warnings = []
+    requests = 0
+
+    file = io:open(log_file)
+    lines = file::read_lines()
+    file::close()
+
+    loop through lines with line {
+        entry = parse_entry(line)
+        match entry:level {
+            "ERROR" =&gt; { errors::push(entry) }
+            "WARN" =&gt; { warnings::push(entry) }
+        }
+        match { line ~ /HTTP/ =&gt; { requests++ } }
+    }
+
+    {
+        "error_count": errors::length(),
+        "warning_count": warnings::length(),
+        "request_count": requests,
+        "first_error": errors::first(nil),
+    }
+}
+
+report = analyze_logs(path)
+println("Errors: ${report:error_count}")
+println("Warnings: ${report:warning_count}")
+println("Requests: ${report:request_count}")
+println("First error: ${report:first_error:message}")
+
+os:rm(path)
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Errors: 2
+Warnings: 1
+Requests: 1
+First error: Database connection failed
+</code></pre>
+<h2 id="batch-operations"><a class="header" href="#batch-operations">Batch Operations</a></h2>
+<p>The standard library has no directory listing function, so use the shell for discovery and Suji for the logic. <code>ls -1</code> returns one name per line; split it and drop the empty trailing entry.</p>
+<h3 id="recipe-batch-rename"><a class="header" href="#recipe-batch-rename">Recipe: Batch Rename</a></h3>
+<pre><code class="language-suji">import std:os
+import std:path
+import std:println
+
+# Sample directory with three files
+dir = `mktemp -d`
+loop through ["notes.txt", "todo.txt", "image.png"] with name {
+    `touch ${dir}/${name}`
+}
+
+list_files = |directory| `ls -1 ${directory}`
+    ::split("\n")
+    ::filter(|n| n::length() &gt; 0)
+
+batch_rename = |directory, pattern, old_ext, new_ext| {
+    renamed = 0
+
+    loop through list_files(directory) with file {
+        file !~ pattern &amp;&amp; continue
+
+        new_name = file::replace(old_ext, new_ext)
+        old_path = path:join([directory, file])
+        new_path = path:join([directory, new_name])
+        `mv ${old_path} ${new_path}`
+
+        renamed++
+        println("Renamed: ${file} -&gt; ${new_name}")
+    }
+
+    println("Renamed ${renamed} files")
+}
+
+batch_rename(dir, /\.txt$/, ".txt", ".md")
+
+`rm -rf ${dir}`
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Renamed: notes.txt -&gt; notes.md
+Renamed: todo.txt -&gt; todo.md
+Renamed 2 files
+</code></pre>
+<h3 id="recipe-batch-backup"><a class="header" href="#recipe-batch-backup">Recipe: Batch Backup</a></h3>
+<pre><code class="language-suji">import std:os
+import std:path
+import std:println
+import std:time
+
+dir = `mktemp -d`
+loop through ["a.json", "b.json", "c.yaml"] with name {
+    `touch ${dir}/${name}`
+}
+
+backup_files = |directory, pattern| {
+    stamp = time:now():epoch_ms
+    backup_dir = "${directory}_backup_${stamp}"
+    os:mkdir(backup_dir)
+
+    files = `ls -1 ${directory}`
+        ::split("\n")
+        ::filter(|n| n::length() &gt; 0)
+
+    matching = files::filter(|f| f ~ pattern)
+
+    loop through matching with file {
+        source = path:join([directory, file])
+        dest = path:join([backup_dir, file])
+        `cp ${source} ${dest}`
+        println("Backed up: ${file}")
+    }
+
+    println("Backed up ${matching::length()} files")
+    backup_dir
+}
+
+backup_dir = backup_files(dir, /\.json$/)
+
+`rm -rf ${dir} ${backup_dir}`
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Backed up: a.json
+Backed up: b.json
+Backed up 2 files
+</code></pre>
+<h2 id="directory-traversal"><a class="header" href="#directory-traversal">Directory Traversal</a></h2>
+<p>There is no recursive walker in the stdlib either — <code>find</code> does the walking and Suji does the work.</p>
+<h3 id="recipe-3"><a class="header" href="#recipe-3">Recipe</a></h3>
+<pre><code class="language-suji">import std:println
+
+dir = `mktemp -d`
+`mkdir -p ${dir}/src/nested`
+`touch ${dir}/src/main.si ${dir}/src/nested/util.si ${dir}/src/notes.txt`
+
+walk_files = |root| `find ${root} -type f`
+    ::split("\n")
+    ::filter(|p| p::length() &gt; 0)
+
+all_files = walk_files(dir)
+si_files = all_files::filter(|p| p ~ /\.si$/)
+
+println("Found ${all_files::length()} files")
+println("Suji sources: ${si_files::length()}")
+
+`rm -rf ${dir}`
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Found 3 files
+Suji sources: 2
+</code></pre>
+<h3 id="use-case-count-lines-of-code"><a class="header" href="#use-case-count-lines-of-code">Use Case: Count Lines of Code</a></h3>
+<pre><code class="language-suji">import std:io
+import std:println
+
+dir = `mktemp -d`
+f1 = io:open("${dir}/a.si", true, true)
+f1::write("import std:println\nprintln(1)\n")
+f1::close()
+f2 = io:open("${dir}/b.si", true, true)
+f2::write("x = 1\n")
+f2::close()
+
+count_loc = |directory, pattern| {
+    total_lines = 0
+    file_count = 0
+
+    paths = `find ${directory} -type f`
+        ::split("\n")
+        ::filter(|p| p::length() &gt; 0)
+
+    loop through paths::filter(|p| p ~ pattern) with filepath {
+        file = io:open(filepath)
+        total_lines += file::read_lines()::length()
+        file::close()
+        file_count++
+    }
+
+    {
+        "files": file_count,
+        "lines": total_lines,
+        "average": match {
+            file_count &gt; 0 =&gt; total_lines / file_count,
+            _ =&gt; 0,
+        },
+    }
+}
+
+stats = count_loc(dir, /\.si$/)
+println("Files: ${stats:files}")
+println("Total lines: ${stats:lines}")
+println("Average: ${stats:average::round()}")
+
+`rm -rf ${dir}`
+</code></pre>
+<p>Output:</p>
+<pre><code class="language-text">Files: 2
+Total lines: 3
+Average: 2
+</code></pre>
+<h2 id="checking-whether-a-file-exists"><a class="header" href="#checking-whether-a-file-exists">Checking Whether a File Exists</a></h2>
+<p><code>os:stat</code> raises a fatal error when the path is missing, and there is no way to catch it — so test first with the shell, which can absorb the failure:</p>
+<pre><code class="language-suji">import std:println
+
+exists = |p| `test -e "${p}" &amp;&amp; echo yes || echo no` == "yes"
+
+println(exists("/etc/hosts"))         # true
+println(exists("/no/such/file"))      # false
+</code></pre>
+<p>Once you know the path exists, <code>os:stat(path)</code> gives you <code>size</code>, <code>is_directory</code>, <code>mtime</code> and friends.</p>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use <code>read_line()</code> in a loop for large files; <code>read_all()</code> and <code>read_lines()</code> load everything</li>
+<li>Check that a file exists (<code>test -e</code> via the shell) before <code>os:stat</code> or <code>io:open</code></li>
+<li>Close streams with <code>::close()</code> when you are done</li>
+<li>Build paths with <code>path:join([a, b])</code> instead of string concatenation</li>
+<li>Quote interpolated paths in shell commands: <code>`ls -1 "${dir}"`</code></li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Assume <code>os:stat</code> returns <code>nil</code> for a missing path — it terminates the script</li>
+<li>Let a shell command that may fail run unguarded; add <code>|| true</code> or <code>&amp;&amp; echo yes || echo no</code></li>
+<li>Feed numbers to <code>csv:generate</code> — every cell must be a string</li>
+<li>Hardcode file paths that only exist on your machine</li>
+<li>Forget that <code>csv:parse</code> keeps the header row as row <code>0</code></li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../stdlib/io.html">I/O and Streams</a></li>
+<li><a href="../stdlib/os.html">Operating System</a></li>
+<li><a href="../stdlib/path.html">Paths</a></li>
+<li><a href="../stdlib/data-formats/csv.html">CSV Module</a></li>
+<li><a href="scripting.html">Scripting Recipes</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../cookbook/http.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../cookbook/data-transformation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../cookbook/http.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../cookbook/data-transformation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

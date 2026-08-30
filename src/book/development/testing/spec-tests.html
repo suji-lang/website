@@ -1,0 +1,357 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Spec Tests - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/development/testing/spec-tests.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="spec-tests"><a class="header" href="#spec-tests">Spec Tests</a></h1>
+<p>The 650 programs in <code>spec/</code> are the executable definition of Suji. Their format is strict.</p>
+<h2 id="the-rules"><a class="header" href="#the-rules">The Rules</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody>
+<tr><td>One assertion per file</td><td>The runner only reads the last line of output</td></tr>
+<tr><td><code>import std:println</code> at the top</td><td>There is no prelude; nothing prints without it</td></tr>
+<tr><td>Exactly one <code>println(...)</code> at the end</td><td>That line’s output is what gets compared</td></tr>
+<tr><td>Expected output in a trailing <code>#</code> comment on that line</td><td>The runner extracts the text after <code># </code></td></tr>
+<tr><td>Two spaces before the <code>#</code></td><td>House style, consistent across the suite</td></tr>
+<tr><td>Blank line after the imports</td><td>House style</td></tr>
+<tr><td>Blank line before the final <code>println</code></td><td>House style</td></tr>
+<tr><td><strong>No trailing blank line</strong></td><td>The runner uses <code>tail -n 1</code>; a blank last line means an empty expectation</td></tr>
+<tr><td>Named <code>feature_area_NN.si</code></td><td>Two-digit, zero-padded counter</td></tr>
+<tr><td>Deterministic output</td><td>The comparison is exact</td></tr>
+</tbody></table>
+</div>
+<h2 id="a-correct-spec-file"><a class="header" href="#a-correct-spec-file">A Correct Spec File</a></h2>
+<p><code>spec/pipe_apply_01.si</code>:</p>
+<pre><code class="language-suji">import std:println
+
+inc = |x| x + 1
+result = 3 |&gt; inc
+
+println(result)  # 4
+</code></pre>
+<p>The file ends immediately after that line — no trailing newline beyond the one
+terminating it, and no blank line.</p>
+<h2 id="how-the-runner-compares"><a class="header" href="#how-the-runner-compares">How the Runner Compares</a></h2>
+<p><code>scripts/verify_spec.sh</code> changes into <code>spec/</code> so that relative imports resolve,
+then for each file:</p>
+<ol>
+<li>Takes the <strong>last line of the file</strong> and strips everything up to and including
+the first <code># </code>, giving the expected string.</li>
+<li>Runs <code>../target/release/suji &lt;file&gt;</code>, discards stderr, takes the <strong>last line
+of stdout</strong>, and strips ANSI colour codes.</li>
+<li>Compares the two strings exactly.</li>
+</ol>
+<p>Two consequences follow from step 1. First, the expectation lives in the source
+file, so a spec file documents itself. Second, anything after the last <code>#</code> on
+the last line is the expectation — including nothing at all.</p>
+<p>Run the suite with:</p>
+<pre><code class="language-bash">make verify_spec
+</code></pre>
+<p>A failure reports both sides:</p>
+<pre><code class="language-text">FAIL: my_feature_01.si - Expected '4', got '5'
+</code></pre>
+<h2 id="broken-spec-files"><a class="header" href="#broken-spec-files">Broken Spec Files</a></h2>
+<p>Each of these looks fine and fails.</p>
+<p><strong>A trailing blank line.</strong> The runner reads the blank last line, so the
+expectation becomes the empty string:</p>
+<pre><code class="language-text">import std:println
+
+println(3 |&gt; inc)  # 4
+                          &lt;- this blank line breaks the file
+</code></pre>
+<p>The reported failure is <code>Expected '', got '4'</code>, which is the signature of this
+mistake.</p>
+<p><strong>A missing comma after the final match arm.</strong> Every bare-expression arm needs a
+trailing comma, including the last:</p>
+<pre><code class="language-text">import std:println
+
+result = match 2 { 1 =&gt; "one", 2 =&gt; "two" }   # parse error
+
+println(result)  # two
+</code></pre>
+<p>Adding the comma after <code>"two"</code> fixes it.</p>
+<p><strong>More than one <code>println</code>.</strong> Only the last line of output is compared, so the
+earlier assertion is silently ignored:</p>
+<pre><code class="language-text">import std:println
+
+println(1 + 1)  # 2
+println(2 + 2)  # 4
+</code></pre>
+<p>Split this into two files.</p>
+<p><strong>A missing <code>import std:println</code>.</strong> The program fails with
+<code>Undefined variable: println</code> and produces no stdout at all.</p>
+<p><strong>Non-deterministic output.</strong> A spec that prints <code>time:now():epoch_ms</code>, a UUID,
+a random number, or a hostname can never match a fixed expectation. If a feature
+depends on the environment, assert on something stable about the result instead:</p>
+<pre><code class="language-suji">import std:println
+import std:uuid
+
+id = uuid:v4()
+
+println(id::length())  # 36
+</code></pre>
+<h2 id="naming-and-placement"><a class="header" href="#naming-and-placement">Naming and Placement</a></h2>
+<p>Files sit directly in <code>spec/</code> — the runner only globs <code>*.si</code> in that directory
+and ignores subdirectories. Name a file after its feature area with a
+zero-padded counter, matching the neighbours you find there:</p>
+<pre><code class="language-text">spec/list_methods_07.si
+spec/operator_precedence_03.si
+spec/pipe_apply_01.si
+</code></pre>
+<p>Keep the body minimal. A spec file should isolate one behaviour, so avoid
+constructs unrelated to what is being tested.</p>
+<h2 id="adding-one"><a class="header" href="#adding-one">Adding One</a></h2>
+<ol>
+<li>Find the existing family: <code>ls spec/ | grep &lt;feature&gt;</code>.</li>
+<li>Create the next number in that sequence.</li>
+<li>Write the smallest program that exhibits the behaviour.</li>
+<li>Run it directly first — <code>target/release/suji spec/my_feature_01.si</code> — and
+paste the real output into the trailing comment.</li>
+<li>Run <code>make verify_spec</code> and confirm the new file passes along with the rest.</li>
+</ol>
+<p>Never guess the expected output. Run the program and copy what it actually
+prints, otherwise the spec encodes a wish rather than a fact.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../testing.html">Testing</a></li>
+<li><a href="writing-tests.html">Writing Tests</a></li>
+<li><a href="../contributing.html">Contributing</a></li>
+<li><a href="../../appendices/syntax-reference.html">Syntax Reference</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../development/testing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../development/testing/writing-tests.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../development/testing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../development/testing/writing-tests.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -18,7 +18,12 @@ variable "mime_types" {
     ".jpeg" = "image/jpeg"
     ".pdf"  = "application/pdf"
     ".json" = "application/json"
-    ".js"   = "application/javascript"
-    ".gif"  = "image/gif"
+    ".js"    = "application/javascript"
+    ".gif"   = "image/gif"
+    ".svg"   = "image/svg+xml"
+    ".woff"  = "font/woff"
+    ".woff2" = "font/woff2"
+    ".ttf"   = "font/ttf"
+    ".eot"   = "application/vnd.ms-fontobject"
   }
 }

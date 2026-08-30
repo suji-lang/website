@@ -1,0 +1,614 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Relational - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/operators/relational.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="relational-operators"><a class="header" href="#relational-operators">Relational Operators</a></h1>
+<p>Relational operators compare values and return boolean results.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Relational (comparison) operators test relationships between values. They’re essential for conditional logic, sorting, and filtering operations.</p>
+<p>This page covers both <strong>equality</strong> (<code>==</code>, <code>!=</code>) and <strong>ordering</strong> (<code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>). The two behave differently across types: equality between mismatched types simply returns <code>false</code>, while ordering between mismatched types is a runtime type error.</p>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<h3 id="equal-to-"><a class="header" href="#equal-to-">Equal To (<code>==</code>)</a></h3>
+<p>Tests if two values are equal.</p>
+<pre><code class="language-suji">import std:println
+
+println(5 == 5)       # true
+println(5 == 3)       # false
+println("a" == "a")   # true
+println("a" == "A")   # false
+println(true == true) # true
+</code></pre>
+<p><strong>Works with</strong>: every type. Lists, maps and tuples compare <strong>by value</strong>.</p>
+<p><strong>Type-strict</strong>: <code>5 == "5"</code> is <code>false</code> (number ≠ string) — comparing different types
+is never an error, it is just <code>false</code>.</p>
+<h3 id="not-equal-to-"><a class="header" href="#not-equal-to-">Not Equal To (<code>!=</code>)</a></h3>
+<p>Tests if two values are not equal.</p>
+<pre><code class="language-suji">import std:println
+
+println(5 != 3)       # true
+println(5 != 5)       # false
+println("a" != "b")   # true
+println("a" != "a")   # false
+</code></pre>
+<p><strong>Equivalent to</strong>: <code>!(a == b)</code></p>
+<h3 id="less-than-"><a class="header" href="#less-than-">Less Than (<code>&lt;</code>)</a></h3>
+<p>Tests if left value is less than right value.</p>
+<pre><code class="language-suji">import std:println
+
+println(3 &lt; 5)      # true
+println(5 &lt; 3)      # false
+println(5 &lt; 5)      # false
+println("a" &lt; "b")  # true (lexicographic)
+</code></pre>
+<p><strong>Works with</strong>: Numbers, strings (lexicographic comparison). Anything else — including
+two booleans, two lists, or a number and a string — is a runtime type error.</p>
+<h3 id="less-than-or-equal-"><a class="header" href="#less-than-or-equal-">Less Than or Equal (<code>&lt;=</code>)</a></h3>
+<p>Tests if left value is less than or equal to right value.</p>
+<pre><code class="language-suji">import std:println
+
+println(3 &lt;= 5)     # true
+println(5 &lt;= 5)     # true
+println(7 &lt;= 5)     # false
+println("a" &lt;= "a") # true
+</code></pre>
+<h3 id="greater-than-"><a class="header" href="#greater-than-">Greater Than (<code>&gt;</code>)</a></h3>
+<p>Tests if left value is greater than right value.</p>
+<pre><code class="language-suji">import std:println
+
+println(5 &gt; 3)      # true
+println(3 &gt; 5)      # false
+println(5 &gt; 5)      # false
+println("b" &gt; "a")  # true (lexicographic)
+</code></pre>
+<p><strong>Works with</strong>: Numbers, strings (lexicographic comparison)</p>
+<h3 id="greater-than-or-equal-"><a class="header" href="#greater-than-or-equal-">Greater Than or Equal (<code>&gt;=</code>)</a></h3>
+<p>Tests if left value is greater than or equal to right value.</p>
+<pre><code class="language-suji">import std:println
+
+println(5 &gt;= 3)     # true
+println(5 &gt;= 5)     # true
+println(3 &gt;= 5)     # false
+println("b" &gt;= "b") # true
+</code></pre>
+<h2 id="type-compatibility"><a class="header" href="#type-compatibility">Type Compatibility</a></h2>
+<h3 id="numbers"><a class="header" href="#numbers">Numbers</a></h3>
+<p>All relational operators work with numbers:</p>
+<pre><code class="language-suji">import std:println
+
+println(3.14 &lt; 3.15)   # true
+println(100 &gt;= 50)     # true
+println(42 == 42.0)    # true (there is only one number type)
+println(0 != -0)       # false (both zero)
+</code></pre>
+<h3 id="strings"><a class="header" href="#strings">Strings</a></h3>
+<p>Strings use <strong>lexicographic</strong> (dictionary) ordering:</p>
+<pre><code class="language-suji">import std:println
+
+println("a" &lt; "b")      # true
+println("apple" &lt; "banana")  # true
+println("A" &lt; "a")      # true (uppercase before lowercase)
+println("10" &lt; "2")     # true (string comparison, not numeric)
+</code></pre>
+<p><strong>Note</strong>: String comparison is case-sensitive and uses Unicode code points.</p>
+<h3 id="booleans"><a class="header" href="#booleans">Booleans</a></h3>
+<p>Booleans can be compared for equality:</p>
+<pre><code class="language-suji">import std:println
+
+println(true == true)   # true
+println(true == false)  # false
+println(true != false)  # true
+</code></pre>
+<p><strong>Note</strong>: Order comparisons are not supported for booleans — <code>true &lt; false</code> fails with
+<code>Type error: Cannot compare boolean and boolean</code>.</p>
+<h3 id="nil"><a class="header" href="#nil">Nil</a></h3>
+<p>Nil can be compared for equality:</p>
+<pre><code class="language-suji">import std:println
+
+println(nil == nil)     # true
+println(nil != nil)     # false
+println(5 == nil)       # false
+println("text" != nil)  # true
+</code></pre>
+<h3 id="collections"><a class="header" href="#collections">Collections</a></h3>
+<p>Lists, maps and tuples support <strong>equality only</strong>. They are compared element by
+element (maps by key/value pairs):</p>
+<pre><code class="language-suji">import std:println
+
+println([1, 2] == [1, 2])        # true
+println([1, 2] == [2, 1])        # false
+println([1, 2] == [1, 2, 3])     # false
+println((1, 2) == (1, 2))        # true
+println({a: 1} == {a: 1})        # true
+</code></pre>
+<p>There is <strong>no</strong> ordering for collections: <code>[1, 2] &lt; [1, 3]</code> fails with
+<code>Type error: Cannot compare list and list</code>. To sort a list of lists you would have to
+compare a derived scalar (e.g. an element or a length) yourself.</p>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="range-checking"><a class="header" href="#range-checking">Range Checking</a></h3>
+<pre><code class="language-suji">import std:println
+
+age = 25
+
+match { age &gt;= 18 &amp;&amp; age &lt; 65 =&gt; { println("Working age") } }
+
+# Numeric ranges
+score = 85
+match { score &gt;= 80 &amp;&amp; score &lt; 90 =&gt; { println("Grade: B") } }
+</code></pre>
+<h3 id="boundary-validation"><a class="header" href="#boundary-validation">Boundary Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+validate_percentage = |value| {
+    match { value &lt; 0 || value &gt; 100 =&gt; {
+        println("Error: Must be between 0 and 100")
+        return false
+    } }
+    true
+}
+
+println(validate_percentage(50))   # true
+println(validate_percentage(150))  # prints the error, then false
+</code></pre>
+<h3 id="sorting"><a class="header" href="#sorting">Sorting</a></h3>
+<pre><code class="language-suji">import std:println
+
+numbers = [5, 2, 8, 1, 9]
+
+sorted = numbers::sort()
+println(sorted)  # [1, 2, 5, 8, 9]
+</code></pre>
+<h3 id="finding-minmax"><a class="header" href="#finding-minmax">Finding Min/Max</a></h3>
+<pre><code class="language-suji">import std:println
+
+find_min = |list| {
+    list::length() == 0 &amp;&amp; return nil
+    
+    min = list[0]
+    loop through list with item {
+        match { item &lt; min =&gt; { min = item } }
+    }
+    min
+}
+
+numbers = [5, 2, 8, 1, 9]
+println(find_min(numbers))  # 1
+</code></pre>
+<h3 id="filtering"><a class="header" href="#filtering">Filtering</a></h3>
+<pre><code class="language-suji">import std:println
+
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# Filter by comparison
+evens = numbers::filter(|x| x % 2 == 0)
+large = numbers::filter(|x| x &gt; 5)
+range = numbers::filter(|x| x &gt;= 3 &amp;&amp; x &lt;= 7)
+
+println(evens)  # [2, 4, 6, 8, 10]
+println(large)  # [6, 7, 8, 9, 10]
+println(range)  # [3, 4, 5, 6, 7]
+</code></pre>
+<h3 id="conditional-logic"><a class="header" href="#conditional-logic">Conditional Logic</a></h3>
+<pre><code class="language-suji">import std:println
+
+classify = |temp| {
+    match {
+        temp &lt; 0 =&gt; "Freezing",
+        temp &lt; 15 =&gt; "Cold",
+        temp &lt; 25 =&gt; "Comfortable",
+        _ =&gt; "Hot",
+    }
+}
+
+println(classify(-5))   # Freezing
+println(classify(20))   # Comfortable
+println(classify(30))   # Hot
+</code></pre>
+<h2 id="string-comparison-details"><a class="header" href="#string-comparison-details">String Comparison Details</a></h2>
+<h3 id="lexicographic-order"><a class="header" href="#lexicographic-order">Lexicographic Order</a></h3>
+<p>Strings are compared character by character using Unicode values:</p>
+<pre><code class="language-suji">import std:println
+
+# Character-by-character comparison
+println("abc" &lt; "abd")      # true ('c' &lt; 'd')
+println("abc" &lt; "abcd")     # true (shorter is less if prefix matches)
+
+# Case sensitivity
+println("ABC" &lt; "abc")      # true (uppercase &lt; lowercase in Unicode)
+println("apple" &lt; "Apple")  # false
+
+# Numbers as strings
+println("10" &lt; "2")         # true ("1" &lt; "2" as strings)
+println("10" &lt; "9")         # true ("1" &lt; "9" as strings)
+</code></pre>
+<h3 id="case-insensitive-comparison"><a class="header" href="#case-insensitive-comparison">Case-Insensitive Comparison</a></h3>
+<p>For case-insensitive comparison, normalize first:</p>
+<pre><code class="language-suji">import std:println
+
+compare_ignore_case = |a, b| {
+    a::lower() == b::lower()
+}
+
+println(compare_ignore_case("Hello", "hello"))  # true
+println(compare_ignore_case("Apple", "APPLE"))  # true
+</code></pre>
+<h2 id="chaining-comparisons"><a class="header" href="#chaining-comparisons">Chaining Comparisons</a></h2>
+<p>You can chain comparisons with logical operators:</p>
+<pre><code class="language-suji">import std:println
+
+x = 5
+
+# Multiple conditions
+match { x &gt; 0 &amp;&amp; x &lt; 10 =&gt; { println("x is between 0 and 10") } }
+
+# Range check
+in_range = x &gt;= 1 &amp;&amp; x &lt;= 100
+println(in_range)  # true
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use <code>==</code> for equality, not <code>=</code> (assignment)</li>
+<li>Compare same types (number with number, string with string)</li>
+<li>Use parentheses for clarity in complex conditions</li>
+<li>Normalize strings before case-insensitive comparison</li>
+<li>Check for nil before comparing</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Compare different types (5 == “5” is always false)</li>
+<li>Use <code>=</code> in conditions (syntax error)</li>
+<li>Forget that string comparison is case-sensitive</li>
+<li>Chain operators without logical connectors (<code>a &lt; b &lt; c</code> doesn’t work)</li>
+<li>Assume order comparison works for all types</li>
+</ul>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="temperature-converter-with-validation"><a class="header" href="#temperature-converter-with-validation">Temperature Converter with Validation</a></h3>
+<pre><code class="language-suji">import std:println
+
+celsius_to_fahrenheit = |c| {
+    below_absolute_zero = c &lt; -273.15
+    match below_absolute_zero {
+        true =&gt; {
+            println("Error: Below absolute zero")
+            return nil
+        }
+        _ =&gt; nil,
+    }
+    result = (c * 9 / 5) + 32
+    result
+}
+
+f = celsius_to_fahrenheit(100)
+match f {
+    nil =&gt; {},
+    _ =&gt; println("${f}°F"),
+}
+</code></pre>
+<p>Note the local variable before <code>(c * 9 / 5)</code>: a line that starts with <code>(</code> continues
+the previous expression, so it would otherwise be parsed as a call on the <code>match</code>
+result.</p>
+<h3 id="grade-calculator"><a class="header" href="#grade-calculator">Grade Calculator</a></h3>
+<pre><code class="language-suji">import std:println
+
+get_grade = |score| {
+    (score &lt; 0 || score &gt; 100) &amp;&amp; return "Invalid score"
+    
+    match {
+        score &gt;= 90 =&gt; "A",
+        score &gt;= 80 =&gt; "B",
+        score &gt;= 70 =&gt; "C",
+        score &gt;= 60 =&gt; "D",
+        _ =&gt; "F",
+    }
+}
+
+println(get_grade(85))   # B
+println(get_grade(92))   # A
+println(get_grade(105))  # Invalid score
+</code></pre>
+<h3 id="list-deduplication"><a class="header" href="#list-deduplication">List Deduplication</a></h3>
+<pre><code class="language-suji">import std:println
+
+deduplicate = |list| {
+    unique = []
+    
+    loop through list with item {
+        found = false
+        loop through unique with existing {
+            match { existing == item =&gt; {
+                found = true
+                break
+            } }
+        }
+        
+        match { !found =&gt; { unique::push(item) } }
+    }
+    
+    unique
+}
+
+numbers = [1, 2, 2, 3, 3, 3, 4, 5, 5]
+result = deduplicate(numbers)
+println(result)  # [1, 2, 3, 4, 5]
+</code></pre>
+<h3 id="binary-search"><a class="header" href="#binary-search">Binary Search</a></h3>
+<pre><code class="language-suji">import std:println
+
+binary_search = |sorted_list, target| {
+    left = 0
+    right = sorted_list::length() - 1
+    
+    loop {
+        left &gt; right &amp;&amp; return nil  # Not found
+        
+        mid = ((left + right) / 2)::floor()
+        mid_val = sorted_list[mid]
+        
+        match {
+            mid_val == target =&gt; return mid,
+            mid_val &lt; target =&gt; left = mid + 1,
+            _ =&gt; right = mid - 1,
+        }
+    }
+}
+
+numbers = [1, 3, 5, 7, 9, 11, 13]
+index = binary_search(numbers, 7)
+println(index)  # 3
+</code></pre>
+<h2 id="operator-summary"><a class="header" href="#operator-summary">Operator Summary</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr></thead><tbody>
+<tr><td><code>==</code></td><td>Equal</td><td><code>5 == 5</code></td><td><code>true</code></td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td><td><code>5 != 3</code></td><td><code>true</code></td></tr>
+<tr><td><code>&lt;</code></td><td>Less than</td><td><code>3 &lt; 5</code></td><td><code>true</code></td></tr>
+<tr><td><code>&lt;=</code></td><td>Less or equal</td><td><code>5 &lt;= 5</code></td><td><code>true</code></td></tr>
+<tr><td><code>&gt;</code></td><td>Greater than</td><td><code>5 &gt; 3</code></td><td><code>true</code></td></tr>
+<tr><td><code>&gt;=</code></td><td>Greater or equal</td><td><code>5 &gt;= 5</code></td><td><code>true</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="logical.html">Logical Operators</a> - AND, OR, NOT</li>
+<li><a href="arithmetic.html">Arithmetic Operators</a> - Math operations</li>
+<li><a href="matching.html">Matching Operators</a> - Regex matching</li>
+<li><a href="../control-flow/">Control Flow</a> - conditionals, loops, match</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/operators/arithmetic.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/operators/logical.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/operators/arithmetic.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/operators/logical.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

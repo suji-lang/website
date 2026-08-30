@@ -1,0 +1,480 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>CLI &amp; REPL - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/getting-started/cli-repl.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="cli--repl"><a class="header" href="#cli--repl">CLI &amp; REPL</a></h1>
+<p>The <code>suji</code> binary does two things: it runs a program file, or it opens an
+interactive REPL. This chapter covers both, plus the handful of flags that exist.</p>
+<h2 id="running-a-program"><a class="header" href="#running-a-program">Running a program</a></h2>
+<pre><code class="language-bash">suji script.si
+</code></pre>
+<p>Create <code>greet.si</code>:</p>
+<pre><code class="language-suji">import std:println
+
+println("Hello from Suji!")
+</code></pre>
+<p>Run it:</p>
+<pre><code class="language-bash">suji greet.si
+</code></pre>
+<pre><code class="language-text">Hello from Suji!
+</code></pre>
+<p>Relative imports inside the script resolve against the script’s own directory,
+so you can run it from anywhere.</p>
+<h2 id="command-line-flags"><a class="header" href="#command-line-flags">Command-line flags</a></h2>
+<p>Suji’s CLI is deliberately tiny. There is <strong>no</strong> <code>--help</code>, <code>--version</code>, <code>-e</code> or
+<code>-c</code> flag; the complete set of options is:</p>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;file&gt;</code></td><td>Execute a Suji program</td></tr>
+<tr><td>(no arguments)</td><td>Start the REPL</td></tr>
+<tr><td><code>--print-ast</code></td><td>Parse the file and print the abstract syntax tree instead of running it</td></tr>
+</tbody></table>
+</div>
+<p><code>--print-ast</code> is a development aid rather than something you need day to day.</p>
+<pre><code class="language-bash">suji --print-ast greet.si        # inspect the parse tree
+</code></pre>
+<h2 id="exit-status"><a class="header" href="#exit-status">Exit status</a></h2>
+<p>Suji exits with <code>0</code> on success and <code>1</code> for any diagnosed failure — lexer, parser
+or runtime. There are no finer-grained diagnostic codes, and a runtime error
+always terminates the program, since Suji has no error-handling construct. Two
+failures skip the diagnostic entirely and abort with a Rust panic instead:
+numeric overflow exits <code>101</code> and a stack overflow exits <code>134</code>.</p>
+<pre><code class="language-bash">if suji script.si; then
+    echo "Success"
+else
+    echo "Failed"
+fi
+</code></pre>
+<p>Your program can choose its own status with <code>os:exit</code>, which takes any
+non-negative integer:</p>
+<pre><code class="language-suji">import std:os
+import std:println
+
+println("done")
+os:exit(0)
+</code></pre>
+<h2 id="script-arguments"><a class="header" href="#script-arguments">Script arguments</a></h2>
+<p>Arguments arrive through <code>std:env</code> as a map keyed by strings, where <code>"0"</code> is
+meant to be the script path and <code>"1"</code> the first argument:</p>
+<pre><code class="language-suji">import std:println
+import std:env
+
+println(env:args::get("0", "(unknown)"))
+println(env:args::get("1", "(none)"))
+println(env:args::length())
+</code></pre>
+<p>Run with no arguments, that prints the script’s path, <code>(none)</code> and <code>1</code>.</p>
+<blockquote>
+<p><strong>Known bug in 0.1.22:</strong> positional arguments never make it through. Every
+argument overwrites key <code>"0"</code>, so <code>suji args.si alpha beta</code> leaves
+<code>env:args</code> as <code>{0: beta}</code> — the last argument, with the script path gone and
+<code>"1"</code> still missing. Pass input through an environment variable or stdin until
+this is fixed; see <a href="../stdlib/env.html#args-and-argv--command-line-arguments"><code>std:env</code></a>.</p>
+</blockquote>
+<p>Arguments that begin with <code>-</code> are consumed by the interpreter itself and never
+reach <code>env:args</code> at all, so a script cannot take <code>--flag</code> style options.</p>
+<h2 id="reading-standard-input"><a class="header" href="#reading-standard-input">Reading standard input</a></h2>
+<p>A script can read whatever is piped into it through <code>io:stdin</code>:</p>
+<pre><code class="language-suji">import std:println
+import std:io
+
+lines = io:stdin::read_lines()
+
+println(lines::length())
+</code></pre>
+<pre><code class="language-bash">printf 'a\nb\nc\n' | suji count.si
+</code></pre>
+<pre><code class="language-text">3
+</code></pre>
+<p><code>read_all()</code> returns the whole stream as one string and <code>read_line()</code> reads a
+single line. All stream reads are eager and blocking.</p>
+<h2 id="executable-scripts"><a class="header" href="#executable-scripts">Executable scripts</a></h2>
+<p><code>#</code> starts a comment in Suji, so a shebang line is valid Suji source:</p>
+<pre><code class="language-suji">#!/usr/bin/env suji
+
+import std:println
+
+println("This is a Suji script!")
+</code></pre>
+<pre><code class="language-bash">chmod +x script.si
+./script.si
+</code></pre>
+<h2 id="the-repl"><a class="header" href="#the-repl">The REPL</a></h2>
+<p>Run <code>suji</code> with no arguments:</p>
+<pre><code class="language-bash">suji
+</code></pre>
+<pre><code class="language-text">SUJI Language REPL
+Type expressions to evaluate them, or :help for commands
+Use Ctrl+C to cancel current input, Ctrl+D or :quit to exit
+
+suji&gt;
+</code></pre>
+<h3 id="how-evaluation-works"><a class="header" href="#how-evaluation-works">How evaluation works</a></h3>
+<p>The REPL evaluates each complete input and echoes the value of the last
+statement unless that value is <code>nil</code>. Bindings persist for the session.</p>
+<pre><code class="language-text">suji&gt; 1 + 1
+2
+suji&gt; "Hello, " + "World!"
+Hello, World!
+suji&gt; x = 42
+42
+suji&gt; x * 2
+84
+</code></pre>
+<p>Note that values are printed the way <code>to_string()</code> renders them, so strings
+appear without surrounding quotes.</p>
+<h3 id="imports-are-still-required"><a class="header" href="#imports-are-still-required">Imports are still required</a></h3>
+<p>There is no prelude and the REPL adds nothing implicitly — <code>println</code> has to be
+imported here just as it does in a file:</p>
+<pre><code class="language-text">suji&gt; println("hi")
+[401] Error: Undefined variable
+suji&gt; import std:println
+suji&gt; println("hi")
+hi
+3
+</code></pre>
+<p>That trailing <code>3</code> is not a surprise: <code>println</code> returns the number of bytes it
+wrote, and the REPL echoes the value of the last statement.</p>
+<h3 id="multi-line-input"><a class="header" href="#multi-line-input">Multi-line input</a></h3>
+<p>While braces, brackets or parentheses are unbalanced, the REPL switches to the
+continuation prompt <code> &gt;</code> and keeps reading:</p>
+<pre><code class="language-text">suji&gt; greet = |name| {
+  &gt;     "Hello, ${name}!"
+  &gt; }
+&lt;function&gt;
+suji&gt; greet("Alice")
+Hello, Alice!
+</code></pre>
+<p>Input completeness is judged by bracket balance, so an expression that is
+syntactically incomplete without unbalanced brackets (a trailing <code>+</code>, say) is
+submitted immediately and reports a parse error.</p>
+<h3 id="repl-commands"><a class="header" href="#repl-commands">REPL commands</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Command</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>:help</code></td><td>Show the built-in help</td></tr>
+<tr><td><code>:quit</code></td><td>Exit</td></tr>
+<tr><td><code>:exit</code></td><td>Exit</td></tr>
+<tr><td>Ctrl+C</td><td>Discard the input being typed</td></tr>
+<tr><td>Ctrl+D</td><td>Exit</td></tr>
+<tr><td>Arrow Up/Down</td><td>Browse this session’s history</td></tr>
+</tbody></table>
+</div>
+<p>Those three colon commands are the only ones; there is no <code>:load</code>, <code>:type</code>,
+<code>:vars</code> or <code>:reset</code>. History lives in memory only and is not written to disk.</p>
+<h3 id="things-to-try-in-the-repl"><a class="header" href="#things-to-try-in-the-repl">Things to try in the REPL</a></h3>
+<p>Explore data structures:</p>
+<pre><code class="language-text">suji&gt; users = [{name: "Alice", age: 30}, {name: "Bob", age: 25}]
+[{name: Alice, age: 30}, {name: Bob, age: 25}]
+suji&gt; users[0]:name
+Alice
+suji&gt; users::map(|u| u:name)
+[Alice, Bob]
+</code></pre>
+<p>Build a pipeline one stage at a time:</p>
+<pre><code class="language-text">suji&gt; numbers = [1, 2, 3, 4, 5]
+[1, 2, 3, 4, 5]
+suji&gt; numbers::map(|x| x * 2)
+[2, 4, 6, 8, 10]
+suji&gt; numbers::map(|x| x * 2)::filter(|x| x &gt; 5)
+[6, 8, 10]
+suji&gt; numbers::map(|x| x * 2)::filter(|x| x &gt; 5)::sum()
+24
+</code></pre>
+<p>Check a regular expression:</p>
+<pre><code class="language-text">suji&gt; "user@example.com" ~ /^[^@]+@[^@]+\.[^@]+$/
+true
+suji&gt; "invalid" ~ /^[^@]+@[^@]+\.[^@]+$/
+false
+</code></pre>
+<p>Use it as an exact-decimal calculator:</p>
+<pre><code class="language-text">suji&gt; (42 + 8) * 2
+100
+suji&gt; 100 / 3
+33.333333333333333333333333333
+suji&gt; 10 ^ 3
+1000
+</code></pre>
+<h3 id="repl-limitations"><a class="header" href="#repl-limitations">REPL limitations</a></h3>
+<ul>
+<li>State is lost when you exit; nothing is saved between sessions.</li>
+<li>A runtime error aborts the current input only — the session survives — but
+there is still no way for your code to catch it.</li>
+<li>Long programs are easier to iterate on in a file; the REPL is best for
+checking one expression at a time.</li>
+</ul>
+<h2 id="a-typical-workflow"><a class="header" href="#a-typical-workflow">A typical workflow</a></h2>
+<p>Sketch the logic in the REPL, then move it into a file once it works:</p>
+<pre><code class="language-suji">import std:println
+import std:json
+
+data = json:parse('{"users": [{"name": "Alice", "score": 95}, {"name": "Bob", "score": 87}]}')
+
+high_scorers = data:users
+    ::filter(|u| u:score &gt;= 90)
+    ::map(|u| u:name)
+
+println(json:generate({
+    high_scorers: high_scorers,
+    count: high_scorers::length(),
+}))
+</code></pre>
+<pre><code class="language-text">{"count":1,"high_scorers":["Alice"]}
+</code></pre>
+<p>(<code>json:generate</code> writes object keys in sorted order, not insertion order.)</p>
+<h2 id="quick-reference"><a class="header" href="#quick-reference">Quick reference</a></h2>
+<pre><code class="language-bash">suji                          # start the REPL
+suji script.si                # run a program
+suji script.si a b            # run with positional arguments
+suji --print-ast script.si    # print the parse tree
+printf 'x\n' | suji script.si # feed standard input
+</code></pre>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
+<ul>
+<li><a href="../fundamentals/overview.html">Language Overview</a> — how the language fits together</li>
+<li><a href="../fundamentals/data-types/README.html">Data Types</a> — the eight value types</li>
+<li><a href="../functions/basics.html">Basic Functions</a> — lambda syntax and returns</li>
+<li><a href="../stdlib/README.html">Standard Library Overview</a> — what you can import</li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="../stdlib/env.html">Environment</a></li>
+<li><a href="../stdlib/io.html">I/O and Streams</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../getting-started/hello-world.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../fundamentals/overview.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../getting-started/hello-world.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../fundamentals/overview.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

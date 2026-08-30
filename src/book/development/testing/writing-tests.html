@@ -1,0 +1,373 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Writing Tests - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/development/testing/writing-tests.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="writing-tests"><a class="header" href="#writing-tests">Writing Tests</a></h1>
+<p>Practical guidance for the Rust side of the test suite.</p>
+<h2 id="where-tests-live"><a class="header" href="#where-tests-live">Where Tests Live</a></h2>
+<p>All Rust tests sit under <code>tests/</code> in the <code>suji-tests</code> package. Four top-level
+files declare the suites, and each pulls in a directory of modules:</p>
+<div class="table-wrapper"><table><thead><tr><th>Entry point</th><th>Directory</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>tests/components.rs</code></td><td><code>tests/components/</code></td><td>One component at a time</td></tr>
+<tr><td><code>tests/integration.rs</code></td><td><code>tests/integration/</code></td><td>Whole programs through the interpreter</td></tr>
+<tr><td><code>tests/spec.rs</code></td><td><code>tests/spec/</code></td><td>Rust counterparts to the spec areas</td></tr>
+<tr><td><code>tests/stdlib.rs</code></td><td><code>tests/stdlib/</code></td><td>One file per standard library module</td></tr>
+</tbody></table>
+</div>
+<p>Modules are wired in explicitly with <code>#[path = "..."]</code> declarations, so a new
+file must be added to its <code>mod.rs</code> (or to the suite entry point) before it will
+run.</p>
+<pre><code class="language-bash">cargo test --workspace
+cargo test --package suji-tests --test integration --test components --test stdlib --test spec
+make rust_tests
+</code></pre>
+<p>Crate-internal unit tests stay in the crate they belong to, in a
+<code>#[cfg(test)] mod tests</code> block next to the code — <code>error_codes.rs</code>, for example,
+carries its own uniqueness and range checks.</p>
+<h2 id="unit-or-integration"><a class="header" href="#unit-or-integration">Unit or Integration?</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Put it in <code>tests/components/</code> when</th><th>Put it in <code>tests/integration/</code> when</th></tr></thead><tbody>
+<tr><td>You are asserting on a token stream</td><td>You are asserting on a program’s value</td></tr>
+<tr><td>You are asserting on AST shape</td><td>Several components must cooperate</td></tr>
+<tr><td>You are calling a method dispatcher directly</td><td>The behaviour crosses lexer, parser, and interpreter</td></tr>
+<tr><td>You are checking a specific <code>RuntimeError</code> variant</td><td>You want the closest thing to a real program</td></tr>
+</tbody></table>
+</div>
+<p>If a test would read naturally as a <code>.si</code> program, it probably belongs in
+<code>spec/</code> instead — see <a href="spec-tests.html">Spec Tests</a>.</p>
+<h2 id="shared-helpers"><a class="header" href="#shared-helpers">Shared Helpers</a></h2>
+<p><code>tests/common/mod.rs</code> provides the plumbing so individual tests stay short:</p>
+<div class="table-wrapper"><table><thead><tr><th>Helper</th><th>Use</th></tr></thead><tbody>
+<tr><td><code>parse_expression(src)</code></td><td>Parse one expression</td></tr>
+<tr><td><code>parse_statement(src)</code></td><td>Parse one statement</td></tr>
+<tr><td><code>parse_program(src)</code></td><td>Parse a whole program</td></tr>
+<tr><td><code>create_test_env()</code></td><td>An <code>Env</code> with globals installed</td></tr>
+<tr><td><code>eval_string_expr(src)</code></td><td>Evaluate a single expression to a <code>Value</code></td></tr>
+<tr><td><code>eval_program(src)</code></td><td>Evaluate a program, returning the last value</td></tr>
+<tr><td><code>eval_program_with_modules(src)</code></td><td>As above, with the module registry wired up</td></tr>
+<tr><td><code>can_eval(src)</code> / <code>can_eval_program(src)</code></td><td>Boolean success check</td></tr>
+<tr><td><code>assert_parse_fails(src, fragment)</code></td><td>Assert a parse error containing a fragment</td></tr>
+<tr><td><code>assert_eval_fails(src, fragment)</code></td><td>Assert a runtime error containing a fragment</td></tr>
+</tbody></table>
+</div>
+<p>Reach for these before writing your own setup. <code>assert_parse_fails</code> also accepts
+several acceptable fragments separated by <code>||</code>, which is useful while an error
+message is in transition.</p>
+<h2 id="testing-the-lexer"><a class="header" href="#testing-the-lexer">Testing the Lexer</a></h2>
+<p>Lex a small input and compare the token vector, remembering the trailing
+<code>Token::Eof</code>:</p>
+<pre><code class="language-rust">#[test]
+fn test_keywords() {
+    let input = "return loop as through with continue break match import export true false nil";
+    let tokens = Lexer::lex(input).unwrap();
+
+    let expected = vec![
+        Token::Return,
+        Token::Loop,
+        // ...
+        Token::Eof,
+    ];
+
+    let actual: Vec&lt;Token&gt; = tokens.into_iter().map(|t| t.token).collect();
+    assert_eq!(actual, expected);
+}</code></pre>
+<p>Group new cases into the existing files by construct: <code>strings.rs</code>, <code>regex.rs</code>,
+<code>shell.rs</code>, <code>comments.rs</code>, <code>operators.rs</code>, <code>ranges.rs</code>, <code>unicode.rs</code>,
+<code>basics.rs</code>. Regex-versus-division disambiguation belongs in <code>regex.rs</code>, and it
+is worth testing both the regex and the division reading of the same character.</p>
+<h2 id="testing-the-parser"><a class="header" href="#testing-the-parser">Testing the Parser</a></h2>
+<p>Assert on the AST shape rather than on a rendered string, so the test survives
+formatting changes:</p>
+<pre><code class="language-rust">let expr = parse_expression("2 + 3 * 4").unwrap();
+assert!(matches!(expr, Expr::Binary { .. }));</code></pre>
+<p>Precedence and associativity cases go in <code>tests/components/parser/precedence.rs</code>.
+The most valuable parser tests are the negative ones — confirming that an
+invalid program is <em>rejected</em>, and with a comprehensible message:</p>
+<pre><code class="language-rust">assert_parse_fails(
+    "match x { 1 =&gt; \"one\", _ =&gt; \"other\" }",
+    "Unexpected token",
+);</code></pre>
+<h2 id="testing-runtime-behaviour"><a class="header" href="#testing-runtime-behaviour">Testing Runtime Behaviour</a></h2>
+<p>Evaluate a program and compare the resulting <code>Value</code>:</p>
+<pre><code class="language-rust">let value = eval_program("xs = [1, 2, 3]\nxs::sum()").unwrap();
+assert_eq!(value, Value::Number(DecimalNumber::from_i64(6)));</code></pre>
+<p>Method dispatch can also be exercised directly through <code>call_method</code>, which is
+how <code>tests/components/values/methods.rs</code> covers the dispatcher without going
+through the parser:</p>
+<pre><code class="language-rust">let s = Value::String("hello".to_string());
+let result = call_method(None, ValueRef::Immutable(&amp;s), "length", vec![]).unwrap();
+assert_eq!(result, Value::Number(DecimalNumber::from_i64(5)));</code></pre>
+<h2 id="asserting-on-errors"><a class="header" href="#asserting-on-errors">Asserting on Errors</a></h2>
+<p>Match on the <code>RuntimeError</code> variant rather than on its rendered text. Messages
+get reworded; variants do not:</p>
+<pre><code class="language-rust">assert!(matches!(
+    result,
+    Err(RuntimeError::MethodError { .. })
+));</code></pre>
+<p>When the message itself is the thing under test, use <code>assert_eval_fails</code> with
+the smallest distinctive fragment.</p>
+<p>Errors carry spans, and <code>error.span()</code> returns the source range. If your change
+touches where an error is raised, assert that the span still covers the right
+text — that is what makes the framed diagnostic point at the correct expression:</p>
+<pre><code class="language-rust">let span = error.span().expect("error should have a span");
+assert!(source[span.start..span.end].contains('x'));</code></pre>
+<h2 id="testing-the-standard-library"><a class="header" href="#testing-the-standard-library">Testing the Standard Library</a></h2>
+<p>One file per module, named after it: <code>std_path.rs</code>, <code>std_time.rs</code>,
+<code>std_crypto.rs</code>. Test through Suji source with <code>eval_program_with_modules</code> so
+that the import path is exercised too, and keep assertions deterministic —
+assert on the shape or length of a UUID or a timestamp rather than on its value.</p>
+<h2 id="add-a-spec-file-too"><a class="header" href="#add-a-spec-file-too">Add a Spec File Too</a></h2>
+<p>Almost every Rust test for user-visible behaviour should be accompanied by a
+<code>.si</code> file in <code>spec/</code>. The Rust test proves the mechanism; the spec file proves
+the behaviour, in the language itself, in a form that any contributor can read.
+Getting into that habit is the single most useful thing you can do for the
+suite. See <a href="spec-tests.html">Spec Tests</a>.</p>
+<h2 id="before-you-push"><a class="header" href="#before-you-push">Before You Push</a></h2>
+<pre><code class="language-bash">make lint
+make test
+</code></pre>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../testing.html">Testing</a></li>
+<li><a href="spec-tests.html">Spec Tests</a></li>
+<li><a href="../contributing.html">Contributing</a></li>
+<li><a href="../../appendices/error-codes.html">Error Codes</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../development/testing/spec-tests.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../development/design.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../development/testing/spec-tests.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../development/design.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

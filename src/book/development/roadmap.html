@@ -1,0 +1,343 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Roadmap - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../theme/suji-dark.css">
+        <link rel="stylesheet" href="../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/development/roadmap.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="roadmap"><a class="header" href="#roadmap">Roadmap</a></h1>
+<p>Where Suji stands at 0.1.22, stated as current condition rather than as promises.</p>
+<p>This page describes what works and what is missing. It deliberately contains no
+dates and no commitments. The honest summary is that
+Suji is a pre-1.0 language, built from source, whose surface is settled enough
+to write real scripts against and not settled enough to depend on.</p>
+<h2 id="current-version"><a class="header" href="#current-version">Current Version</a></h2>
+<p><strong>0.1.22</strong>, from the workspace <code>Cargo.toml</code>. There is no
+<code>suji --version</code> flag; the version lives in the source tree.</p>
+<p>Suji is distributed only as a source build. There is no Homebrew formula, no
+apt package, no published crate, and no prebuilt binary. Building is
+<code>make release</code>, and the result is <code>target/release/suji</code>. See
+<a href="../getting-started/installation.html">Installation</a>.</p>
+<p>Versions in the <code>0.1.x</code> series have changed language syntax — 0.1.11 changed
+match arms from <code>:</code> to <code>=&gt;</code>, and 0.1.22 changed slices from <code>list[a:b]</code> to
+<code>list[a;b]</code>. Treat a version bump as potentially source-breaking until 1.0. The
+full history is in <a href="../appendices/versions.html">Language Versions</a>.</p>
+<h2 id="what-is-stable-today"><a class="header" href="#what-is-stable-today">What Is Stable Today</a></h2>
+<p>These parts of the language are exercised by the full spec suite and are
+unlikely to move under you:</p>
+<div class="table-wrapper"><table><thead><tr><th>Area</th><th>State</th></tr></thead><tbody>
+<tr><td>Exact decimal numbers and arithmetic</td><td>Settled since 0.1.9</td></tr>
+<tr><td>Strings, interpolation, multiline strings</td><td>Settled</td></tr>
+<tr><td>Lists, maps, tuples, and their methods</td><td>Settled</td></tr>
+<tr><td><code>match</code> in both forms</td><td>Settled since 0.1.17</td></tr>
+<tr><td><code>loop</code> with <code>through</code>/<code>with</code>, labels, <code>break</code>/<code>continue</code></td><td>Settled</td></tr>
+<tr><td>Lambdas, defaults, closures, multiple returns</td><td>Settled</td></tr>
+<tr><td>Ranges, inclusive and descending</td><td>Settled since 0.1.18</td></tr>
+<tr><td>Regex matching with <code>~</code> and <code>!~</code></td><td>Settled</td></tr>
+<tr><td>Shell templates and <code>|</code> pipelines</td><td>Settled</td></tr>
+<tr><td><code>|&gt;</code>, <code>&lt;|</code>, <code>&gt;&gt;</code>, <code>&lt;&lt;</code></td><td>Settled since 0.1.12</td></tr>
+<tr><td>Imports, exports, local file modules</td><td>Settled since 0.1.16</td></tr>
+<tr><td>The standard library modules listed in the <a href="../stdlib/README.html">Standard Library Overview</a></td><td>Settled</td></tr>
+<tr><td>Numeric error codes and framed diagnostics</td><td>Settled since 0.1.15</td></tr>
+</tbody></table>
+</div>
+<p>The AST-walking interpreter is the reference implementation, and it passes all
+650 spec programs. <code>suji --print-ast program.si</code> dumps the parsed AST without
+running the program.</p>
+<h2 id="known-limitations"><a class="header" href="#known-limitations">Known Limitations</a></h2>
+<p>These are the sharp edges as of 0.1.22. Each is a real constraint on what you
+can write today, and each is the obvious place for future work.</p>
+<h3 id="no-error-handling-construct"><a class="header" href="#no-error-handling-construct">No error-handling construct</a></h3>
+<p>There is no <code>try</code>/<code>catch</code>, no <code>throw</code>, no <code>Result</code> or <code>Option</code>, and no <code>defer</code>.
+Any runtime error prints a diagnostic and terminates the process with exit
+status 1. The only available strategy is checking before acting:
+<code>m::get(k, default)</code>, <code>m::contains(k)</code>, <code>xs::length() &gt; 0</code>. A script cannot be
+made to survive a single bad record. See <a href="../advanced/error-handling.html">Error Handling Deep Dive</a>.</p>
+<h3 id="regex-is-match-only"><a class="header" href="#regex-is-match-only">Regex is match-only</a></h3>
+<p><code>/pattern/</code> supports <code>~</code> and <code>!~</code> and can be used as a match arm, and that is
+all. There are no capture groups, no <code>::match()</code> or <code>::captures()</code>, no
+regex-based replace, and no regex split. <code>string::replace(old, new)</code> takes
+strings only. Extracting a substring means combining <code>split</code>, <code>index_of</code>, and
+slicing, or shelling out to <code>sed</code>. Regex literals are also not interpolated, so
+a pattern cannot be built from a variable.</p>
+<h3 id="no-tail-call-optimisation"><a class="header" href="#no-tail-call-optimisation">No tail-call optimisation</a></h3>
+<p>Recursion is bounded by the native stack; roughly 600–700 frames deep, a program
+aborts with a stack overflow. Deeply recursive algorithms need to be rewritten
+as loops. See <a href="../functions/recursion.html">Recursion</a>.</p>
+<h3 id="a-small-collection-api"><a class="header" href="#a-small-collection-api">A small collection API</a></h3>
+<p>Lists have <code>map</code>, <code>filter</code>, and <code>fold</code> but no <code>any</code>, <code>all</code>, <code>find</code>, <code>unique</code>,
+<code>flatten</code>, <code>zip</code>, <code>enumerate</code>, <code>group_by</code>, or <code>sort_by</code>. Maps have no <code>set</code>
+method — assign through <code>m[k] = v</code>. Strings have no <code>slice</code>, <code>pad_start</code>,
+<code>capitalize</code>, or <code>lines</code>. Most gaps can be closed with a <code>fold</code> or a loop, but
+they are gaps.</p>
+<h3 id="decimal-overflow-aborts"><a class="header" href="#decimal-overflow-aborts">Decimal overflow aborts</a></h3>
+<p>Numbers are fixed-precision, maximum <code>79228162514264337593543950335</code>. Exceeding
+it terminates the process rather than promoting to a wider type, so <code>2::pow(100)</code>
+is not a large number — it is a crash. Division by zero is likewise fatal.</p>
+<h3 id="everything-is-eager"><a class="header" href="#everything-is-eager">Everything is eager</a></h3>
+<p>Ranges materialise as full lists, so <code>0..1000000</code> allocates a million elements.
+<code>map</code> and <code>filter</code> allocate a new list per stage. There are no lazy sequences,
+no generators, and no parallelism. See <a href="../advanced/performance.html">Performance Considerations</a>.</p>
+<h3 id="other-current-gaps"><a class="header" href="#other-current-gaps">Other current gaps</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Gap</th><th>Detail</th></tr></thead><tbody>
+<tr><td>No packaging</td><td>Source builds only; nothing published to a package manager</td></tr>
+<tr><td>No <code>--version</code>, <code>--help</code>, or <code>-e</code></td><td>The only flag is <code>--print-ast</code></td></tr>
+<tr><td>No tuple indexing</td><td><code>t[0]</code> is a type error; destructure or use <code>t::to_list()</code></td></tr>
+<tr><td>No binding patterns in <code>match</code></td><td>A bare identifier in a pattern is a string literal</td></tr>
+<tr><td>No variadic or keyword arguments</td><td>Use a list or a map parameter</td></tr>
+<tr><td>No <code>break &lt;value&gt;</code></td><td>Loops always evaluate to <code>nil</code></td></tr>
+<tr><td>Strings and streams are not iterable</td><td>Convert with <code>::to_list()</code> or <code>::read_lines()</code> first</td></tr>
+<tr><td>Minimal REPL</td><td><code>:help</code>, <code>:quit</code>, <code>:exit</code> only</td></tr>
+<tr><td>No formatter or checker</td><td><code>make lint</code> covers the Rust source, not <code>.si</code> files</td></tr>
+</tbody></table>
+</div>
+<h2 id="following-along"><a class="header" href="#following-along">Following Along</a></h2>
+<p>Progress is recorded in the repository rather than announced: the per-version
+implementation plans under <code>internal_docs/</code>, the growth of <code>spec/</code>, and the
+version history in <a href="../appendices/versions.html">Language Versions</a>. The most
+reliable way to know whether something works is to write a spec file for it and
+run it.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../appendices/versions.html">Language Versions</a></li>
+<li><a href="design.html">Language Design</a></li>
+<li><a href="contributing.html">Contributing</a></li>
+<li><a href="../advanced/error-handling.html">Error Handling Deep Dive</a></li>
+<li><a href="../advanced/performance.html">Performance Considerations</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../development/design.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../appendices/versions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../development/design.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../appendices/versions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

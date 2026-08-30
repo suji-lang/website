@@ -1,0 +1,641 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Arithmetic - The Suji Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A comprehensive guide to the Suji programming language">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Code palettes. book.js switches themes by toggling `disabled` on
+             these three ids, so the ids are kept even though the files behind
+             them are ours: light and rust get suji-light.css, and coal, navy
+             and ayu all get suji-dark.css. Every stylesheet here is listed in
+             additional-css in book.toml, which is what gets mdBook to copy it
+             into the output; they are linked by hand instead of through the
+             additional_css loop so that the palettes carry their ids and the
+             loop cannot enable both at once. -->
+        <link rel="stylesheet" id="highlight-css" href="../../theme/suji-light.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../theme/suji-dark.css">
+        <link rel="stylesheet" href="../../theme/custom.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Suji Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/suji-lang/book/edit/main/src/src/fundamentals/operators/arithmetic.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="arithmetic-operators"><a class="header" href="#arithmetic-operators">Arithmetic Operators</a></h1>
+<p>Arithmetic operators perform mathematical calculations on numeric values.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>Suji provides all standard arithmetic operators for working with numbers.</p>
+<h2 id="basic-operations"><a class="header" href="#basic-operations">Basic Operations</a></h2>
+<h3 id="addition-"><a class="header" href="#addition-">Addition (<code>+</code>)</a></h3>
+<p>Add two numbers:</p>
+<pre><code class="language-suji">import std:println
+
+println(5 + 3)       # 8
+println(10.5 + 2.3)  # 12.8
+println(-5 + 10)     # 5
+</code></pre>
+<p><code>+</code> also concatenates two strings or two lists, but it <strong>never mixes types</strong>:
+<code>"a" + 1</code> is a type error. Use <code>::to_string()</code> or string interpolation instead.</p>
+<pre><code class="language-suji">import std:println
+
+# String concatenation
+println("Hello" + " " + "World")  # Hello World
+
+# List concatenation
+println([1, 2] + [3, 4])  # [1, 2, 3, 4]
+
+# Mixing types is a type error, so convert or interpolate:
+println("count: " + 3::to_string())  # count: 3
+println("count: ${3}")               # count: 3
+</code></pre>
+<h3 id="subtraction--"><a class="header" href="#subtraction--">Subtraction (<code>-</code>)</a></h3>
+<p>Subtract one number from another:</p>
+<pre><code class="language-suji">import std:println
+
+println(10 - 3)      # 7
+println(20.5 - 5.5)  # 15
+println(5 - 10)      # -5
+</code></pre>
+<h3 id="multiplication-"><a class="header" href="#multiplication-">Multiplication (<code>*</code>)</a></h3>
+<p>Multiply two numbers:</p>
+<pre><code class="language-suji">import std:println
+
+println(5 * 3)       # 15
+println(2.5 * 4)     # 10
+println(-3 * 4)      # -12
+</code></pre>
+<p><code>*</code> is <strong>numbers only</strong>. There is no repetition operator for strings or lists —
+<code>"Ha" * 3</code> and <code>[1, 2] * 3</code> are both type errors. Use <code>::repeat(n)</code> for strings:</p>
+<pre><code class="language-suji">import std:println
+
+println("Ha"::repeat(3))  # HaHaHa
+
+# "Ha" * 3   -&gt;  Type error: Cannot multiply string and number
+# [1, 2] * 3 -&gt;  Type error: Cannot multiply list and number
+</code></pre>
+<p>Lists have no <code>repeat</code> method; build one with a loop if you need it:</p>
+<pre><code class="language-suji">import std:println
+
+repeated = []
+loop through 0..3 {
+    repeated = repeated + [1, 2]
+}
+
+println(repeated)  # [1, 2, 1, 2, 1, 2]
+</code></pre>
+<h3 id="division-"><a class="header" href="#division-">Division (<code>/</code>)</a></h3>
+<p>Divide one number by another. Suji has a single decimal number type, so division is
+always decimal division. Non-terminating results are rounded to 28 significant digits:</p>
+<pre><code class="language-suji">import std:println
+
+println(10 / 2)      # 5
+println(10 / 3)      # 3.3333333333333333333333333333
+println(15.0 / 4.0)  # 3.75
+</code></pre>
+<p>Dividing by zero is a runtime error that terminates the program — there is no
+<code>Infinity</code> and no way to catch it, so check the divisor first.</p>
+<h3 id="integer-division"><a class="header" href="#integer-division">Integer Division</a></h3>
+<p>Suji uses decimal division. To get integer division, use the <code>floor()</code> method:</p>
+<pre><code class="language-suji">import std:println
+
+println((10 / 3)::floor())     # 3
+println((17 / 5)::floor())     # 3
+println((-10 / 3)::floor())    # -4 (rounds down)
+</code></pre>
+<p>There is no <code>//</code> integer-division operator; <code>floor()</code> is the idiom.</p>
+<h3 id="modulo-"><a class="header" href="#modulo-">Modulo (<code>%</code>)</a></h3>
+<p>Get remainder after division:</p>
+<pre><code class="language-suji">import std:println
+
+println(10 % 3)      # 1
+println(17 % 5)      # 2
+println(20 % 4)      # 0 (evenly divisible)
+
+# Useful for checking even/odd
+println(7 % 2 == 0)  # false (odd)
+println(8 % 2 == 0)  # true (even)
+</code></pre>
+<h3 id="exponentiation-"><a class="header" href="#exponentiation-">Exponentiation (<code>^</code>)</a></h3>
+<p>Raise a number to a power. The exponent must be a <strong>non-negative integer</strong>:</p>
+<pre><code class="language-suji">import std:println
+
+println(2 ^ 3)       # 8 (2³)
+println(10 ^ 2)      # 100 (10²)
+println(2 ^ 10)      # 1024
+</code></pre>
+<p>Fractional and negative exponents are rejected:</p>
+<ul>
+<li><code>4 ^ 0.5</code> → <code>Invalid operation: Power exponent must be an integer</code></li>
+<li><code>2 ^ (0 - 1)</code> → <code>Invalid operation: Negative exponents not supported</code></li>
+</ul>
+<p>Use <code>::sqrt()</code> for square roots and division for reciprocals:</p>
+<pre><code class="language-suji">import std:println
+
+println(16::sqrt())  # 4
+println(1 / 2 ^ 1)   # 0.50
+</code></pre>
+<p>Also note that <code>^</code> binds tighter than unary minus, so <code>-2 ^ 2</code> is <code>-(2 ^ 2)</code>:</p>
+<pre><code class="language-suji">import std:println
+
+println(-2 ^ 2)      # -4
+println((-2) ^ 2)    # 4
+</code></pre>
+<h3 id="negation--"><a class="header" href="#negation--">Negation (<code>-</code>)</a></h3>
+<p>Negate a number (unary operator):</p>
+<pre><code class="language-suji">import std:println
+
+x = 5
+println(-x)          # -5
+println(-(-x))       # 5 (double negation)
+
+y = -10
+println(-y)          # 10
+</code></pre>
+<h2 id="compound-assignment"><a class="header" href="#compound-assignment">Compound Assignment</a></h2>
+<p>Arithmetic operations combined with assignment:</p>
+<pre><code class="language-suji">import std:println
+
+x = 10
+
+x += 5      # same as: x = x + 5
+println(x)  # 15
+
+x -= 3      # same as: x = x - 3
+println(x)  # 12
+
+x *= 2      # same as: x = x * 2
+println(x)  # 24
+
+x /= 4      # same as: x = x / 4
+println(x)  # 6
+
+x %= 5      # same as: x = x % 5
+println(x)  # 1
+</code></pre>
+<h2 id="operator-precedence"><a class="header" href="#operator-precedence">Operator Precedence</a></h2>
+<p>The arithmetic slice of the precedence table, <strong>lowest to highest</strong>:</p>
+<ol>
+<li><strong>Addition, Subtraction</strong> (<code>+</code>, <code>-</code>)</li>
+<li><strong>Multiplication, Division, Modulo</strong> (<code>*</code>, <code>/</code>, <code>%</code>)</li>
+<li><strong>Unary negation and not</strong> (<code>-</code>, <code>!</code>)</li>
+<li><strong>Exponentiation</strong> (<code>^</code>, right-associative)</li>
+</ol>
+<p>Parentheses override all of it. Note that <code>^</code> binds <em>tighter</em> than unary <code>-</code>, which
+differs from the usual PEMDAS reading — see the <code>-2 ^ 2</code> example above. The full
+table for all operators is in the <a href="README.html#operator-precedence">operators overview</a>.</p>
+<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Multiplication before addition
+println(2 + 3 * 4)       # 14 (not 20)
+
+# Exponentiation before multiplication
+println(2 * 3 ^ 2)       # 18 (2 * 9, not 6²)
+
+# Use parentheses to override
+println((2 + 3) * 4)     # 20
+println((2 * 3) ^ 2)     # 36
+
+# Complex expression
+println(10 + 2 * 3 ^ 2 - 4 / 2)  # 26
+# Breakdown: 10 + 2*9 - 2 = 10 + 18 - 2 = 26
+</code></pre>
+<h2 id="associativity"><a class="header" href="#associativity">Associativity</a></h2>
+<p>Most arithmetic operators are left-associative:</p>
+<pre><code class="language-suji">import std:println
+
+# Left to right: (10 - 3) - 2
+println(10 - 3 - 2)  # 5
+
+# Left to right: (20 / 4) / 2
+println(20 / 4 / 2)  # 2.50
+</code></pre>
+<p>(Scale is preserved through division, which is why this prints <code>2.50</code> rather than
+<code>2.5</code>.)</p>
+<p>Exponentiation is right-associative:</p>
+<pre><code class="language-suji">import std:println
+
+# Right to left: 2 ^ (3 ^ 2)
+println(2 ^ 3 ^ 2)   # 512 (2^9, not 8^2)
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="incrementdecrement"><a class="header" href="#incrementdecrement">Increment/Decrement</a></h3>
+<pre><code class="language-suji">import std:println
+
+count = 0
+count++            # Increment (also: count += 1)
+println(count)     # 1
+
+count--            # Decrement (also: count -= 1)
+println(count)     # 0
+</code></pre>
+<h3 id="averaging"><a class="header" href="#averaging">Averaging</a></h3>
+<pre><code class="language-suji">import std:println
+
+numbers = [10, 20, 30, 40, 50]
+sum = numbers::fold(0, |acc, x| acc + x)
+average = sum / numbers::length()
+println(average)  # 30
+</code></pre>
+<h3 id="scaling"><a class="header" href="#scaling">Scaling</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Scale value to percentage
+value = 75
+max_value = 200
+percentage = (value / max_value) * 100
+println("${percentage}%")  # 37.500%
+</code></pre>
+<h3 id="rounding"><a class="header" href="#rounding">Rounding</a></h3>
+<p>Rounding lives on the number type, not in <code>std:math</code> — there is no <code>math:round</code>,
+<code>math:floor</code>, <code>math:ceil</code>, <code>math:abs</code> or <code>math:sqrt</code>:</p>
+<pre><code class="language-suji">import std:println
+
+value = 3.14159
+
+# Round to 2 decimal places
+rounded = (value * 100)::round() / 100
+println(rounded)  # 3.14
+</code></pre>
+<h3 id="wrapping-circular"><a class="header" href="#wrapping-circular">Wrapping (Circular)</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Wrap index in circular buffer
+index = 15
+buffer_size = 10
+wrapped = index % buffer_size
+println(wrapped)  # 5
+</code></pre>
+<h2 id="common-pitfalls"><a class="header" href="#common-pitfalls">Common Pitfalls</a></h2>
+<h3 id="pitfall-1-division-by-zero"><a class="header" href="#pitfall-1-division-by-zero">Pitfall 1: Division by Zero</a></h3>
+<p>Division by zero terminates the program, and there is no <code>try</code>/<code>catch</code>, so the only
+option is to check first:</p>
+<pre><code class="language-suji">import std:println
+
+# result = 10 / 0   -&gt;  Runtime error: Division by zero (process exits)
+
+# Check before dividing
+safe_divide = |a, b| {
+    match b {
+        0 =&gt; nil,
+        _ =&gt; a / b,
+    }
+}
+
+println(safe_divide(10, 0))  # nil
+println(safe_divide(10, 4))  # 2.50
+</code></pre>
+<h3 id="pitfall-2-integer-division-confusion"><a class="header" href="#pitfall-2-integer-division-confusion">Pitfall 2: Integer Division Confusion</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Regular division always returns decimal
+println(10 / 3)   # 3.3333333333333333333333333333
+
+# Integer division using floor method
+println((10 / 3)::floor())  # 3
+
+# Be explicit about intent
+total = 10
+count = 4
+println(total / count)              # 2.50 - when you want decimal
+println((total / count)::floor())   # 2    - when you want an integer
+</code></pre>
+<p>Suji has <strong>no</strong> <code>//</code> operator. Writing <code>a // b</code> starts a regex literal and produces a
+lexer error, not integer division.</p>
+<h3 id="pitfall-3-modulo-with-negatives"><a class="header" href="#pitfall-3-modulo-with-negatives">Pitfall 3: Modulo with Negatives</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Result has sign of dividend (left operand)
+println(10 % 3)    # 1
+println(-10 % 3)   # -1 (not 2)
+println(10 % -3)   # 1
+</code></pre>
+<h3 id="pitfall-4-assuming-binary-floating-point"><a class="header" href="#pitfall-4-assuming-binary-floating-point">Pitfall 4: Assuming Binary Floating Point</a></h3>
+<p>Suji’s single number type is a <strong>fixed-precision decimal</strong>, not a binary float, so
+the classic <code>0.1 + 0.2</code> surprise does not happen here:</p>
+<pre><code class="language-suji">import std:println
+
+println(0.1 + 0.2)         # 0.3
+println(0.1 + 0.2 == 0.3)  # true
+</code></pre>
+<p>What <em>does</em> bite is the precision limit: results are rounded to about 28 significant
+digits, and exceeding the maximum value (<code>79228162514264337593543950335</code>) aborts the
+process rather than producing an approximation. Decimals are not big integers.</p>
+<h3 id="pitfall-5-operator-precedence-confusion"><a class="header" href="#pitfall-5-operator-precedence-confusion">Pitfall 5: Operator Precedence Confusion</a></h3>
+<pre><code class="language-suji">import std:println
+
+# Unclear intent
+result = 2 + 3 * 4 ^ 2 - 5
+
+# Use parentheses for clarity
+result = 2 + (3 * (4 ^ 2)) - 5
+println(result)  # 45
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="do"><a class="header" href="#do">DO:</a></h3>
+<ul>
+<li>Use parentheses for clarity in complex expressions</li>
+<li>Check for division by zero <em>before</em> dividing — there is no way to recover after</li>
+<li>Be aware of the 28-significant-digit precision limit</li>
+<li>Use <code>(a / b)::floor()</code> when you need integer division</li>
+<li>Consider modulo sign behavior with negatives</li>
+</ul>
+<h3 id="dont"><a class="header" href="#dont">DON’T:</a></h3>
+<ul>
+<li>Rely on obscure precedence rules (<code>^</code> binds tighter than unary <code>-</code>)</li>
+<li>Ignore division by zero possibilities</li>
+<li>Reach for <code>//</code>, <code>**</code>, <code>"x" * 3</code> or <code>math:sqrt</code> — none of them exist</li>
+<li>Assume modulo always returns positive</li>
+</ul>
+<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
+<h3 id="distance-between-points"><a class="header" href="#distance-between-points">Distance Between Points</a></h3>
+<p><code>std:math</code> has no <code>sqrt</code> — square roots are a number method:</p>
+<pre><code class="language-suji">import std:println
+
+distance = |x1, y1, x2, y2| {
+    dx = x2 - x1
+    dy = y2 - y1
+    sum_of_squares = (dx ^ 2) + (dy ^ 2)
+    sum_of_squares::sqrt()
+}
+
+println(distance(0, 0, 3, 4))  # 5
+</code></pre>
+<h3 id="temperature-conversion"><a class="header" href="#temperature-conversion">Temperature Conversion</a></h3>
+<pre><code class="language-suji">import std:println
+
+celsius_to_fahrenheit = |c| {
+    (c * 9 / 5) + 32
+}
+
+fahrenheit_to_celsius = |f| {
+    (f - 32) * 5 / 9
+}
+
+println(celsius_to_fahrenheit(0))    # 32
+println(celsius_to_fahrenheit(100))  # 212
+println(fahrenheit_to_celsius(32))   # 0
+</code></pre>
+<h3 id="compound-interest"><a class="header" href="#compound-interest">Compound Interest</a></h3>
+<pre><code class="language-suji">import std:println
+
+compound_interest = |principal, rate, time| {
+    principal * ((1 + rate) ^ time)
+}
+
+# $1000 at 5% for 10 years
+final = compound_interest(1000, 0.05, 10)
+println("$${final::round()}")  # $1629
+</code></pre>
+<h3 id="digit-sum"><a class="header" href="#digit-sum">Digit Sum</a></h3>
+<pre><code class="language-suji">import std:println
+
+digit_sum = |n| {
+    sum = 0
+    num = n::abs()
+    
+    loop {
+        num == 0 &amp;&amp; break
+        sum = sum + (num % 10)
+        num = (num / 10)::floor()
+    }
+    
+    sum
+}
+
+println(digit_sum(12345))  # 15 (1+2+3+4+5)
+</code></pre>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ul>
+<li>Learn about <a href="relational.html">Relational Operators</a></li>
+<li>Explore <a href="../../stdlib/math.html">Math Module</a> for trigonometry, logs and <code>PI</code>/<code>E</code></li>
+<li>Study <a href="../../appendices/precedence.html">Operator Precedence</a> in detail</li>
+<li>Check out <a href="../data-types/numbers.html">Number Data Type</a></li>
+</ul>
+<h2 id="see-also"><a class="header" href="#see-also">See Also</a></h2>
+<ul>
+<li><a href="../data-types/numbers.html">Numbers</a></li>
+<li><a href="../../stdlib/math.html">Math Module</a></li>
+<li><a href="../../appendices/precedence.html">Operator Precedence</a></li>
+<li><a href="assignment.html">Assignment Operators</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../fundamentals/operators/assignment.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../fundamentals/operators/relational.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../fundamentals/operators/assignment.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../fundamentals/operators/relational.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <!-- theme/highlight.js is the Suji-aware bundle built by `make highlight` -->
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
